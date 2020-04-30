@@ -21,7 +21,7 @@ This library depends on the following:
 ## Quick Start
 * A set of pre-defined configuration files have been bundled with wifi-mw-core library for FreeRTOS, LwIP, and Mbed TLS. The developer is expected to review the configuration and make adjustments. See the "Quick Start" section in [README.md](https://github.com/cypresssemiconductorco/wifi-mw-core/blob/master/README.md)
 for more details.
-* A set of COMPONENTS have to be defined in the code example project's Makefile for MQTT library. Refer to the Quick start section in [README.md](https://github.com/cypresssemiconductorco/wifi-mw-core/blob/master/README.md) for more details.
+* A set of COMPONENTS have to be defined in the code example project's Makefile for this library. Refer to the Quick start section in [README.md](https://github.com/cypresssemiconductorco/wifi-mw-core/blob/master/README.md) for more details.
 * The WCM library enables only error prints by default. For debugging purposes, the application may additionally enable debug and info log messages. To enable these messages, add `WCM_ENABLE_PRINT_INFO`, `WCM_ENABLE_PRINT_DEBUG`, `WPS_ENABLE_PRINT_INFO`, and `WPS_ENABLE_PRINT_DEBUG` macros to the *DEFINES* in the code example's Makefile. The Makefile entry would look as follows:
   ```
   DEFINES+=WCM_ENABLE_PRINT_INFO WCM_ENABLE_PRINT_DEBUG
