@@ -3,10 +3,12 @@ This library provides a set of APIs that are useful to establish and monitor Wi-
 
 ## Features and Functionality
 The current implementation has the following features and functionality:
+* Supports only STA mode. AP and Concurrent AP + STA modes will be added in the future.
 * Support for Wi-Fi Protected Setup (WPS) - Enrollee role.
-* Exposes Wi-Fi APIs to scan, join, and leave the Wi-Fi network.
-* Connection monitoring: Monitor active connections and link events. Provides a mechanism to register for event notification. Re-authenticates the connection with the AP if intermittent connection loss occurs.
-* Built on top of FreeRTOS, LwIP, and Mbed TLS (bundled as part of Wi-Fi Middleware Core Library).
+* Exposes Wi-Fi APIs to scan the Wi-Fi network, and join and leave a Wi-Fi network.
+* Connection monitoring: Monitor active connections and link events. Provides a mechanism to register for event notification. Re-authenticates the connection with the AP when intermittent connection loss occurs.
+* Built on top of FreeRTOS, LwIP, and Mbed TLS (that are bundled as part of Wi-Fi Middleware Core Library).
+
 
 ## Supported Platforms
 This library and its features are supported on the following Cypress platforms:

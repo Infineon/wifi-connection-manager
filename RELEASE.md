@@ -11,6 +11,9 @@ Refer to the [README.md](./README.md) for a complete description of the Wi-Fi co
 | This release does not support AP and Concurrent AP+STA mode. | No workaround. Support will be added in a future release |
 
 ## Changelog
+### v1.0.1
+* Code snippets added to the documentation
+
 ### v1.0.0
 * Initial release for Wi-Fi connection manager.
 * Includes support for Wi-Fi Protected Setup (WPS) - Enrollee role.

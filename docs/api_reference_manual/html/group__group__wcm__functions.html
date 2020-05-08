@@ -87,7 +87,7 @@ $(document).ready(function(){initNavTree('group__group__wcm__functions.html','')
 </div><!--header-->
 <div class="contents">
 <a name="details" id="details"></a><h2 class="groupheader">General Description</h2>
-<p>WCM and WPS internally create a thread each; the created threads are executed with the "CY_RTOS_PRIORITY_ABOVENORMAL"priority. </p>
+<p>WCM and WPS internally create a thread each; the created threads are executed with the "CY_RTOS_PRIORITY_ABOVENORMAL" priority. </p>
 <p>The WCM and WPS API functions are thread-safe. The definition of the CY_RTOS_PRIORITY_ABOVENORMAL macro is located at "libs/abstraction-rtos/include/COMPONENT_FREERTOS/cyabs_rtos_impl.h". All API functions except cy_wcm_scan are blocking. <a class="el" href="group__group__wcm__functions.html#gae0f0b5f3e6138bfdae943e9f7b16aa07">cy_wcm_start_scan</a> is a non-blocking API function; scan results are delivered via <a class="el" href="group__group__wcm__typedefs.html#ga58bd6c567dc6b0b111fb5852227c0c88">cy_wcm_scan_result_callback_t</a>. All application callbacks invoked by WCM will be running in the context of WCM; pointers passed in the callback will be freed once the callback returns. </p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
@@ -148,6 +148,7 @@ Functions</h2></td></tr>
 
 <p>Initializes WCM. </p>
 <p>This function initializes WCM resources, initializes the WHD, initializes the Wi-Fi transport, turns the Wi-Fi on, and starts up the network stack. This function should be called before calling other WCM API functions.</p>
+<dl class="section note"><dt>Note</dt><dd>Current implementation supports only STA mode configuration. AP and Concurrent AP + STA mode configurations will be supported in the future.</dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">config</td><td>The configuration to be initialized.</td></tr>
@@ -175,7 +176,7 @@ Functions</h2></td></tr>
 
 <p>Shuts down WCM. </p>
 <p>This function cleans up all the resources of WCM and brings down the Wi-Fi driver.</p>
-<p>NOTE: This API function does not bring down the network stack because the default underlying stack does not have an implementation for deinit. Therefore, the expectation is that <a class="el" href="group__group__wcm__functions.html#ga888428a2325f131528f7447e894002eb">cy_wcm_init</a> and this API should be invoked only once.</p>
+<dl class="section note"><dt>Note</dt><dd>This API function does not bring down the network stack because the default underlying stack does not have an implementation for deinit. Therefore, the expectation is that <a class="el" href="group__group__wcm__functions.html#ga888428a2325f131528f7447e894002eb">cy_wcm_init</a> and this API should be invoked only once.</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if the Wi-Fi module was successfully turned off; returns <a href="./cy_wcm_error.h">WCM specific error codes</a> otherwise. </dd></dl>
 
 </div>

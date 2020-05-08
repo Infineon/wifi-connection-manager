@@ -70,7 +70,7 @@ extern "C" {
 * \section section_features Features and Functionality
 ********************************************************************************
 * Current implementation has the following features and functionality: 
-* * WCM library supports only STA mode. AP and Concurrent AP + STA modes are not supported.
+* * Supports only STA mode. AP and Concurrent AP + STA modes will be added in the future.
 * * Support for Wi-Fi Protected Setup (WPS) - Enrollee role.
 * * Exposes Wi-Fi APIs to scan the Wi-Fi network, and join and leave a Wi-Fi network.
 * * Connection monitoring: Monitor active connections and link events. Provides a mechanism to register for event notification. Re-authenticates the connection with the AP when intermittent connection loss occurs.
@@ -93,13 +93,52 @@ extern "C" {
 * \section section_integration Quick Start
 ********************************************************************************
 * * A set of pre-defined configuration files have been bundled with the wifi-mw-core library for FreeRTOS, LwIP, and Mbed TLS. The developer is expected to review the configuration and make adjustments. See the Quick start section in <a href="https://github.com/cypresssemiconductorco/wifi-mw-core/blob/master/README.md">README.md</a> for more details
-* A set of COMPONENTS have to be defined in the code example project's Makefile for MQTT library. Refer to the Quick start section in <a href="https://github.com/cypresssemiconductorco/wifi-mw-core/blob/master/README.md">README.md</a> for more details.
+* A set of COMPONENTS have to be defined in the code example project's Makefile for this library. Refer to the Quick start section in <a href="https://github.com/cypresssemiconductorco/wifi-mw-core/blob/master/README.md">README.md</a> for more details.
 * * WCM library enables only error prints by default. For debugging purposes, the application may additionally enable debug and info log messages. To enable these messages, add the WCM_ENABLE_PRINT_INFO, WCM_ENABLE_PRINT_DEBUG, WPS_ENABLE_PRINT_INFO, and WPS_ENABLE_PRINT_DEBUG macros to the DEFINES in the code example's Makefile. The Makefile entry would look like as follows:
 *   \code
 *    DEFINES+=WCM_ENABLE_PRINT_INFO WCM_ENABLE_PRINT_DEBUG
 *    DEFINES+=WPS_ENABLE_PRINT_INFO WPS_ENABLE_PRINT_DEBUG
 *   \endcode
+*
+*********************************************************************************
+* \section section_code_snippet Code Snippets
+********************************************************************************
+********************************************************************************
+* \subsection snip1 Snippet 1: Scan for all Wi-Fi APs
+* The following snippet demonstrates how to Initialize Wi-Fi device, network stack,
+* and starts scanning for AP without any filters.
+* The scan_callback receives the scan results and prints them over the serial terminal
+
+* \snippet doxygen_wcm_code_snippet.h snippet_wcm_scan_without_filter
+*
+* \subsection snip2 Snippet 2: Scan for a Specific Wi-Fi AP
+* The following snippet demonstrates configuration of scan filter to filter by the SSID provided
+* and starts a scan. The scan_callback receives the scan results and prints over the serial terminal
+*
+* \snippet doxygen_wcm_code_snippet.h snippet_wcm_scan_with_ssid_filter
+*
+* \subsection snip3 Snippet 3: Connect to Wi-Fi AP
+* This code snippet demonstrates scanning for WIFI_SSID to get the security type of the AP and then
+* connects to it. After successful connection, the device registers an event callback through which
+* the middleware notifies the application on disconnection, reconnection, and IP change events.
+* If the connection to AP fails it is retried up to MAX_WIFI_RETRY_COUNT times before admitting failure
+*
+* \snippet doxygen_wcm_code_snippet.h snippet_wcm_connect_ap
+*
+* \subsection snip4 Snippet 4: Connect to Wi-Fi AP using WPS-Push Button
+* This code snippet demonstrates joining a WPS AP and obtains its credentials through WPS using the
+* push button mode. The credentials obtained are printed on the serial terminal.
+*
+* \snippet doxygen_wcm_code_snippet.h snippet_wcm_wps_pbc
+*
+* \subsection snip5 Snippet 5: Connect to Wi-Fi AP using WPS-Pin
+* This code snippet demonstrates joining a WPS AP and obtains its credentials through WPS using the
+* PIN mode. The credentials obtained are printed on the serial terminal
+*
+* \snippet doxygen_wcm_code_snippet.h snippet_wcm_wps_pin
+*
 */
+
 
 /**
  * \defgroup group_wcm_mscs Message Sequence Charts
@@ -227,9 +266,9 @@ typedef enum
  */
 typedef enum
 {
-    CY_WCM_INTERFACE_TYPE_STA = 0,    /**< STA or Client interface.  */
-    CY_WCM_INTERFACE_TYPE_AP,         /**< SoftAP interface.         */
-    CY_WCM_INTERFACE_TYPE_AP_STA      /**< Concurrent AP + STA mode. */
+    CY_WCM_INTERFACE_TYPE_STA = 0,    /**< STA or Client interface.                                                */
+    CY_WCM_INTERFACE_TYPE_AP,         /**< SoftAP interface. \note Not supported, will be added in future.         */
+    CY_WCM_INTERFACE_TYPE_AP_STA      /**< Concurrent AP + STA mode. \note Not supported, will be added in future. */
 } cy_wcm_interface_t;
 
 
@@ -505,7 +544,7 @@ typedef struct
     const uint32_t os_version;                          /**< Operating system version.       */
     const uint16_t authentication_type_flags;           /**< Supported authentication types. */
     const uint16_t encryption_type_flags;               /**< Supported encryption types.     */
-    const uint8_t  add_config_methods_to_probe_resp;    /**< Add configuration methods to probe response for Windows enrollees (Not compliant wiht WPS 2.0). */
+    const uint8_t  add_config_methods_to_probe_resp;    /**< Add configuration methods to probe response for Windows enrollees (Not compliant with WPS 2.0). */
 } cy_wcm_wps_device_detail_t;
 
 /**
@@ -550,7 +589,7 @@ typedef void (*cy_wcm_event_callback_t)(cy_wcm_event_t event, cy_wcm_event_data_
 /**
  * \addtogroup group_wcm_functions
  * \{
- * WCM and WPS internally create a thread each; the created threads are executed with the  "CY_RTOS_PRIORITY_ABOVENORMAL"priority.
+ * WCM and WPS internally create a thread each; the created threads are executed with the "CY_RTOS_PRIORITY_ABOVENORMAL" priority.
  * The WCM and WPS API functions are thread-safe.
  * The definition of the CY_RTOS_PRIORITY_ABOVENORMAL macro is located at "libs/abstraction-rtos/include/COMPONENT_FREERTOS/cyabs_rtos_impl.h".
  * All API functions except cy_wcm_scan are blocking.
@@ -563,6 +602,8 @@ typedef void (*cy_wcm_event_callback_t)(cy_wcm_event_t event, cy_wcm_event_data_
  *
  * This function initializes WCM resources, initializes the WHD, initializes the Wi-Fi transport,
  * turns the Wi-Fi on, and starts up the network stack. This function should be called before calling other WCM API functions.
+ * 
+ * \note Current implementation supports only STA mode configuration. AP and Concurrent AP + STA mode configurations will be supported in the future.
  *
  * @param[in]  config: The configuration to be initialized.
  *
@@ -576,7 +617,7 @@ cy_rslt_t cy_wcm_init(cy_wcm_config_t *config);
  *
  * This function cleans up all the resources of WCM and brings down the Wi-Fi driver.
  *
- * NOTE: This API function does not bring down the network stack because the default underlying stack does not have
+ * \note This API function does not bring down the network stack because the default underlying stack does not have
  *       an implementation for deinit. Therefore, the expectation is that \ref cy_wcm_init and this API should
  *       be invoked only once.
  *
