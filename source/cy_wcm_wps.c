@@ -38,7 +38,7 @@
 */
 
 #include "cy_wcm.h"
-#include "cy_wcm_debug.h"
+#include "cy_wcm_log.h"
 #include "cy_wcm_error.h"
 #include "cybsp_wifi.h"
 #include "cyabs_rtos.h"
@@ -208,7 +208,7 @@ convert_result_type:
         *credential_count = 0;
         if( whd_wifi_stop_scan(sta_interface) != WHD_SUCCESS )
         {
-            CY_WCM_ERROR(("Failed to stop scan \r\n"));
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR,"Failed to stop scan \r\n");
             /* Fall through to cleanup remaining resource */
         }
     }

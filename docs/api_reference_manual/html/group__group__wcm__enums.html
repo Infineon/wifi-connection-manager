@@ -98,6 +98,14 @@ Enumerations</h2></td></tr>
  }<tr class="memdesc:ga24d3def17207a3c64b62fb4b8a44a7fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">IP Version.  <a href="group__group__wcm__enums.html#ga24d3def17207a3c64b62fb4b8a44a7fc">More...</a><br /></td></tr>
 </td></tr>
 <tr class="separator:ga24d3def17207a3c64b62fb4b8a44a7fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga04051d082e24439e436a17db75fadfef"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__wcm__enums.html#ga04051d082e24439e436a17db75fadfef">cy_wcm_ipv6_type_t</a> { <br />
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#gga04051d082e24439e436a17db75fadfefa635adc564bdb3dbdd71685cef4f470ac">CY_WCM_IPV6_LINK_LOCAL</a> = 0, 
+<br />
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#gga04051d082e24439e436a17db75fadfefad69d3245c4ef7635271c9faf924d12a7">CY_WCM_IPV6_GLOBAL</a>
+<br />
+ }<tr class="memdesc:ga04051d082e24439e436a17db75fadfef"><td class="mdescLeft">&#160;</td><td class="mdescRight">IPV6 types.  <a href="group__group__wcm__enums.html#ga04051d082e24439e436a17db75fadfef">More...</a><br /></td></tr>
+</td></tr>
+<tr class="separator:ga04051d082e24439e436a17db75fadfef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga8b22f5a47073d5219440566d0e53e521"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__wcm__enums.html#ga8b22f5a47073d5219440566d0e53e521">cy_wcm_security_t</a> { <br />
 &#160;&#160;<a class="el" href="group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a7f7f987e28882d8c60f7f4429561b9a5">CY_WCM_SECURITY_OPEN</a> = 0, 
 <br />
@@ -121,7 +129,25 @@ Enumerations</h2></td></tr>
 <br />
 &#160;&#160;<a class="el" href="group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a3210b048d7f28c4d34fe84ed38423697">CY_WCM_SECURITY_WPA3_SAE</a> = ( WPA3_SECURITY | AES_ENABLED ), 
 <br />
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a65f30fece93828b8e7aec9e746e3f6bd">CY_WCM_SECURITY_WPA2_WPA_AES_PSK</a> = (WPA2_SECURITY | WPA_SECURITY | AES_ENABLED), 
+<br />
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a1c6bff375775f060152c36a310dbecd7">CY_WCM_SECURITY_WPA2_WPA_MIXED_PSK</a> = (WPA2_SECURITY | WPA_SECURITY | AES_ENABLED | TKIP_ENABLED), 
+<br />
 &#160;&#160;<a class="el" href="group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521abfdbdb9ee491f60d5beb3e34e504ef21">CY_WCM_SECURITY_WPA3_WPA2_PSK</a> = ( WPA3_SECURITY | WPA2_SECURITY | AES_ENABLED ), 
+<br />
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521ad90cc325f41cb213cb4521203d25d71d">CY_WCM_SECURITY_WPA_TKIP_ENT</a> = (ENTERPRISE_ENABLED | WPA_SECURITY | TKIP_ENABLED), 
+<br />
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a15e40dcc622cfbbc30189d58cc2d0d8d">CY_WCM_SECURITY_WPA_AES_ENT</a> = (ENTERPRISE_ENABLED | WPA_SECURITY | AES_ENABLED), 
+<br />
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521af859066c7f2a78b3f7e30cc397b9ffc4">CY_WCM_SECURITY_WPA_MIXED_ENT</a> = (ENTERPRISE_ENABLED | WPA_SECURITY | AES_ENABLED | TKIP_ENABLED), 
+<br />
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a6d42e04b696db4b267c4ef2ed6e23865">CY_WCM_SECURITY_WPA2_TKIP_ENT</a> = (ENTERPRISE_ENABLED | WPA2_SECURITY | TKIP_ENABLED), 
+<br />
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a59cd3a2dce43903162ce84a651152e7a">CY_WCM_SECURITY_WPA2_AES_ENT</a> = (ENTERPRISE_ENABLED | WPA2_SECURITY | AES_ENABLED), 
+<br />
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a83be3851b45fae13129c65ecdc1967e4">CY_WCM_SECURITY_WPA2_MIXED_ENT</a> = (ENTERPRISE_ENABLED | WPA2_SECURITY | AES_ENABLED | TKIP_ENABLED), 
+<br />
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521ab1b403f2f40134c180e60867b2a46786">CY_WCM_SECURITY_WPA2_FBT_ENT</a> = (ENTERPRISE_ENABLED | WPA2_SECURITY | AES_ENABLED | FBT_ENABLED), 
 <br />
 &#160;&#160;<a class="el" href="group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a3b9dc0504be49e6d0babf7b7cfeea81c">CY_WCM_SECURITY_IBSS_OPEN</a> = ( IBSS_ENABLED ), 
 <br />
@@ -275,7 +301,13 @@ Enumerations</h2></td></tr>
 </td></tr>
 <tr class="separator:ga2109f4415e7d9d586336f8c4415a270e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gafada6a09a78bd0473f3daef54621567f"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__wcm__enums.html#gafada6a09a78bd0473f3daef54621567f">cy_wcm_event_t</a> { <br />
-&#160;&#160;<a class="el" href="group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fab2e59655829c24bd5d0ea68622c8c56e">CY_WCM_EVENT_RECONNECTED</a> = 0, 
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fa683d1014dce666536998f4d185975852">CY_WCM_EVENT_CONNECTING</a> = 0, 
+<br />
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fa3cb25ea52d7dfe04a55193c5289d501f">CY_WCM_EVENT_CONNECTED</a>, 
+<br />
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fafa85fe7467f303e5425b54a8f20072e5">CY_WCM_EVENT_CONNECT_FAILED</a>, 
+<br />
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fab2e59655829c24bd5d0ea68622c8c56e">CY_WCM_EVENT_RECONNECTED</a>, 
 <br />
 &#160;&#160;<a class="el" href="group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fa206d74c35be5bf29e7903367287efc79">CY_WCM_EVENT_DISCONNECTED</a>, 
 <br />
@@ -334,6 +366,28 @@ Enumerations</h2></td></tr>
 
 </div>
 </div>
+<a id="ga04051d082e24439e436a17db75fadfef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga04051d082e24439e436a17db75fadfef">&#9670;&nbsp;</a></span>cy_wcm_ipv6_type_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__group__wcm__enums.html#ga04051d082e24439e436a17db75fadfef">cy_wcm_ipv6_type_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>IPV6 types. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga04051d082e24439e436a17db75fadfefa635adc564bdb3dbdd71685cef4f470ac"></a>CY_WCM_IPV6_LINK_LOCAL&#160;</td><td class="fielddoc"><p>Denotes IPv6 link-local address type. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga04051d082e24439e436a17db75fadfefad69d3245c4ef7635271c9faf924d12a7"></a>CY_WCM_IPV6_GLOBAL&#160;</td><td class="fielddoc"><p>Denotes IPv6 global address type. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
 <a id="ga8b22f5a47073d5219440566d0e53e521"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga8b22f5a47073d5219440566d0e53e521">&#9670;&nbsp;</a></span>cy_wcm_security_t</h2>
 
@@ -358,7 +412,7 @@ Enumerations</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521a8abfafcfce522370ec60f90e60c289ca"></a>CY_WCM_SECURITY_WPA_AES_PSK&#160;</td><td class="fielddoc"><p>WPA PSK security with AES. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521adaed424cb449a2621e13a8360f9b2831"></a>CY_WCM_SECURITY_WPA_MIXED_PSK&#160;</td><td class="fielddoc"><p>WPA PSK security with AES &amp; TKIP. </p>
+<tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521adaed424cb449a2621e13a8360f9b2831"></a>CY_WCM_SECURITY_WPA_MIXED_PSK&#160;</td><td class="fielddoc"><p>WPA PSK security with AES and TKIP. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521a772f5ab0cd577a4d8f9426be3123cefe"></a>CY_WCM_SECURITY_WPA2_AES_PSK&#160;</td><td class="fielddoc"><p>WPA2 PSK security with AES. </p>
 </td></tr>
@@ -370,9 +424,27 @@ Enumerations</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521a3210b048d7f28c4d34fe84ed38423697"></a>CY_WCM_SECURITY_WPA3_SAE&#160;</td><td class="fielddoc"><p>WPA3 security with AES. </p>
 </td></tr>
+<tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521a65f30fece93828b8e7aec9e746e3f6bd"></a>CY_WCM_SECURITY_WPA2_WPA_AES_PSK&#160;</td><td class="fielddoc"><p>WPA2 WPA PSK Security with AES. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521a1c6bff375775f060152c36a310dbecd7"></a>CY_WCM_SECURITY_WPA2_WPA_MIXED_PSK&#160;</td><td class="fielddoc"><p>WPA2 WPA PSK Security with AES &amp; TKIP. </p>
+</td></tr>
 <tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521abfdbdb9ee491f60d5beb3e34e504ef21"></a>CY_WCM_SECURITY_WPA3_WPA2_PSK&#160;</td><td class="fielddoc"><p>WPA3 WPA2 PSK security with AES. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521a3b9dc0504be49e6d0babf7b7cfeea81c"></a>CY_WCM_SECURITY_IBSS_OPEN&#160;</td><td class="fielddoc"><p>Open security on IBSS ad-hoc network. </p>
+<tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521ad90cc325f41cb213cb4521203d25d71d"></a>CY_WCM_SECURITY_WPA_TKIP_ENT&#160;</td><td class="fielddoc"><p>WPA Enterprise Security with TKIP. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521a15e40dcc622cfbbc30189d58cc2d0d8d"></a>CY_WCM_SECURITY_WPA_AES_ENT&#160;</td><td class="fielddoc"><p>WPA Enterprise Security with AES. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521af859066c7f2a78b3f7e30cc397b9ffc4"></a>CY_WCM_SECURITY_WPA_MIXED_ENT&#160;</td><td class="fielddoc"><p>WPA Enterprise Security with AES &amp; TKIP. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521a6d42e04b696db4b267c4ef2ed6e23865"></a>CY_WCM_SECURITY_WPA2_TKIP_ENT&#160;</td><td class="fielddoc"><p>WPA2 Enterprise Security with TKIP. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521a59cd3a2dce43903162ce84a651152e7a"></a>CY_WCM_SECURITY_WPA2_AES_ENT&#160;</td><td class="fielddoc"><p>WPA2 Enterprise Security with AES. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521a83be3851b45fae13129c65ecdc1967e4"></a>CY_WCM_SECURITY_WPA2_MIXED_ENT&#160;</td><td class="fielddoc"><p>WPA2 Enterprise Security with AES &amp; TKIP. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521ab1b403f2f40134c180e60867b2a46786"></a>CY_WCM_SECURITY_WPA2_FBT_ENT&#160;</td><td class="fielddoc"><p>WPA2 Enterprise Security with AES &amp; FBT. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521a3b9dc0504be49e6d0babf7b7cfeea81c"></a>CY_WCM_SECURITY_IBSS_OPEN&#160;</td><td class="fielddoc"><p>Open security on IBSS ad hoc network. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521a66814cdf2e650a7ac52e2173926a531d"></a>CY_WCM_SECURITY_WPS_SECURE&#160;</td><td class="fielddoc"><p>WPS with AES security. </p>
 </td></tr>
@@ -423,11 +495,11 @@ Enumerations</h2></td></tr>
 
 <p>Enumeration of RSSI Range. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggab7d89e9afaed2e4e8064cf9ac4e86148a6aa785dcb716397e519200696021ae76"></a>CY_WCM_SCAN_RSSI_FAIR&#160;</td><td class="fielddoc"><p>Wi-Fi RSSI values greater than -90 dbm. </p>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggab7d89e9afaed2e4e8064cf9ac4e86148a6aa785dcb716397e519200696021ae76"></a>CY_WCM_SCAN_RSSI_FAIR&#160;</td><td class="fielddoc"><p>Wi-Fi RSSI values greater than -90 dBm. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggab7d89e9afaed2e4e8064cf9ac4e86148a19c2e5055249f11a0b0e57fe7edf0929"></a>CY_WCM_SCAN_RSSI_GOOD&#160;</td><td class="fielddoc"><p>Wi-Fi RSSI values greater than -60 dbm. </p>
+<tr><td class="fieldname"><a id="ggab7d89e9afaed2e4e8064cf9ac4e86148a19c2e5055249f11a0b0e57fe7edf0929"></a>CY_WCM_SCAN_RSSI_GOOD&#160;</td><td class="fielddoc"><p>Wi-Fi RSSI values greater than -60 dBm. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggab7d89e9afaed2e4e8064cf9ac4e86148a5ee1d399cdfbb54a50ec951d151267dc"></a>CY_WCM_SCAN_RSSI_EXCELLENT&#160;</td><td class="fielddoc"><p>Wi-Fi RSSI values greater than -40 dbm. </p>
+<tr><td class="fieldname"><a id="ggab7d89e9afaed2e4e8064cf9ac4e86148a5ee1d399cdfbb54a50ec951d151267dc"></a>CY_WCM_SCAN_RSSI_EXCELLENT&#160;</td><td class="fielddoc"><p>Wi-Fi RSSI values greater than -40 dBm. </p>
 </td></tr>
 </table>
 
@@ -450,10 +522,10 @@ Enumerations</h2></td></tr>
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggac4c4ca6db8db6efdc3013b789a4c9cf8ae93c4aa9ce482c333a23bdc535df3208"></a>CY_WCM_INTERFACE_TYPE_STA&#160;</td><td class="fielddoc"><p>STA or Client interface. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ggac4c4ca6db8db6efdc3013b789a4c9cf8a0a2745fb6696e54ad284f17dbad8755f"></a>CY_WCM_INTERFACE_TYPE_AP&#160;</td><td class="fielddoc"><p>SoftAP interface. </p>
-<dl class="section note"><dt>Note</dt><dd>Not supported, will be added in future. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Not supported; will be added in future. </dd></dl>
 </td></tr>
 <tr><td class="fieldname"><a id="ggac4c4ca6db8db6efdc3013b789a4c9cf8a864e150cea33f5d4cae3e6834bf56f2e"></a>CY_WCM_INTERFACE_TYPE_AP_STA&#160;</td><td class="fielddoc"><p>Concurrent AP + STA mode. </p>
-<dl class="section note"><dt>Note</dt><dd>Not supported, will be added in future. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Not supported; will be added in future. </dd></dl>
 </td></tr>
 </table>
 
@@ -529,7 +601,7 @@ Enumerations</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="ggafef6a7e734e688418bfa6c601edf2cf1acd1aeb0e87abb700d3f860699ff2c3e6"></a>CY_WCM_WPS_CONFIG_INTEGRATED_NFC_TOKEN&#160;</td><td class="fielddoc"><p>Internal NFC configuration. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggafef6a7e734e688418bfa6c601edf2cf1aaffc2fb3ba7a5e9965bd9473914a35f6"></a>CY_WCM_WPS_CONFIG_NFC_INTERFACE&#160;</td><td class="fielddoc"><p>NFC Interface. </p>
+<tr><td class="fieldname"><a id="ggafef6a7e734e688418bfa6c601edf2cf1aaffc2fb3ba7a5e9965bd9473914a35f6"></a>CY_WCM_WPS_CONFIG_NFC_INTERFACE&#160;</td><td class="fielddoc"><p>NFC interface. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ggafef6a7e734e688418bfa6c601edf2cf1ae808716be131db6383977dfe6becb5a2"></a>CY_WCM_WPS_CONFIG_PUSH_BUTTON&#160;</td><td class="fielddoc"><p>Push button configuration. </p>
 </td></tr>
@@ -667,9 +739,15 @@ Enumerations</h2></td></tr>
 
 <p>Enumeration of WCM Events. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggafada6a09a78bd0473f3daef54621567fab2e59655829c24bd5d0ea68622c8c56e"></a>CY_WCM_EVENT_RECONNECTED&#160;</td><td class="fielddoc"><p>STA reconnected to AP. </p>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggafada6a09a78bd0473f3daef54621567fa683d1014dce666536998f4d185975852"></a>CY_WCM_EVENT_CONNECTING&#160;</td><td class="fielddoc"><p>STA connecting to an AP. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ggafada6a09a78bd0473f3daef54621567fa206d74c35be5bf29e7903367287efc79"></a>CY_WCM_EVENT_DISCONNECTED&#160;</td><td class="fielddoc"><p>STA disconnected with AP. </p>
+<tr><td class="fieldname"><a id="ggafada6a09a78bd0473f3daef54621567fa3cb25ea52d7dfe04a55193c5289d501f"></a>CY_WCM_EVENT_CONNECTED&#160;</td><td class="fielddoc"><p>STA connected to the AP. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggafada6a09a78bd0473f3daef54621567fafa85fe7467f303e5425b54a8f20072e5"></a>CY_WCM_EVENT_CONNECT_FAILED&#160;</td><td class="fielddoc"><p>STA connection to the AP failed. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggafada6a09a78bd0473f3daef54621567fab2e59655829c24bd5d0ea68622c8c56e"></a>CY_WCM_EVENT_RECONNECTED&#160;</td><td class="fielddoc"><p>STA reconnected to the AP. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggafada6a09a78bd0473f3daef54621567fa206d74c35be5bf29e7903367287efc79"></a>CY_WCM_EVENT_DISCONNECTED&#160;</td><td class="fielddoc"><p>STA disconnected from the AP. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ggafada6a09a78bd0473f3daef54621567fafe83442aa63aa747c3025d0874482c86"></a>CY_WCM_EVENT_IP_CHANGED&#160;</td><td class="fielddoc"><p>IP address change event. </p>
 <p>This event is notified after connection, re-connection, and IP address change due to DHCP renewal. </p>
@@ -696,7 +774,7 @@ Enumerations</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="gga568b22d5d446e751f62efe4eb021d451a74ecd7911d895bb5893242f33cd797a5"></a>CY_WCM_SCAN_FILTER_TYPE_MAC&#160;</td><td class="fielddoc"><p>MAC-based scan filtering. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="gga568b22d5d446e751f62efe4eb021d451a4cc5a373687840727d482e4a07f3e472"></a>CY_WCM_SCAN_FILTER_TYPE_BAND&#160;</td><td class="fielddoc"><p>BAND-based scan filtering. </p>
+<tr><td class="fieldname"><a id="gga568b22d5d446e751f62efe4eb021d451a4cc5a373687840727d482e4a07f3e472"></a>CY_WCM_SCAN_FILTER_TYPE_BAND&#160;</td><td class="fielddoc"><p>Band-based scan filtering. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="gga568b22d5d446e751f62efe4eb021d451a778dca52775ee5658e7ae9012a61586d"></a>CY_WCM_SCAN_FILTER_TYPE_RSSI&#160;</td><td class="fielddoc"><p>RSSI-based scan filtering. </p>
 </td></tr>
@@ -720,9 +798,9 @@ Enumerations</h2></td></tr>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga5da487a7ada216490a5f6787d617f10da60013087d45b48933b758c1aaa952fd3"></a>CY_WCM_BSS_TYPE_INFRASTRUCTURE&#160;</td><td class="fielddoc"><p>Infrastructure network. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="gga5da487a7ada216490a5f6787d617f10da03a3baee9becad296eba5dd31b6c140b"></a>CY_WCM_BSS_TYPE_ADHOC&#160;</td><td class="fielddoc"><p>802.11 ad-hoc IBSS network. </p>
+<tr><td class="fieldname"><a id="gga5da487a7ada216490a5f6787d617f10da03a3baee9becad296eba5dd31b6c140b"></a>CY_WCM_BSS_TYPE_ADHOC&#160;</td><td class="fielddoc"><p>802.11 ad hoc IBSS network. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="gga5da487a7ada216490a5f6787d617f10da10ddd970dd3995ab9cbc5d225f72aac5"></a>CY_WCM_BSS_TYPE_ANY&#160;</td><td class="fielddoc"><p>Either infrastructure or ad-hoc network. </p>
+<tr><td class="fieldname"><a id="gga5da487a7ada216490a5f6787d617f10da10ddd970dd3995ab9cbc5d225f72aac5"></a>CY_WCM_BSS_TYPE_ANY&#160;</td><td class="fielddoc"><p>Either infrastructure or ad hoc network. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="gga5da487a7ada216490a5f6787d617f10da882ea81676503bb3af561c60200ae0db"></a>CY_WCM_BSS_TYPE_MESH&#160;</td><td class="fielddoc"><p>802.11 mesh network. </p>
 </td></tr>

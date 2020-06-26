@@ -37,6 +37,7 @@
 */
 
 #include "cy_template_wps_packets.h"
+#include "cy_wcm_log.h"
 #include "cy_wps_common.h"
 #include "cy_wps_structures.h"
 #include "string.h" /* For memcpy() */
@@ -63,6 +64,12 @@
 #define VNDR_IE_PRBREQ_FLAG      0x10
 
 #define WL_CHANSPEC_CHAN_MASK    0x00ff
+
+#ifdef ENABLE_WCM_LOGS
+#define cy_wcm_log_msg cy_log_msg
+#else
+#define cy_wcm_log_msg(a,b,c,...)
+#endif
 
 /******************************************************
  *                   Enumerations
@@ -128,7 +135,7 @@ static cy_rslt_t cy_wps_enrollee_event_handler(cy_wps_agent_t* workspace, cy_eve
                 ++workspace->identity_request_received_count;
                 if (workspace->identity_request_received_count > 3)
                 {
-                    CY_WPS_DEBUG(("Registrar state machine not progressing. Leaving\r\n"));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Registrar state machine not progressing. Leaving\r\n");
                     workspace->current_sub_stage = WPS_ENROLLEE_DISCOVER;
                 }
                 else
@@ -150,7 +157,7 @@ static cy_rslt_t cy_wps_enrollee_event_handler(cy_wps_agent_t* workspace, cy_eve
             /* Check for EAP fail */
             else if ( packet->eap.code == CY_EAP_CODE_FAILURE )
             {
-                CY_WPS_DEBUG(("Received EAP Fail\r\n"));
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Received EAP Fail\r\n");
 
                 if (workspace->current_main_stage == CY_WPS_CLOSING_EAP)
                 {
@@ -185,7 +192,7 @@ static cy_rslt_t cy_wps_enrollee_event_handler(cy_wps_agent_t* workspace, cy_eve
             break;
 
         case CY_EVENT_TIMER_TIMEOUT:
-            CY_WPS_DEBUG(("Timeout...\r\n"));
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Timeout...\r\n");
             whd_wifi_leave( workspace->interface );
             if (workspace->current_main_stage == CY_WPS_CLOSING_EAP)
             {
@@ -317,7 +324,7 @@ static cy_rslt_t cy_wps_send_eapol_start( cy_wps_agent_t *workspace, whd_interfa
 
     whd_buffer_add_remove_at_front( workspace->interface->whd_driver, &packet, WHD_LINK_HEADER );
 
-    CY_WPS_INFO(("Sending EAPOL start\r\n"));
+    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Sending EAPOL start\r\n");
     cy_host_start_timer( workspace->wps_host_workspace, WPS_EAPOL_PACKET_TIMEOUT );
     cy_wps_send_eapol_packet( packet, workspace, CY_EAPOL_START, &workspace->their_data.mac_address,0);
 
@@ -340,7 +347,7 @@ static cy_rslt_t cy_wps_send_identity( cy_wps_agent_t* workspace, whd_interface_
     header->eap.length = aligned_length;
     header->eap.type   = CY_EAP_TYPE_IDENTITY;
     memcpy( header->data, ENROLLEE_ID_STRING, sizeof( ENROLLEE_ID_STRING ) - 1 );
-    CY_WPS_INFO(("Sending Identity\r\n"));
+    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Sending Identity\r\n");
 
     cy_host_start_timer( workspace->wps_host_workspace, WPS_EAPOL_PACKET_TIMEOUT );
     cy_wps_send_eapol_packet( packet, workspace, CY_EAP_PACKET, &workspace->their_data.mac_address, sizeof(cy_eap_header_t) + sizeof(ENROLLEE_ID_STRING) - 1 );
@@ -375,7 +382,7 @@ static cy_rslt_t cy_wps_find_and_join_ap( cy_wps_agent_t* workspace, whd_interfa
             /* Check if this is the first scan coming from another state */
             if ( workspace->current_sub_stage != WPS_ENROLLEE_DISCOVER )
             {
-                CY_WPS_INFO(("Looking for WPS AP\r\n"));
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Looking for WPS AP\r\n");
             }
             /* Run discovery */
             workspace->current_sub_stage = WPS_ENROLLEE_DISCOVER;

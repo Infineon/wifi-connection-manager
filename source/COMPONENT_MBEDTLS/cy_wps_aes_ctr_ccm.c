@@ -42,6 +42,7 @@
  */
 
 #include "mbedtls/aes.h"
+#include "cy_wcm_log.h"
 #include <stdint.h>
 #include <string.h>
 
@@ -365,7 +366,7 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
 
             if( verbose != 0 )
             {
-                CY_WPS_DEBUG(("padded AES CBC Encrypt: %d bytes\n", aes_cbc_vec[k].il));
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "padded AES CBC Encrypt: %d bytes\n", aes_cbc_vec[k].il);
             }
 
             mbedtls_aes_init( &ctx );
@@ -376,7 +377,7 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
             {
                 if( verbose != 0 )
                 {
-                    CY_WPS_DEBUG(("%s: pad aes_cbc_encrypt length failed\n", __FUNCTION__));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "%s: pad aes_cbc_encrypt length failed\n", __FUNCTION__);
                 }
                 return 1;
             }
@@ -384,7 +385,7 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
             {
                 if( verbose != 0 )
                 {
-                    CY_WPS_DEBUG(("%s: pad aes_cbc_encrypt data failed\n", __FUNCTION__));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "%s: pad aes_cbc_encrypt data failed\n", __FUNCTION__);
                 }
                 return 1;
             }
@@ -392,7 +393,7 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
 
             if( verbose != 0 )
             {
-                CY_WPS_DEBUG(("padded AES CBC Decrypt: %d bytes\n", aes_cbc_vec[k].il));
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "padded AES CBC Decrypt: %d bytes\n", aes_cbc_vec[k].il);
             }
 
             mbedtls_aes_setkey_dec( &ctx, aes_cbc_vec[k].key, (uint32_t)( aes_cbc_vec[k].kl * 8 ) );
@@ -404,7 +405,7 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
             {
                 if( verbose != 0 )
                 {
-                    CY_WPS_DEBUG(("%s: pad aes_cbc_decrypt length failed %d\n", __FUNCTION__, retv));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "%s: pad aes_cbc_decrypt length failed %d\n", __FUNCTION__, retv);
                 }
                 return 1;
             }
@@ -412,14 +413,14 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
             {
                 if( verbose != 0 )
                 {
-                    CY_WPS_DEBUG(("%s: pad aes_cbc_decrypt data failed\n", __FUNCTION__));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "%s: pad aes_cbc_decrypt data failed\n", __FUNCTION__);
                 }
                 return 1;
             }
 
             if( verbose != 0 )
             {
-                CY_WPS_DEBUG(("short padded AES CBC Encrypt: %d bytes\n", aes_cbc_vec[k].il - 1));
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "short padded AES CBC Encrypt: %d bytes\n", aes_cbc_vec[k].il - 1);
             }
 
             mbedtls_aes_setkey_enc( &ctx, aes_cbc_vec[k].key, (uint32_t)( aes_cbc_vec[k].kl * 8 ) );
@@ -430,7 +431,7 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
             {
                 if( verbose != 0 )
                 {
-                    CY_WPS_DEBUG(("%s: short pad aes_cbc_encrypt length failed\n", __FUNCTION__));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "%s: short pad aes_cbc_encrypt length failed\n", __FUNCTION__);
                 }
                 return 1;
             }
@@ -438,14 +439,14 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
             {
                 if( verbose != 0 )
                 {
-                    CY_WPS_DEBUG(("%s: short pad aes_cbc_encrypt data failed\n", __FUNCTION__));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "%s: short pad aes_cbc_encrypt data failed\n", __FUNCTION__);
                 }
                 return 1;
             }
 
             if( verbose != 0 )
             {
-                CY_WPS_DEBUG(("short padded AES CBC Decrypt: %d bytes\n", aes_cbc_vec[k].il - 1));
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "short padded AES CBC Decrypt: %d bytes\n", aes_cbc_vec[k].il - 1);
             }
 
             mbedtls_aes_setkey_dec( &ctx, aes_cbc_vec[k].key, (uint32_t)( aes_cbc_vec[k].kl * 8 ) );
@@ -457,7 +458,7 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
             {
                 if( verbose != 0 )
                 {
-                    CY_WPS_DEBUG(("%s: short pad aes_cbc_decrypt length failed\n", __FUNCTION__));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "%s: short pad aes_cbc_decrypt length failed\n", __FUNCTION__);
                 }
                 return 1;
             }
@@ -465,14 +466,14 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
             {
                 if( verbose != 0 )
                 {
-                    CY_WPS_DEBUG(("%s: short pad aes_cbc_decrypt data failed\n", __FUNCTION__));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "%s: short pad aes_cbc_decrypt data failed\n", __FUNCTION__);
                 }
                 return 1;
             }
 
             if( verbose != 0 )
             {
-                CY_WPS_DEBUG(( "passed\n" );
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "passed\n");
             }
 
             mbedtls_aes_free( &ctx );
@@ -505,14 +506,14 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
                                   aes_ctr_vec[k].input, aes_padded_ccm_output);
             if( verbose != 0 )
             {
-                CY_WPS_DEBUG(("AES CTR Encrypt: %d bytes\n", aes_ctr_vec[k].il));
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "AES CTR Encrypt: %d bytes\n", aes_ctr_vec[k].il);
             }
 
             if (retv)
             {
                 if( verbose != 0 )
                 {
-                    CY_WPS_DEBUG(("%s: aes_ctr_crypt failed\n", __FUNCTION__));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "%s: aes_ctr_crypt failed\n", __FUNCTION__);
                 }
                 return 1;
             }
@@ -520,7 +521,7 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
             {
                 if( verbose != 0 )
                 {
-                    CY_WPS_DEBUG(("%s: aes_ctr_crypt encrypt failed\n", __FUNCTION__));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "%s: aes_ctr_crypt encrypt failed\n", __FUNCTION__);
                 }
                 return 1;
             }
@@ -531,14 +532,14 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
                                   aes_ctr_vec[k].ref, aes_padded_ccm_input2);
             if( verbose != 0 )
             {
-                CY_WPS_DEBUG(("AES CTR Decrypt: %d bytes\n", aes_ctr_vec[k].il ));
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "AES CTR Decrypt: %d bytes\n", aes_ctr_vec[k].il );
             }
 
             if (retv)
             {
                 if( verbose != 0 )
                 {
-                    CY_WPS_DEBUG(("%s: aes_ctr_crypt failed\n", __FUNCTION__));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "%s: aes_ctr_crypt failed\n", __FUNCTION__);
                 }
                 return 1;
             }
@@ -546,7 +547,7 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
             {
                 if( verbose != 0 )
                 {
-                    CY_WPS_DEBUG(("%s: aes_ctr_crypt decrypt failed\n", __FUNCTION__));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "%s: aes_ctr_crypt decrypt failed\n", __FUNCTION__);
                 }
                 return 1;
             }
@@ -562,14 +563,14 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
                                   aes_ctr_vec[k].input, aes_padded_ccm_output);
             if( verbose != 0 )
             {
-                CY_WPS_DEBUG(("AES CTR Partial Block Encrypt: %d bytes\n", k + 1 ));
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "AES CTR Partial Block Encrypt: %d bytes\n", k + 1 );
             }
 
             if (retv)
             {
                 if( verbose != 0 )
                 {
-                    CY_WPS_DEBUG(("%s: aes_ctr_crypt failed\n", __FUNCTION__));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "%s: aes_ctr_crypt failed\n", __FUNCTION__);
                 }
                 return 1;
             }
@@ -577,7 +578,7 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
             {
                 if( verbose != 0 )
                 {
-                    CY_WPS_DEBUG(("%s: aes_ctr_crypt encrypt failed\n", __FUNCTION__));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "%s: aes_ctr_crypt encrypt failed\n", __FUNCTION__);
                 }
                 return 1;
             }
@@ -588,14 +589,14 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
                                   aes_ctr_vec[k].ref, aes_padded_ccm_input2);
             if( verbose != 0 )
             {
-                CY_WPS_DEBUG(("AES CTR Partial Block Decrypt: %d bytes\n", k + 1 ));
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "AES CTR Partial Block Decrypt: %d bytes\n", k + 1 );
             }
 
             if (retv)
             {
                 if( verbose != 0 )
                 {
-                    CY_WPS_DEBUG(("%s: aes_ctr_crypt failed\n", __FUNCTION__));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "%s: aes_ctr_crypt failed\n", __FUNCTION__);
                 }
                 return 1;
             }
@@ -603,7 +604,7 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
             {
                 if( verbose != 0 )
                 {
-                    CY_WPS_DEBUG(("%s: aes_ctr_crypt decrypt failed\n", __FUNCTION__));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "%s: aes_ctr_crypt decrypt failed\n", __FUNCTION__);
                 }
                 return 1;
             }
@@ -619,15 +620,15 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
                                   aes_ctr_vec[k].input, aes_padded_ccm_output);
             if( verbose != 0 )
             {
-                CY_WPS_DEBUG(("AES CTR Partial Multi-Block Encrypt: %d bytes\n",
-                       AES_BLOCK_SZ + NUM_CTR_VECTORS + k + 1 ));
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "AES CTR Partial Multi-Block Encrypt: %d bytes\n",
+                       AES_BLOCK_SZ + NUM_CTR_VECTORS + k + 1 );
             }
 
             if (retv)
             {
                 if( verbose != 0 )
                 {
-                    CY_WPS_DEBUG(("%s: aes_ctr_crypt failed\n", __FUNCTION__));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "%s: aes_ctr_crypt failed\n", __FUNCTION__);
                 }
                 return 1;
             }
@@ -635,7 +636,7 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
             {
                 if( verbose != 0 )
                 {
-                    CY_WPS_DEBUG(("%s: aes_ctr_crypt encrypt failed\n", __FUNCTION__));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "%s: aes_ctr_crypt encrypt failed\n", __FUNCTION__);
                 }
                 return 1;
             }
@@ -646,15 +647,15 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
                                   aes_ctr_vec[k].ref, aes_padded_ccm_input2);
             if( verbose != 0 )
             {
-                CY_WPS_DEBUG(("AES CTR Partial Multi-Block Decrypt: %d bytes\n",
-                       AES_BLOCK_SZ + NUM_CTR_VECTORS + k + 1 ));
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "AES CTR Partial Multi-Block Decrypt: %d bytes\n",
+                       AES_BLOCK_SZ + NUM_CTR_VECTORS + k + 1 );
             }
 
             if (retv)
             {
                 if( verbose != 0 )
                 {
-                    CY_WPS_DEBUG(("%s: aes_ctr_crypt failed\n", __FUNCTION__));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "%s: aes_ctr_crypt failed\n", __FUNCTION__);
                 }
                 return 1;
             }
@@ -663,7 +664,7 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
             {
                 if( verbose != 0 )
                 {
-                    CY_WPS_DEBUG(("%s: aes_ctr_crypt decrypt failed\n", __FUNCTION__));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "%s: aes_ctr_crypt decrypt failed\n", __FUNCTION__);
                 }
                 return 1;
             }
@@ -697,7 +698,7 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
             {
                 if( verbose != 0 )
                 {
-                    CY_WPS_DEBUG(("%s: aes_ccm_mac failed\n", __FUNCTION__));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "%s: aes_ccm_mac failed\n", __FUNCTION__);
                 }
                 return 1;
             }
@@ -705,7 +706,7 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
             {
                 if( verbose != 0 )
                 {
-                    CY_WPS_DEBUG(("%s: aes_ccm_mac failed\n", __FUNCTION__));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "%s: aes_ccm_mac failed\n", __FUNCTION__);
                 }
                 return 1;
             }
@@ -718,14 +719,14 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
 
             if( verbose != 0 )
             {
-                CY_WPS_DEBUG(("AES CCM Encrypt: %d bytes\n", aes_ccm_vec[k].il + AES_CCM_AUTH_LEN ));
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "AES CCM Encrypt: %d bytes\n", aes_ccm_vec[k].il + AES_CCM_AUTH_LEN );
             }
 
             if (retv)
             {
                 if( verbose != 0 )
                 {
-                    CY_WPS_DEBUG(("%s: aes_ccm_encrypt failed\n", __FUNCTION__));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "%s: aes_ccm_encrypt failed\n", __FUNCTION__);
                 }
                 return 1;
             }
@@ -733,7 +734,7 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
             {
                 if( verbose != 0 )
                 {
-                    CY_WPS_DEBUG(("%s: aes_ccm_encrypt failed\n", __FUNCTION__));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "%s: aes_ccm_encrypt failed\n", __FUNCTION__);
                 }
                 return 1;
             }
@@ -746,14 +747,14 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
 
             if( verbose != 0 )
             {
-                CY_WPS_DEBUG(("AES CCM Decrypt: %d bytes\n", aes_ccm_vec[k].il + AES_CCM_AUTH_LEN ));
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "AES CCM Decrypt: %d bytes\n", aes_ccm_vec[k].il + AES_CCM_AUTH_LEN);
             }
 
             if (retv)
             {
                 if( verbose != 0 )
                 {
-                    CY_WPS_DEBUG(("%s: aes_ccm_decrypt failed\n", __FUNCTION__));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "%s: aes_ccm_decrypt failed\n", __FUNCTION__);
                 }
                 return 1;
             }
@@ -761,7 +762,7 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
             {
                 if( verbose != 0 )
                 {
-                    CY_WPS_DEBUG(("%s: aes_ccm_decrypt failed\n", __FUNCTION__));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "%s: aes_ccm_decrypt failed\n", __FUNCTION__);
                 }
                 return 1;
             }
@@ -775,7 +776,7 @@ int32_t aes_padded_ccm_ctr_self_test(int32_t verbose)
 
     if (verbose != 0)
     {
-        CY_WPS_DEBUG(("\n"));
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "\n");
     }
 
     return (0);

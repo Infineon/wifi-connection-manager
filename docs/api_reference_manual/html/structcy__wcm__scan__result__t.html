@@ -116,13 +116,13 @@ Data Fields</h2></td></tr>
 <tr class="memdesc:a75409b94cf73b2f2c9ebae9627b2906c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Radio band.  <a href="#a75409b94cf73b2f2c9ebae9627b2906c">More...</a><br /></td></tr>
 <tr class="separator:a75409b94cf73b2f2c9ebae9627b2906c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af87e8de624d34d2e9a40fe9405b2e424"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcy__wcm__scan__result__t.html#af87e8de624d34d2e9a40fe9405b2e424">ccode</a> [2]</td></tr>
-<tr class="memdesc:af87e8de624d34d2e9a40fe9405b2e424"><td class="mdescLeft">&#160;</td><td class="mdescRight">Two-letter ISO country code from AP.  <a href="#af87e8de624d34d2e9a40fe9405b2e424">More...</a><br /></td></tr>
+<tr class="memdesc:af87e8de624d34d2e9a40fe9405b2e424"><td class="mdescLeft">&#160;</td><td class="mdescRight">Two-letter ISO country code in network byte order.  <a href="#af87e8de624d34d2e9a40fe9405b2e424">More...</a><br /></td></tr>
 <tr class="separator:af87e8de624d34d2e9a40fe9405b2e424"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8b9a5f7d60757bc46d752d889151fb4b"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcy__wcm__scan__result__t.html#a8b9a5f7d60757bc46d752d889151fb4b">flags</a></td></tr>
 <tr class="memdesc:a8b9a5f7d60757bc46d752d889151fb4b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Indicates if the scan results are from the same channel if flag is 1; otherwise from the beacon.  <a href="#a8b9a5f7d60757bc46d752d889151fb4b">More...</a><br /></td></tr>
 <tr class="separator:a8b9a5f7d60757bc46d752d889151fb4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0847a4850054f7ded3f158fffde1e18d"><td class="memItemLeft" align="right" valign="top">uint8_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcy__wcm__scan__result__t.html#a0847a4850054f7ded3f158fffde1e18d">ie_ptr</a></td></tr>
-<tr class="memdesc:a0847a4850054f7ded3f158fffde1e18d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer to received Beacon/Probe Response IE (Information Element).  <a href="#a0847a4850054f7ded3f158fffde1e18d">More...</a><br /></td></tr>
+<tr class="memdesc:a0847a4850054f7ded3f158fffde1e18d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pointer to the received Beacon/Probe Response IE (Information Element).  <a href="#a0847a4850054f7ded3f158fffde1e18d">More...</a><br /></td></tr>
 <tr class="separator:a0847a4850054f7ded3f158fffde1e18d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a181082a69f94eeb3bbf71a00ee2a7e01"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcy__wcm__scan__result__t.html#a181082a69f94eeb3bbf71a00ee2a7e01">ie_len</a></td></tr>
 <tr class="memdesc:a181082a69f94eeb3bbf71a00ee2a7e01"><td class="mdescLeft">&#160;</td><td class="mdescRight">Length of IE.  <a href="#a181082a69f94eeb3bbf71a00ee2a7e01">More...</a><br /></td></tr>
@@ -270,7 +270,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Two-letter ISO country code from AP. </p>
+<p>Two-letter ISO country code in network byte order. </p>
 
 </div>
 </div>
@@ -302,7 +302,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Pointer to received Beacon/Probe Response IE (Information Element). </p>
+<p>Pointer to the received Beacon/Probe Response IE (Information Element). </p>
 
 </div>
 </div>

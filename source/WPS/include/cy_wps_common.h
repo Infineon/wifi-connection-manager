@@ -45,7 +45,8 @@ extern "C" {
 #include "cy_wps_memory.h"
 #include "whd_types.h"
 #include "cy_eapol.h"
-#include "cy_wcm_debug.h"
+#include "cy_log.h"
+//#include "cy_wcm_debug.h"
 /******************************************************
  *                      Macros
  ******************************************************/

@@ -44,7 +44,7 @@ extern "C" {
 /**
  * @defgroup generic_wcm_defines WCM results/error codes
  * @ingroup group_wcm_macros
- * Cypress middleware APIs return results of type cy_rslt_t and comprise of three parts:
+ * Cypress middleware APIs return results of type cy_rslt_t and consist of three parts:
  * - module base
  * - type
  * - error code
@@ -58,51 +58,58 @@ extern "C" {
       +-----------------------------------+------+------------------------------+
                 14-bits                    2-bits            16-bits
 
-   Refer to the macro section of this document for library specific error codes.
+   See the macro section of this document for library-specific error codes.
    \endverbatim
  *
- * The data structure cy_rslt_t is part of cy_result.h located in <core_lib/include>
+ * The data structure cy_rslt_t is part of cy_result.h located in <core_lib/include>.
  *
- * Module base: This base is derived from CY_RSLT_MODULE_MIDDLEWARE_BASE (defined in cy_result.h) and is an offset of the CY_RSLT_MODULE_MIDDLEWARE_BASE
- *              The details of the offset and the middleware base are defined in cy_result_mw.h, that is part of [Github connectivity-utilities] (https://github.com/cypresssemiconductorco/connectivity-utilities)
- *              For instance, Wi-Fi Connection Manager (WCM) uses CY_RSLT_MODULE_WCM_BASE as the module base
+ * Module base: This base is derived from CY_RSLT_MODULE_MIDDLEWARE_BASE (defined in cy_result.h) and is an offset of the CY_RSLT_MODULE_MIDDLEWARE_BASE.
+ *              The details of the offset and the middleware base are defined in cy_result_mw.h, that is part of [GitHub connectivity-utilities] (https://github.com/cypresssemiconductorco/connectivity-utilities)
+ *              For instance, Wi-Fi Connection Manager (WCM) uses CY_RSLT_MODULE_WCM_BASE as the module base.
  *
- * Type: This type is defined in cy_result.h and can be one of CY_RSLT_TYPE_FATAL, CY_RSLT_TYPE_ERROR, CY_RSLT_TYPE_WARNING or CY_RSLT_TYPE_INFO. AWS library error codes are of type CY_RSLT_TYPE_ERROR
+ * Type: This type is defined in cy_result.h and can be one of CY_RSLT_TYPE_FATAL, CY_RSLT_TYPE_ERROR, CY_RSLT_TYPE_WARNING, or CY_RSLT_TYPE_INFO. AWS library error codes are of type CY_RSLT_TYPE_ERROR.
  *
- * Library specific error code: These error codes are library specific and defined in macro section
+ * Library-specific error code: These error codes are library-specific and defined in the macro section.
  *
- * Helper macros used for creating the library specific result are provided as part of cy_result.h
+ * Helper macros used for creating the library-specific result are provided as part of cy_result.h.
  * \{
  */
 /** Generic wcm base error code */
 #define CY_RSLT_WCM_ERR_BASE                   CY_RSLT_CREATE(CY_RSLT_TYPE_ERROR, CY_RSLT_MODULE_WCM_BASE, 0)
 
-/** wcm error */
-#define CY_RSLT_WCM_WAIT_TIMEOUT                           (CY_RSLT_WCM_ERR_BASE + 1)  /**< Wait timeout                       */
-#define CY_RSLT_WCM_BAD_NETWORK_PARAM                      (CY_RSLT_WCM_ERR_BASE + 2)  /**< Bad network parameters             */
-#define CY_RSLT_WCM_BAD_SSID_LEN                           (CY_RSLT_WCM_ERR_BASE + 3)  /**< Bad SSID length                    */
-#define CY_RSLT_WCM_SECURITY_NOT_SUPPORTED                 (CY_RSLT_WCM_ERR_BASE + 4)  /**< Security not supported             */
-#define CY_RSLT_WCM_BAD_PASSPHRASE_LEN                     (CY_RSLT_WCM_ERR_BASE + 5)  /**< Bad passphrase length              */
-#define CY_RSLT_WCM_BAD_ARG                                (CY_RSLT_WCM_ERR_BASE + 6)  /**< Bad argument                       */
-#define CY_RSLT_WCM_INTERFACE_NOT_SUPPORTED                (CY_RSLT_WCM_ERR_BASE + 7)  /**< Interface type not supported       */
-#define CY_RSLT_WCM_MUTEX_ERROR                            (CY_RSLT_WCM_ERR_BASE + 8)  /**< Mutex error                        */
-#define CY_RSLT_WCM_DISCONNECT_ERROR                       (CY_RSLT_WCM_ERR_BASE + 9)  /**< Disconnect error                   */
-#define CY_RSLT_WCM_NETWORK_DOWN                           (CY_RSLT_WCM_ERR_BASE + 10) /**< Network is dowm                    */
-#define CY_RSLT_WCM_BSP_INIT_ERROR                         (CY_RSLT_WCM_ERR_BASE + 11) /**< CY BSP initialization error        */
-#define CY_RSLT_WCM_NO_ACTIVE_SCAN                         (CY_RSLT_WCM_ERR_BASE + 12) /**< No active scan running currently   */
-#define CY_RSLT_WCM_SCAN_IN_PROGRESS                       (CY_RSLT_WCM_ERR_BASE + 13) /**< Scan in progress                   */
-#define CY_RSLT_WCM_SCAN_ERROR                             (CY_RSLT_WCM_ERR_BASE + 14) /**< Scan error                         */
-#define CY_RSLT_WCM_STOP_SCAN_ERROR                        (CY_RSLT_WCM_ERR_BASE + 15) /**< Stop scan error                    */
-#define CY_RSLT_WCM_BAND_NOT_SUPPORTED                     (CY_RSLT_WCM_ERR_BASE + 16) /**< BAND not supported                 */
-#define CY_RSLT_WCM_OUT_OF_MEMORY                          (CY_RSLT_WCM_ERR_BASE + 17) /**< WCM out of memory error            */
+/** WCM Error Codes */
+#define CY_RSLT_WCM_WAIT_TIMEOUT                           (CY_RSLT_WCM_ERR_BASE + 1)  /**< Wait timeout.                           */
+#define CY_RSLT_WCM_BAD_NETWORK_PARAM                      (CY_RSLT_WCM_ERR_BASE + 2)  /**< Bad network parameters.                 */
+#define CY_RSLT_WCM_BAD_SSID_LEN                           (CY_RSLT_WCM_ERR_BASE + 3)  /**< Bad SSID length.                        */
+#define CY_RSLT_WCM_SECURITY_NOT_SUPPORTED                 (CY_RSLT_WCM_ERR_BASE + 4)  /**< Security not supported.                 */
+#define CY_RSLT_WCM_BAD_PASSPHRASE_LEN                     (CY_RSLT_WCM_ERR_BASE + 5)  /**< Bad passphrase length.                  */
+#define CY_RSLT_WCM_BAD_ARG                                (CY_RSLT_WCM_ERR_BASE + 6)  /**< Bad argument.                           */
+#define CY_RSLT_WCM_INTERFACE_NOT_SUPPORTED                (CY_RSLT_WCM_ERR_BASE + 7)  /**< Interface type not supported.           */
+#define CY_RSLT_WCM_MUTEX_ERROR                            (CY_RSLT_WCM_ERR_BASE + 8)  /**< Mutex error.                            */
+#define CY_RSLT_WCM_DISCONNECT_ERROR                       (CY_RSLT_WCM_ERR_BASE + 9)  /**< Disconnect error.                       */
+#define CY_RSLT_WCM_NETWORK_DOWN                           (CY_RSLT_WCM_ERR_BASE + 10) /**< Network is down.                        */
+#define CY_RSLT_WCM_BSP_INIT_ERROR                         (CY_RSLT_WCM_ERR_BASE + 11) /**< CY BSP initialization error.            */
+#define CY_RSLT_WCM_NO_ACTIVE_SCAN                         (CY_RSLT_WCM_ERR_BASE + 12) /**< No active scan running currently.       */
+#define CY_RSLT_WCM_SCAN_IN_PROGRESS                       (CY_RSLT_WCM_ERR_BASE + 13) /**< Scan in progress.                       */
+#define CY_RSLT_WCM_SCAN_ERROR                             (CY_RSLT_WCM_ERR_BASE + 14) /**< Scan error.                             */
+#define CY_RSLT_WCM_STOP_SCAN_ERROR                        (CY_RSLT_WCM_ERR_BASE + 15) /**< Stop scan error.                        */
+#define CY_RSLT_WCM_BAND_NOT_SUPPORTED                     (CY_RSLT_WCM_ERR_BASE + 16) /**< BAND not supported.                     */
+#define CY_RSLT_WCM_OUT_OF_MEMORY                          (CY_RSLT_WCM_ERR_BASE + 17) /**< WCM out of memory error.                */
+#define CY_RSLT_WCM_CHANNEL_ERROR                          (CY_RSLT_WCM_ERR_BASE + 18) /**< Error in retrieving the Wi-Fi channel.  */
+#define CY_RSLT_WCM_NETIF_DOES_NOT_EXIST                   (CY_RSLT_WCM_ERR_BASE + 19) /**< Network interface does not exist.       */
+#define CY_RSLT_WCM_ARP_REQUEST_FAILURE                    (CY_RSLT_WCM_ERR_BASE + 20) /**< Error returned for ARP request failure. */
+#define CY_RSLT_WCM_IPV6_GLOBAL_ADDRESS_NOT_SUPPORTED      (CY_RSLT_WCM_ERR_BASE + 21) /**< IPv6 global IP not supported.           */
+#define CY_RSLT_WCM_IPV6_INTERFACE_NOT_READY               (CY_RSLT_WCM_ERR_BASE + 22) /**< IPV6 interface not ready.               */
+#define CY_RSLT_WCM_PING_FAILURE                           (CY_RSLT_WCM_ERR_BASE + 23) /**< Failure in executing ping.              */
+#define CY_RSLT_WCM_PING_REQUEST_TIMEOUT                   (CY_RSLT_WCM_ERR_BASE + 24) /**< Ping request timed out.                 */
 
-/** WPS Error codes */
-#define CY_RSLT_WCM_WPS_PBC_OVERLAP                        (CY_RSLT_WCM_ERR_BASE + 18) /**< WPS PBC Overlap                    */
-#define CY_RSLT_WCM_WPS_ERROR_RECEIVED_WEP_CREDENTIALS     (CY_RSLT_WCM_ERR_BASE + 19) /**< WPS received incorrect credentials */
-#define CY_RSLT_WCM_WPS_FAILED                             (CY_RSLT_WCM_ERR_BASE + 20) /**< WPS PBC/PIN mode failed            */
+/** WPS Error Codes */
+#define CY_RSLT_WCM_WPS_PBC_OVERLAP                        (CY_RSLT_WCM_ERR_BASE + 25) /**< WPS PBC Overlap.                        */
+#define CY_RSLT_WCM_WPS_ERROR_RECEIVED_WEP_CREDENTIALS     (CY_RSLT_WCM_ERR_BASE + 26) /**< WPS received incorrect credentials.     */
+#define CY_RSLT_WCM_WPS_FAILED                             (CY_RSLT_WCM_ERR_BASE + 27) /**< WPS PBC/PIN mode failed.                */
 
-/** DHCP Error */
-#define CY_RSLT_WCM_DHCP_TIMEOUT                           (CY_RSLT_WCM_ERR_BASE + 21)  /**< DHCP timeout                      */
+/** DHCP Error Code */
+#define CY_RSLT_WCM_DHCP_TIMEOUT                           (CY_RSLT_WCM_ERR_BASE + 28)  /**< DHCP timeout.                          */
 
 /** \} error codes */
 

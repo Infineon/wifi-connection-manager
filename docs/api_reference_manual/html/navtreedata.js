@@ -8,7 +8,8 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"group__generic__wcm__defines.html"
+"group__generic__wcm__defines.html",
+"structcy__wcm__wps__credential__t.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

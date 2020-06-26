@@ -4,6 +4,7 @@ var searchData=
   ['cy_5fwcm_5fevent_5ft',['cy_wcm_event_t',['../group__group__wcm__enums.html#gafada6a09a78bd0473f3daef54621567f',1,'cy_wcm.h']]],
   ['cy_5fwcm_5finterface_5ft',['cy_wcm_interface_t',['../group__group__wcm__enums.html#gac4c4ca6db8db6efdc3013b789a4c9cf8',1,'cy_wcm.h']]],
   ['cy_5fwcm_5fip_5fversion_5ft',['cy_wcm_ip_version_t',['../group__group__wcm__enums.html#ga24d3def17207a3c64b62fb4b8a44a7fc',1,'cy_wcm.h']]],
+  ['cy_5fwcm_5fipv6_5ftype_5ft',['cy_wcm_ipv6_type_t',['../group__group__wcm__enums.html#ga04051d082e24439e436a17db75fadfef',1,'cy_wcm.h']]],
   ['cy_5fwcm_5fscan_5ffilter_5ftype_5ft',['cy_wcm_scan_filter_type_t',['../group__group__wcm__enums.html#ga568b22d5d446e751f62efe4eb021d451',1,'cy_wcm.h']]],
   ['cy_5fwcm_5fscan_5frssi_5frange_5ft',['cy_wcm_scan_rssi_range_t',['../group__group__wcm__enums.html#gab7d89e9afaed2e4e8064cf9ac4e86148',1,'cy_wcm.h']]],
   ['cy_5fwcm_5fscan_5fstatus_5ft',['cy_wcm_scan_status_t',['../group__group__wcm__enums.html#ga24a4ed65a9261c45abc8aa697eb2b8a2',1,'cy_wcm.h']]],

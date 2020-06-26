@@ -38,7 +38,7 @@
 #pragma once
 
 #include "cy_wps_structures.h"
-#include "cy_wps_chip_constants.h"
+#include "cy_chip_constants.h"
 #include "whd_types.h"
 #include "cyabs_rtos_impl.h"
 #include "whd_wlioctl.h"

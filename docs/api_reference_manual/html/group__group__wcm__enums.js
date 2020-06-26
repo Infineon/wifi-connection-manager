@@ -4,6 +4,10 @@ var group__group__wcm__enums =
       [ "CY_WCM_IP_VER_V4", "group__group__wcm__enums.html#gga24d3def17207a3c64b62fb4b8a44a7fca579126d4304962b6ee0f286e5afcbe8a", null ],
       [ "CY_WCM_IP_VER_V6", "group__group__wcm__enums.html#gga24d3def17207a3c64b62fb4b8a44a7fcaa76a9ec3e0ee840982c8094f4416f768", null ]
     ] ],
+    [ "cy_wcm_ipv6_type_t", "group__group__wcm__enums.html#ga04051d082e24439e436a17db75fadfef", [
+      [ "CY_WCM_IPV6_LINK_LOCAL", "group__group__wcm__enums.html#gga04051d082e24439e436a17db75fadfefa635adc564bdb3dbdd71685cef4f470ac", null ],
+      [ "CY_WCM_IPV6_GLOBAL", "group__group__wcm__enums.html#gga04051d082e24439e436a17db75fadfefad69d3245c4ef7635271c9faf924d12a7", null ]
+    ] ],
     [ "cy_wcm_security_t", "group__group__wcm__enums.html#ga8b22f5a47073d5219440566d0e53e521", [
       [ "CY_WCM_SECURITY_OPEN", "group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a7f7f987e28882d8c60f7f4429561b9a5", null ],
       [ "CY_WCM_SECURITY_WEP_PSK", "group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a3f1681e739292b57e029cf9423c37110", null ],
@@ -16,7 +20,16 @@ var group__group__wcm__enums =
       [ "CY_WCM_SECURITY_WPA2_MIXED_PSK", "group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a076d68a0103ce4d2571bb00521ba8251", null ],
       [ "CY_WCM_SECURITY_WPA2_FBT_PSK", "group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a25100570908755c4f3fcf216a625b3e8", null ],
       [ "CY_WCM_SECURITY_WPA3_SAE", "group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a3210b048d7f28c4d34fe84ed38423697", null ],
+      [ "CY_WCM_SECURITY_WPA2_WPA_AES_PSK", "group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a65f30fece93828b8e7aec9e746e3f6bd", null ],
+      [ "CY_WCM_SECURITY_WPA2_WPA_MIXED_PSK", "group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a1c6bff375775f060152c36a310dbecd7", null ],
       [ "CY_WCM_SECURITY_WPA3_WPA2_PSK", "group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521abfdbdb9ee491f60d5beb3e34e504ef21", null ],
+      [ "CY_WCM_SECURITY_WPA_TKIP_ENT", "group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521ad90cc325f41cb213cb4521203d25d71d", null ],
+      [ "CY_WCM_SECURITY_WPA_AES_ENT", "group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a15e40dcc622cfbbc30189d58cc2d0d8d", null ],
+      [ "CY_WCM_SECURITY_WPA_MIXED_ENT", "group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521af859066c7f2a78b3f7e30cc397b9ffc4", null ],
+      [ "CY_WCM_SECURITY_WPA2_TKIP_ENT", "group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a6d42e04b696db4b267c4ef2ed6e23865", null ],
+      [ "CY_WCM_SECURITY_WPA2_AES_ENT", "group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a59cd3a2dce43903162ce84a651152e7a", null ],
+      [ "CY_WCM_SECURITY_WPA2_MIXED_ENT", "group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a83be3851b45fae13129c65ecdc1967e4", null ],
+      [ "CY_WCM_SECURITY_WPA2_FBT_ENT", "group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521ab1b403f2f40134c180e60867b2a46786", null ],
       [ "CY_WCM_SECURITY_IBSS_OPEN", "group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a3b9dc0504be49e6d0babf7b7cfeea81c", null ],
       [ "CY_WCM_SECURITY_WPS_SECURE", "group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a66814cdf2e650a7ac52e2173926a531d", null ],
       [ "CY_WCM_SECURITY_UNKNOWN", "group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a397fce386b66d0cef2c2be39611278fd", null ],
@@ -93,6 +106,9 @@ var group__group__wcm__enums =
       [ "CY_WCM_WPS_DEVICE_OTHER", "group__group__wcm__enums.html#gga2109f4415e7d9d586336f8c4415a270ea724e8110b6b40e0722f13a2fc66fd96f", null ]
     ] ],
     [ "cy_wcm_event_t", "group__group__wcm__enums.html#gafada6a09a78bd0473f3daef54621567f", [
+      [ "CY_WCM_EVENT_CONNECTING", "group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fa683d1014dce666536998f4d185975852", null ],
+      [ "CY_WCM_EVENT_CONNECTED", "group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fa3cb25ea52d7dfe04a55193c5289d501f", null ],
+      [ "CY_WCM_EVENT_CONNECT_FAILED", "group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fafa85fe7467f303e5425b54a8f20072e5", null ],
       [ "CY_WCM_EVENT_RECONNECTED", "group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fab2e59655829c24bd5d0ea68622c8c56e", null ],
       [ "CY_WCM_EVENT_DISCONNECTED", "group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fa206d74c35be5bf29e7903367287efc79", null ],
       [ "CY_WCM_EVENT_IP_CHANGED", "group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fafe83442aa63aa747c3025d0874482c86", null ]

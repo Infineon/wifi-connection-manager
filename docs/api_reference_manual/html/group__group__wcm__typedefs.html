@@ -94,16 +94,16 @@ Typedefs</h2></td></tr>
 <tr class="memdesc:ga1ebac1800928741a07555a14539f3748"><td class="mdescLeft">&#160;</td><td class="mdescRight">SSID name (AP name in null-terminated string format).  <a href="#ga1ebac1800928741a07555a14539f3748">More...</a><br /></td></tr>
 <tr class="separator:ga1ebac1800928741a07555a14539f3748"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga510db2323122294f3956024396ba2ff5"><td class="memItemLeft" align="right" valign="top">typedef uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__wcm__typedefs.html#ga510db2323122294f3956024396ba2ff5">cy_wcm_mac_t</a>[<a class="el" href="group__group__wcm__macros.html#gae032a02d61d8a9d68a502ac20591a1d5">CY_WCM_MAC_ADDR_LEN</a>]</td></tr>
-<tr class="memdesc:ga510db2323122294f3956024396ba2ff5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unique 6-byte MAC address.  <a href="#ga510db2323122294f3956024396ba2ff5">More...</a><br /></td></tr>
+<tr class="memdesc:ga510db2323122294f3956024396ba2ff5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unique 6-byte MAC address represented in network byte order.  <a href="#ga510db2323122294f3956024396ba2ff5">More...</a><br /></td></tr>
 <tr class="separator:ga510db2323122294f3956024396ba2ff5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga0c9f42f203c1dee3e3344163d1fdeba8"><td class="memItemLeft" align="right" valign="top">typedef uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__wcm__typedefs.html#ga0c9f42f203c1dee3e3344163d1fdeba8">cy_wcm_passphrase_t</a>[<a class="el" href="group__group__wcm__macros.html#ga57d06f15bb823cd45d9542c1303f647a">CY_WCM_MAX_PASSPHRASE_LEN</a>+1]</td></tr>
 <tr class="memdesc:ga0c9f42f203c1dee3e3344163d1fdeba8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Passphrase in null-terminated string format.  <a href="#ga0c9f42f203c1dee3e3344163d1fdeba8">More...</a><br /></td></tr>
 <tr class="separator:ga0c9f42f203c1dee3e3344163d1fdeba8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga58bd6c567dc6b0b111fb5852227c0c88"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__wcm__typedefs.html#ga58bd6c567dc6b0b111fb5852227c0c88">cy_wcm_scan_result_callback_t</a>) (<a class="el" href="structcy__wcm__scan__result__t.html">cy_wcm_scan_result_t</a> *result_ptr, void *user_data, <a class="el" href="group__group__wcm__enums.html#ga24a4ed65a9261c45abc8aa697eb2b8a2">cy_wcm_scan_status_t</a> status)</td></tr>
-<tr class="memdesc:ga58bd6c567dc6b0b111fb5852227c0c88"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wi-Fi Scan result callback function pointer type.  <a href="#ga58bd6c567dc6b0b111fb5852227c0c88">More...</a><br /></td></tr>
+<tr class="memdesc:ga58bd6c567dc6b0b111fb5852227c0c88"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wi-Fi scan result callback function pointer type.  <a href="#ga58bd6c567dc6b0b111fb5852227c0c88">More...</a><br /></td></tr>
 <tr class="separator:ga58bd6c567dc6b0b111fb5852227c0c88"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5f028848682f04705e669b6823d290fb"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__wcm__typedefs.html#ga5f028848682f04705e669b6823d290fb">cy_wcm_event_callback_t</a>) (<a class="el" href="group__group__wcm__enums.html#gafada6a09a78bd0473f3daef54621567f">cy_wcm_event_t</a> event, <a class="el" href="unioncy__wcm__event__data__t.html">cy_wcm_event_data_t</a> *event_data)</td></tr>
-<tr class="memdesc:ga5f028848682f04705e669b6823d290fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">WCM event callback function pointer type; events are invoked when WHD posts events to the application.  <a href="#ga5f028848682f04705e669b6823d290fb">More...</a><br /></td></tr>
+<tr class="memdesc:ga5f028848682f04705e669b6823d290fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">WCM event callback function pointer type; events are invoked when the WHD posts events to WCM.  <a href="#ga5f028848682f04705e669b6823d290fb">More...</a><br /></td></tr>
 <tr class="separator:ga5f028848682f04705e669b6823d290fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Typedef Documentation</h2>
@@ -135,7 +135,7 @@ Typedefs</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Unique 6-byte MAC address. </p>
+<p>Unique 6-byte MAC address represented in network byte order. </p>
 
 </div>
 </div>
@@ -167,16 +167,16 @@ Typedefs</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Wi-Fi Scan result callback function pointer type. </p>
+<p>Wi-Fi scan result callback function pointer type. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">result_ptr</td><td>: A pointer to the scan result; the scan result will be freed once the callback function returns from the application. There will not be any scan result when the scan status is CY_WCM_SCAN_COMPLETE. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">user_data</td><td>: User-provided data </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">user_data</td><td>: User-provided data. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">status</td><td>: Status of the scan process.</td></tr>
   </table>
   </dd>
 </dl>
-<p>Note: The callback function will be executed in the context of WCM. </p>
+<p>Note: The callback function will be executed in the context of the WCM. </p>
 
 </div>
 </div>
@@ -192,7 +192,7 @@ Typedefs</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>WCM event callback function pointer type; events are invoked when WHD posts events to the application. </p>
+<p>WCM event callback function pointer type; events are invoked when the WHD posts events to WCM. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">event</td><td>: WCM events. </td></tr>
@@ -200,7 +200,7 @@ Typedefs</h2></td></tr>
   </table>
   </dd>
 </dl>
-<p>Note: The callback function will be executed in the context of WCM. </p>
+<p>Note: The callback function will be executed in the context of the WCM. </p>
 
 </div>
 </div>

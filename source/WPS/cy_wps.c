@@ -42,6 +42,7 @@
 
 #include "string.h"
 #include "stdlib.h"
+#include "cy_wcm_log.h"
 #include "cy_eapol.h"
 #include "cy_wps.h"
 #include "cy_wps_common.h"
@@ -224,7 +225,7 @@ cy_rslt_t cy_wps_management_set_event_handler( cy_wps_agent_t* workspace, bool e
 
     if ( result != WHD_SUCCESS )
     {
-        CY_WPS_DEBUG(("Error setting event handler %u\r\n", (unsigned int)result));
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Error setting event handler %u\r\n", (unsigned int)result);
     }
     return (cy_rslt_t) result;
 }
@@ -324,7 +325,7 @@ cy_rslt_t cy_p2p_wps_start( cy_wps_agent_t* workspace )
     if ( ( workspace->agent_type == CY_WPS_REGISTRAR_AGENT ) &&
          ( cy_wps_internal_pbc_overlap_check( NULL ) == CY_RSLT_WPS_PBC_OVERLAP ) && ( workspace->wps_mode == CY_WPS_PBC_MODE ) )
     {
-        CY_WPS_INFO(("PBC overlap detected. Wait and try again later\r\n"));
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "PBC overlap detected. Wait and try again later\r\n");
         return CY_RSLT_WPS_PBC_OVERLAP;
     }
 
@@ -627,7 +628,7 @@ void cy_wps_thread_main( cy_thread_arg_t arg )
     cy_rtos_get_time( &workspace->start_time );
 
 
-    CY_WPS_INFO(("Starting WPS Enrollee\r\n"));
+    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Starting WPS Enrollee\r\n");
     cy_wps_enrollee_start( workspace, workspace->interface );
 
     while ( workspace->wps_result == CY_RSLT_WPS_IN_PROGRESS )
@@ -663,7 +664,7 @@ void cy_wps_thread_main( cy_thread_arg_t arg )
         {
             if ( result == CY_RSLT_WPS_ATTEMPTED_EXTERNAL_REGISTRAR_DISCOVERY )
             {
-                CY_WPS_INFO(("Client attempted external registrar discovery\r\n"));
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO,"Client attempted external registrar discovery\r\n");
             }
             else
             {
@@ -672,7 +673,7 @@ void cy_wps_thread_main( cy_thread_arg_t arg )
                     int32_t time_left;
                     cy_rtos_get_time( &current_time );
                     time_left = MAX( ( ( 2 * MINUTES ) - ( current_time - workspace->start_time ) )/1000, 0);
-                    CY_WPS_INFO(( "WPS Procedure failed. Restarting with %li seconds left\r\n", (long)time_left));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "WPS Procedure failed. Restarting with %li seconds left\r\n", (long)time_left);
                     REFERENCE_DEBUG_ONLY_VARIABLE( time_left );
                 }
             }
@@ -698,19 +699,19 @@ void cy_wps_thread_main( cy_thread_arg_t arg )
     /* Print result (if enabled) */
     if ( workspace->wps_result == CY_RSLT_WPS_COMPLETE )
     {
-        CY_WPS_INFO(( "WPS completed successfully\r\n" ));
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "WPS completed successfully\r\n");
     }
     else if ( workspace->wps_result == CY_RSLT_WPS_PBC_OVERLAP )
     {
-        CY_WPS_INFO(( "PBC overlap detected - wait and try again\r\n" ));
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "PBC overlap detected - wait and try again\r\n");
     }
     else if ( workspace->wps_result == CY_RSLT_WPS_ABORTED )
     {
-        CY_WPS_INFO(( "WPS aborted\r\n" ));
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "WPS aborted\r\n");
     }
     else
     {
-        CY_WPS_INFO(( "WPS timed out\r\n" ));
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "WPS timed out\r\n");
     }
 
     /* Indicate result via the callbacks */
@@ -797,7 +798,7 @@ cy_rslt_t cy_wps_host_join( void* workspace, cy_wps_ap_t* ap, whd_interface_t in
 {
     cy_host_workspace_t* host = &((cy_wps_workspace_t*) workspace)->host_workspace;
 
-    CY_WPS_INFO( ("Joining '%.*s'\r\n", ap->scan_result.SSID.length, ap->scan_result.SSID.value) );
+    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Joining '%.*s'\r\n", ap->scan_result.SSID.length, ap->scan_result.SSID.value);
 
     uint8_t attempts = 0;
     cy_rslt_t ret;
@@ -816,7 +817,7 @@ cy_rslt_t cy_wps_host_join( void* workspace, cy_wps_ap_t* ap, whd_interface_t in
     {
         if ( whd_wifi_is_ready_to_transceive( interface ) != WHD_SUCCESS )
         {
-            CY_WPS_ERROR( ("WPS join failed on interface %u\r\n", (unsigned int)interface) );
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WPS join failed on interface %u\r\n", (unsigned int)interface);
             cy_host_start_timer( host, 100 );
             return CY_RSLT_WPS_ERROR_JOIN_FAILED;
         }
@@ -960,7 +961,7 @@ void cy_wps_host_store_credential( void* workspace, cy_wps_internal_credential_t
         memcpy( temp->ssid, credential->ssid, ssid_length );
         temp->ssid[ssid_length] = 0;
 
-        CY_WPS_INFO( ("Storing credentials for %s\r\n", temp->ssid) );
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO,"Storing credentials for %s\r\n", temp->ssid);
         switch ( credential->encryption_type )
         {
             case CY_WPS_MIXED_ENCRYPTION:
@@ -1116,7 +1117,7 @@ void cy_wps_host_scan( cy_wps_agent_t* workspace, cy_wps_scan_handler_t result_h
 
     if (ret != CY_RSLT_SUCCESS)
     {
-        CY_WPS_ERROR( ("WPS scan failure\r\n") );
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "WPS scan failure\r\n");
         cy_host_start_timer( host, 100 );
     }
     else
@@ -1212,7 +1213,7 @@ void cy_wps_update_pbc_overlap_array(cy_wps_agent_t* workspace, const whd_mac_t*
     if ( ( memcmp( &mac, (char*) &last_pbc_enrollee.probe_request_mac, sizeof(whd_mac_t) ) == 0 ) &&
          ( ( rx_time - last_pbc_enrollee.probe_request_rx_time ) <= WPS_PBC_MODE_ASSERTION_DELAY ) )
     {
-        CY_WPS_DEBUG( ("Received probe request asserting PBC mode from last enrollee\r\n") );
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Received probe request asserting PBC mode from last enrollee\r\n");
         goto return_without_notify;
     }
 
@@ -1268,7 +1269,7 @@ return_with_notify:
         message.data.packet = &mac;
         if (cy_rtos_put_queue(&host->event_queue, &message, 0, false) != CY_RSLT_SUCCESS)
         {
-            CY_WPS_DEBUG( ("No room in the WPS event queue\r\n" ) );
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "No room in the WPS event queue\r\n");
         }
     }
 
@@ -1309,7 +1310,7 @@ cy_rslt_t cy_wps_pbc_overlap_check(const whd_mac_t* mac )
         detection_window_start = time_now - WPS_PBC_OVERLAP_WINDOW;
     }
 
-    CY_WPS_DEBUG( ("PBC overlap detection window start %u\r\n", (unsigned int)detection_window_start) );
+    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "PBC overlap detection window start %u\r\n", (unsigned int)detection_window_start);
 
     /* This tests the case where M1 has arrived and there may or may not be a probe request from the same enrollee
      * in the detection array, but there is a probe request from another enrollee.
@@ -1338,8 +1339,8 @@ cy_rslt_t cy_wps_pbc_overlap_check(const whd_mac_t* mac )
         if ( ( pbc_overlap_array[0].probe_request_rx_time > detection_window_start ) &&
              ( pbc_overlap_array[1].probe_request_rx_time > detection_window_start ) )
         {
-            CY_WPS_DEBUG(("PBC overlap array entry 0 %u\r\n", (unsigned int)pbc_overlap_array[0].probe_request_rx_time));
-            CY_WPS_DEBUG(("PBC overlap array entry 1 %u\r\n", (unsigned int)pbc_overlap_array[1].probe_request_rx_time));
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "PBC overlap array entry 0 %u\r\n", (unsigned int)pbc_overlap_array[0].probe_request_rx_time);
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "PBC overlap array entry 1 %u\r\n", (unsigned int)pbc_overlap_array[1].probe_request_rx_time);
             return CY_RSLT_WPS_PBC_OVERLAP;
         }
     }

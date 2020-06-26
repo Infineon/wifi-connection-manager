@@ -29,11 +29,19 @@
  * including Cypress's product in a High Risk Product, the manufacturer
  * of such system or application assumes all risk of such use and in doing
  * so agrees to indemnify Cypress against all liability.
- */
-
-/**
-* @file cy_wps_chip_constant.h
-* @brief Chip specific WPS constants
 */
 
-#define WL_CHANSPEC_BAND_MASK           (0xc000)
+#ifndef LIBS_WCM_INCLUDE_CY_WCM_LOG_H_
+#define LIBS_WCM_INCLUDE_CY_WCM_LOG_H_
+
+#include "cy_log.h"
+
+#ifdef ENABLE_WCM_LOGS
+#define cy_wcm_log_msg cy_log_msg
+#else
+#define cy_wcm_log_msg(a,b,c,...)
+#endif
+
+#define cy_wps_assert(error_string, assertion)         do { if (!(assertion) ){ printf( (error_string) ); } } while (0)
+
+#endif /* LIBS_WCM_INCLUDE_CY_WCM_LOG_H_ */

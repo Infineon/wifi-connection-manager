@@ -40,6 +40,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "cy_template_wps_packets.h"
+#include "cy_wcm_log.h"
 #include "cy_wps_common.h"
 #include "cy_wps_constants.h"
 #include "cy_wps_structures.h"
@@ -84,6 +85,12 @@
 #ifndef FALSE
 #define FALSE  (0)
 #endif /* ifndef FALSE */
+
+#ifdef ENABLE_WCM_LOGS
+#define cy_wcm_log_msg cy_log_msg
+#else
+#define cy_wcm_log_msg(a,b,c,...)
+#endif
 
 static const uint8_t DH_P_VALUE[SIZE_1536_BITS] =
 {
@@ -362,14 +369,14 @@ cy_rslt_t cy_host_random_bytes( void* buffer, size_t buffer_length, size_t* outp
     result = cyhal_trng_init(&obj);
     if( result != CY_RSLT_SUCCESS)
     {
-        CY_WPS_ERROR(("Failed to initialize hal TRNG \r\n"));
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Failed to initialize hal TRNG \r\n");
         return result;
     }
 
     ret = trng_get_bytes(&obj, p, buffer_length, (size_t*) &length);
     if( ret != CY_RSLT_SUCCESS)
     {
-        CY_WPS_ERROR(("Failed to initialize random bytes \r\n"));
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Failed to initialize random bytes \r\n");
         return result;
     }
 
@@ -425,7 +432,7 @@ static cy_rslt_t cy_wps_common_event_handler(cy_wps_agent_t* workspace, cy_event
     cy_rslt_t          result = CY_RSLT_SUCCESS;
     cy_wps_msg_packet_t*  packet_header;
 
-    CY_WPS_INFO(("Received WPS event type = [%d]\r\n", message->event_type));
+    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Received WPS event type = [%d]\r\n", message->event_type);
     switch(message->event_type)
     {
         case CY_EVENT_EAPOL_PACKET_RECEIVED:
@@ -435,7 +442,7 @@ static cy_rslt_t cy_wps_common_event_handler(cy_wps_agent_t* workspace, cy_event
                 goto return_with_packet;
             }
 
-            CY_WPS_DEBUG(("Process Packet Fragmentation\r\n"));
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Process Packet Fragmentation\r\n");
             result = cy_wps_process_packet_fragmentation(workspace, message->data.packet, &wps_packet_data, &wps_packet_data_size);
             if (result == CY_RSLT_WPS_IN_PROGRESS)
             {
@@ -447,7 +454,7 @@ static cy_rslt_t cy_wps_common_event_handler(cy_wps_agent_t* workspace, cy_event
                 goto return_with_packet_and_maybe_fragment;
             }
 
-            CY_WPS_DEBUG(("Processing received packet\r\n"));
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Processing received packet\r\n");
 
             packet_header            = (cy_wps_msg_packet_t*)wps_packet_data;
             wps_packet_data          = cy_get_wps_packet_data( packet_header );
@@ -457,13 +464,13 @@ static cy_rslt_t cy_wps_common_event_handler(cy_wps_agent_t* workspace, cy_event
             if ( packet_header->eap.type != CY_EAP_TYPE_WPS )
             {
                 /* We can ignore this packet */
-                CY_WPS_DEBUG(("Packet type is not WPS. Type = [%d]\r\n", packet_header->eap.type));
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Packet type is not WPS. Type = [%d]\r\n", packet_header->eap.type);
                 goto return_with_packet_and_maybe_fragment;
             }
 
             if ( packet_header->eap.code == CY_EAP_CODE_FAILURE )
             {
-                CY_WPS_DEBUG(("Received EAP Fail\r\n"));
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Received EAP Fail\r\n");
                 result = CY_RSLT_WPS_ERROR_RECEIVED_EAP_FAIL;
                 goto return_with_packet_and_maybe_fragment;
             }
@@ -472,14 +479,14 @@ static cy_rslt_t cy_wps_common_event_handler(cy_wps_agent_t* workspace, cy_event
             if ( wps_packet_data_size == 0 )
             {
                 /* We can ignore this packet */
-                CY_WPS_DEBUG(("WPS pkt size 0\r\n"));
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "WPS pkt size 0\r\n");
                 goto return_with_packet_and_maybe_fragment;
             }
 
             /* Find the message type TLV */
             if ( tlv_read_value( WPS_ID_MSG_TYPE, wps_packet_data, wps_packet_data_size, &message_type, 1, TLV_UINT8 ) != TLV_SUCCESS )
             {
-                CY_WPS_DEBUG(("Message type couldn't be found\r\n"));
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Message type couldn't be found\r\n");
                 result = CY_RSLT_WPS_ERROR_MESSAGE_MISSING_TLV;
                 goto return_with_packet_and_maybe_fragment;
             }
@@ -507,7 +514,7 @@ static cy_rslt_t cy_wps_common_event_handler(cy_wps_agent_t* workspace, cy_event
             /* Check if this message is valid for the current state */
             if ( message_type == wps_states[workspace->agent_type][workspace->current_sub_stage].valid_message_type )
             {
-                CY_WPS_DEBUG(("Received message %d\r\n", message_type));
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Received message %d\r\n", message_type);
 
                 if ( workspace->agent_type == CY_WPS_ENROLLEE_AGENT )
                 {
@@ -517,10 +524,10 @@ static cy_rslt_t cy_wps_common_event_handler(cy_wps_agent_t* workspace, cy_event
                 result = cy_wps_process_message_content( workspace, wps_packet_data, wps_packet_data_size, wps_states[workspace->agent_type][workspace->current_sub_stage].tlv_mask );
                 if ( result != CY_RSLT_SUCCESS )
                 {
-                    CY_WPS_DEBUG(("WPS: Processing message error\r\n"));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "WPS: Processing message error\r\n");
                     if (result == CY_RSLT_WPS_ERROR_SECRET_NONCE_MISMATCH)
                     {
-                        cy_wps_send_wsc_nack(workspace, 18); // XXX
+                        cy_wps_send_wsc_nack(workspace, 18);
                     }
                     else if (result == CY_RSLT_WPS_PBC_OVERLAP)
                     {
@@ -530,7 +537,7 @@ static cy_rslt_t cy_wps_common_event_handler(cy_wps_agent_t* workspace, cy_event
                     {
                         if (result == CY_RSLT_WPS_ERROR_RECEIVED_WEP_CREDENTIALS)
                         {
-                            CY_WPS_DEBUG(("WPS: Received wep credentials\r\n"));
+                            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "WPS: Received wep credentials\r\n");
                             /* Terminate WPS */
                             workspace->wps_result = CY_RSLT_WPS_ERROR_RECEIVED_WEP_CREDENTIALS;
                         }
@@ -552,7 +559,7 @@ static cy_rslt_t cy_wps_common_event_handler(cy_wps_agent_t* workspace, cy_event
 
                 // Send ACK
                 cy_wps_send_basic_packet(workspace, WPS_ID_MESSAGE_ACK, 0);
-                CY_WPS_DEBUG(("Sending ACK\r\n"));
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Sending ACK\r\n");
 
                 // Wait for more M2D, but if we time out we should join to another AP
                 cy_host_start_timer( workspace->wps_host_workspace, 1000 );
@@ -576,7 +583,7 @@ static cy_rslt_t cy_wps_common_event_handler(cy_wps_agent_t* workspace, cy_event
                 ++workspace->last_received_id;
             }
 
-            CY_WPS_DEBUG(("Free unfragmented pkt @ BESL_EVENT_EAPOL_PACKET_RECEIVED\r\n"));
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Free unfragmented pkt @ BESL_EVENT_EAPOL_PACKET_RECEIVED\r\n");
             cy_wps_free_unfragmented_packet( workspace );
             whd_buffer_release(workspace->interface->whd_driver, message->data.packet, WHD_NETWORK_RX);
             break;
@@ -623,11 +630,11 @@ static cy_rslt_t cy_wps_common_event_handler(cy_wps_agent_t* workspace, cy_event
     return CY_RSLT_SUCCESS;
 
 return_with_packet_and_maybe_fragment:
-    CY_WPS_DEBUG(("Free unfragmented pkt\r\n"));
+cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Free unfragmented pkt\r\n");
     cy_wps_free_unfragmented_packet( workspace );
 
 return_with_packet:
-    CY_WPS_DEBUG(("Free host pkt\r\n"));
+cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Free host pkt\r\n");
     whd_buffer_release( workspace->interface->whd_driver, message->data.packet, WHD_NETWORK_RX );
     return result;
 }
@@ -864,7 +871,7 @@ static cy_rslt_t cy_wps_calculate_psk(cy_wps_agent_t* workspace)
     cy_wps_hash_t hmac_output;
     uint16_t   password_length = (uint16_t) strlen( workspace->password );
 
-    CY_WPS_DEBUG(("WPS password %s\r\n", workspace->password));
+    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "WPS password %s\r\n", workspace->password);
 
     /* Hash 1st half of password and copy first 128 bits into psk1. If it is an odd length, the extra byte goes along with the first half */
     cy_sha2_hmac( (unsigned char *)&workspace->auth_key, SIZE_256_BITS, (uint8_t*) workspace->password, (uint32_t) ( ( password_length / 2 ) + ( password_length % 2 ) ), (uint8_t*) &hmac_output, 0 );
@@ -892,7 +899,7 @@ static cy_rslt_t cy_wps_process_message_content( cy_wps_agent_t* workspace, uint
     if ( ( workspace->agent_type == CY_WPS_REGISTRAR_AGENT) && ( workspace->wps_mode == CY_WPS_PBC_MODE ) && ( workspace->is_p2p_registrar == 0 ) &&
          ( cy_wps_pbc_overlap_check( &workspace->their_data.mac_address ) == CY_RSLT_WPS_PBC_OVERLAP ) )
     {
-        CY_WPS_DEBUG(("PBC overlap during message processing\r\n"));
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "PBC overlap during message processing\r\n");
         workspace->wps_result = CY_RSLT_WPS_PBC_OVERLAP;
         return CY_RSLT_WPS_PBC_OVERLAP;
     }
@@ -913,7 +920,7 @@ static cy_rslt_t cy_wps_process_message_content( cy_wps_agent_t* workspace, uint
                 parsed_tlvs |= CY_WPS_TLV_VERSION;
                 if ( ( tlv->data[0] & 0xF0 ) != WPS_VERSION )
                 {
-                    CY_WPS_DEBUG(("WPS version mismatch\r\n"));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "WPS version mismatch\r\n");
                     return CY_RSLT_WPS_ERROR_VERSION_MISMATCH;
                 }
                 break;
@@ -927,7 +934,7 @@ static cy_rslt_t cy_wps_process_message_content( cy_wps_agent_t* workspace, uint
                     {
                         if ( memcmp( &workspace->enrollee_data->nonce, tlv->data, sizeof(cy_wps_nonce_t) ) != 0 )
                         {
-                            CY_WPS_DEBUG(("WPS enrollee nonce mismatch\r\n"));
+                            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "WPS enrollee nonce mismatch\r\n");
                             return CY_RSLT_WPS_ERROR_ENROLLEE_NONCE_MISMATCH;
                         }
                     }
@@ -947,7 +954,7 @@ static cy_rslt_t cy_wps_process_message_content( cy_wps_agent_t* workspace, uint
                     {
                         if ( memcmp( &workspace->registrar_data->nonce, tlv->data, sizeof(cy_wps_nonce_t) ) != 0 )
                         {
-                            CY_WPS_DEBUG(("WPS registrar nonce mismatch\r\n"));
+                            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "WPS registrar nonce mismatch\r\n");
                             return CY_RSLT_WPS_ERROR_REGISTRAR_NONCE_MISMATCH;
                         }
                     }
@@ -1013,7 +1020,7 @@ static cy_rslt_t cy_wps_process_message_content( cy_wps_agent_t* workspace, uint
                 workspace->their_data.authTypeFlags = CY_WPS_HOST_READ_16_BE(tlv->data);
                 if ( ( workspace->their_data.authTypeFlags & workspace->my_data.authTypeFlags ) == 0 )
                 {
-                    CY_WPS_DEBUG(("WPS authentication type not supported\r\n"));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "WPS authentication type not supported\r\n");
                     return CY_RSLT_WPS_ERROR_AUTHENTICATION_TYPE_ERROR;
                 }
                 break;
@@ -1023,7 +1030,7 @@ static cy_rslt_t cy_wps_process_message_content( cy_wps_agent_t* workspace, uint
                 workspace->their_data.encrTypeFlags = CY_WPS_HOST_READ_16_BE(tlv->data);
                 if ( ( workspace->their_data.encrTypeFlags & workspace->my_data.encrTypeFlags ) == 0 )
                 {
-                    CY_WPS_DEBUG(("WPS encryption type not supported\r\n"));
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "WPS encryption type not supported\r\n");
                     return CY_RSLT_WPS_ERROR_ENCRYPTION_TYPE_ERROR;
                 }
                 break;
@@ -1078,7 +1085,7 @@ static cy_rslt_t cy_wps_process_message_content( cy_wps_agent_t* workspace, uint
 
     if ( parsed_tlvs != tlv_mask )
     {
-        CY_WPS_DEBUG(("Mismatched TLVs. %lu != %lu\r\n", parsed_tlvs, tlv_mask));
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Mismatched TLVs. %lu != %lu\r\n", parsed_tlvs, tlv_mask);
         return CY_RSLT_WPS_ERROR_MESSAGE_TLV_MASK_MISMATCH;
     }
 
@@ -1120,12 +1127,12 @@ static cy_rslt_t cy_wps_process_message_content( cy_wps_agent_t* workspace, uint
         cy_sha2_hmac_finish( &workspace->hmac, (unsigned char*) &hmac_output );
         if ( memcmp( &hmac_output, authenticator, WPS_AUTHENTICATOR_LEN ) != 0 )
         {
-            CY_WPS_DEBUG(("Message HMAC error\r\n"));
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Message HMAC error\r\n");
             return CY_RSLT_WPS_ERROR_MESSAGE_HMAC_FAIL;
         }
         else
         {
-            CY_WPS_DEBUG(("Message HMAC correct\r\n"));
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Message HMAC correct\r\n");
         }
 
         /* Start the HMAC calculation for next message */
@@ -1154,7 +1161,7 @@ static cy_rslt_t cy_wps_process_encrypted_tlvs( cy_wps_agent_t* workspace, cy_wp
     int           plain_text_length;
     tlv16_data_t* key_wrap_auth = NULL;
 
-    CY_WPS_DEBUG(("Processing encrypted TLV\r\n"));
+    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Processing encrypted TLV\r\n");
 
     /* Decrypt the encrypted data */
     plain_text_length = cy_wps_decrypt_data( encrypted_data, encrypted_data_length, &workspace->key_wrap_key, plain_text );
@@ -1174,7 +1181,7 @@ static cy_rslt_t cy_wps_process_encrypted_tlvs( cy_wps_agent_t* workspace, cy_wp
     cy_sha2_hmac( (unsigned char *)&workspace->auth_key, SIZE_256_BITS, plain_text, (uint32_t) plain_text_length - sizeof(tlv16_header_t) - SIZE_64_BITS, (uint8_t*) &hmac_output, 0 );
     if ( memcmp( &hmac_output, key_wrap_auth->data, SIZE_64_BITS ) != 0 )
     {
-        CY_WPS_DEBUG(("WPS: HMAC error\r\n"));
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "WPS: HMAC error\r\n");
         return CY_RSLT_WPS_ERROR_ENCRYPTED_TLV_HMAC_FAIL;
     }
 
@@ -1186,7 +1193,7 @@ static cy_rslt_t cy_wps_process_encrypted_tlvs( cy_wps_agent_t* workspace, cy_wp
 
         if (result != CY_RSLT_SUCCESS)
         {
-            CY_WPS_DEBUG(("WPS: HMAC error\r\n"));
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "WPS: HMAC error\r\n");
             return result;
         }
 
@@ -1253,7 +1260,7 @@ static cy_rslt_t cy_wps_process_encrypted_tlvs( cy_wps_agent_t* workspace, cy_wp
 
     if ( result != CY_RSLT_SUCCESS )
     {
-        CY_WPS_DEBUG(("WPS: error processing encrypted TLVs\r\n"));
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "WPS: error processing encrypted TLVs\r\n");
         return result;
     }
 
@@ -1480,7 +1487,7 @@ uint8_t* cy_wps_write_nonce(cy_wps_agent_t* workspace, uint8_t* iter)
         }
     }
 
-    CY_WPS_INFO(("Sending nonce\r\n"));
+    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Sending nonce\r\n");
     return iter;
 }
 
@@ -1505,7 +1512,7 @@ uint8_t* cy_wps_write_hashes(cy_wps_agent_t* workspace, uint8_t* iter)
         iter = cy_wps_write_vendor_extension( iter, workspace );
     }
 
-    CY_WPS_INFO(("Sending hashes\r\n"));
+    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Sending hashes\r\n");
     return iter;
 }
 
@@ -1695,14 +1702,14 @@ static void cy_wps_init_unfragmented_packet( cy_wps_agent_t* workspace, uint16_t
         workspace->fragmented_packet_length_max = 1024;
     }
     workspace->fragmented_packet = (uint8_t*) cy_wps_malloc("wps fragd pkt", workspace->fragmented_packet_length_max);
-    CY_WPS_DEBUG(("Allocated fragmented packet = [0x%X]. Len Max = [%d]\r\n", (unsigned int*) workspace->fragmented_packet, workspace->fragmented_packet_length_max));
+    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Allocated fragmented packet = [0x%X]. Len Max = [%d]\r\n", (unsigned int*) workspace->fragmented_packet, workspace->fragmented_packet_length_max);
 }
 
 static void cy_wps_append_fragment( cy_wps_agent_t* workspace, void* fragment, uint16_t fragment_length )
 {
     WPS_ASSERT(workspace->fragmented_packet != NULL);
 
-    CY_WPS_DEBUG(("Frag Pkt Len + Frag Len = [%d], Max Frag Len = [%d]\r\n", workspace->fragmented_packet_length + fragment_length, workspace->fragmented_packet_length_max));
+    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Frag Pkt Len + Frag Len = [%d], Max Frag Len = [%d]\r\n", workspace->fragmented_packet_length + fragment_length, workspace->fragmented_packet_length_max);
     if ( workspace->fragmented_packet_length + fragment_length >= workspace->fragmented_packet_length_max )
     {
         void* new_packet = cy_wps_malloc("wps append frag", (uint32_t)( workspace->fragmented_packet_length_max + fragment_length + 1024 ) );
@@ -1727,7 +1734,7 @@ static void cy_wps_free_unfragmented_packet( cy_wps_agent_t* workspace )
 {
     if ( workspace->fragmented_packet != NULL )
     {
-        CY_WPS_DEBUG(("Freeing defragmented packet. Len Max = [%d]\r\n", workspace->fragmented_packet_length_max));
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Freeing defragmented packet. Len Max = [%d]\r\n", workspace->fragmented_packet_length_max);
         cy_wps_free( workspace->fragmented_packet );
         workspace->fragmented_packet = NULL;
         workspace->fragmented_packet_length = 0;
@@ -1751,14 +1758,14 @@ static cy_rslt_t cy_wps_process_packet_fragmentation(cy_wps_agent_t* workspace, 
     if ( real_packet_length < calculated_packet_length )
     {
         /* This is a runt packet. The only thing we can do is flag an error. */
-        CY_WPS_DEBUG( ( "Runt WPS packet. Real packet length: %u Calculated packet length: %u\r\n", (unsigned int)real_packet_length, (unsigned int)calculated_packet_length ) );
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Runt WPS packet. Real packet length: %u Calculated packet length: %u\r\n", (unsigned int)real_packet_length, (unsigned int)calculated_packet_length );
         return CY_RSLT_WPS_ERROR_RUNT_WPS_PACKET;
     }
     else if ( real_packet_length > calculated_packet_length )
     {
         /* This is a giant packet. Recalculate data length to remove trailing garbage */
         data_length = eap_packet_length - ( sizeof( cy_eap_header_t ) + sizeof( cy_eap_expanded_header_t ) );
-        CY_WPS_DEBUG( ( "WPS packet with trailing garbage. Recalculated data length is: %u\r\n", (unsigned int)data_length ) );
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "WPS packet with trailing garbage. Recalculated data length is: %u\r\n", (unsigned int)data_length );
     }
 
     /* Check if we have a fragment */
@@ -1767,13 +1774,13 @@ static cy_rslt_t cy_wps_process_packet_fragmentation(cy_wps_agent_t* workspace, 
         packet_data          = cy_get_wps_packet_data( packet );
 
         /* Append to end of fragment */
-        CY_WPS_DEBUG(("Append Fragment. Data Len = [%d], sizeof(eapol_pkt) = [%d]\r\n", data_length, sizeof(cy_eapol_packet_header_t)));
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Append Fragment. Data Len = [%d], sizeof(eapol_pkt) = [%d]\r\n", data_length, sizeof(cy_eapol_packet_header_t));
         cy_wps_append_fragment( workspace, packet_data, data_length );
 
         /* Check if there is are more fragments to come */
         if ( packet->eap_expanded.flags & WPS_MORE_FRAGMENTS_MASK )
         {
-            CY_WPS_DEBUG(("Received another fragment (%d bytes)\r\n", data_length - sizeof(cy_eapol_packet_header_t) ));
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Received another fragment (%d bytes)\r\n", data_length - sizeof(cy_eapol_packet_header_t) );
             goto send_frag_ack;
         }
         else
@@ -1794,12 +1801,12 @@ static cy_rslt_t cy_wps_process_packet_fragmentation(cy_wps_agent_t* workspace, 
         {
             uint16_t* length_field = (uint16_t*) packet->data;
             cy_wps_init_unfragmented_packet( workspace, cy_hton16( *length_field ) );
-            CY_WPS_DEBUG(("%d bytes expected\r\n", cy_hton16( *length_field )));
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "%d bytes expected\r\n", cy_hton16( *length_field ));
         }
         else
         {
             cy_wps_init_unfragmented_packet( workspace, 0 );
-            CY_WPS_DEBUG(("Total length unknown\r\n"));
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Total length unknown\r\n");
         }
         cy_wps_append_fragment( workspace, packet_data, calculated_packet_length );
 
@@ -1826,7 +1833,7 @@ static uint32_t cy_wps_send_frag_ack( cy_wps_agent_t* workspace )
     uint16_t aligned_length;
     uint32_t aligned_vendor_type;
 
-    CY_WPS_DEBUG(("Sending frag ACK\r\n"));
+    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Sending frag ACK\r\n");
 
     /* Create the packet and write the EAP header */
     whd_host_buffer_get( workspace->interface->whd_driver, &packet, WHD_NETWORK_TX, 1024 + WHD_LINK_HEADER, true );
@@ -1971,7 +1978,7 @@ static cy_rslt_t cy_wps_validate_secret_nonce(cy_wps_agent_t* workspace, cy_wps_
     cy_wps_calculate_hash( workspace, agent_data, &temp_hash, which_nonce );
     if ( memcmp( &temp_hash, &agent_data->secret_hash[which_nonce], sizeof(cy_wps_hash_t) ) != 0 )
     {
-        CY_WPS_DEBUG(("WPS: Secret nonce validation failed\r\n"));
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "WPS: Secret nonce validation failed\r\n");
         return CY_RSLT_WPS_ERROR_SECRET_NONCE_MISMATCH;
     }
     return CY_RSLT_SUCCESS;
@@ -1998,6 +2005,6 @@ void cy_wps_send_eapol_packet(cy_packet_t packet, cy_wps_agent_t* workspace, cy_
 
 static cy_rslt_t cy_wps_send_done( cy_wps_agent_t* workspace )
 {
-    CY_WPS_INFO(("Sending WSC Done\r\n"));
+    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Sending WSC Done\r\n");
     return cy_wps_send_basic_packet( workspace, WPS_ID_MESSAGE_DONE, 0 );
 }

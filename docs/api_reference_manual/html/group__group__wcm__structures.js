@@ -72,5 +72,22 @@ var group__group__wcm__structures =
       [ "ssid", "structcy__wcm__wps__credential__t.html#a3073e0f51c0149524f08f060725e9214", null ],
       [ "security", "structcy__wcm__wps__credential__t.html#a8274f6ea76c0d1df464038bf3a95a1c7", null ],
       [ "passphrase", "structcy__wcm__wps__credential__t.html#a050204a4875f55a337aae327c9d09e7e", null ]
+    ] ],
+    [ "cy_wcm_associated_ap_info_t", "structcy__wcm__associated__ap__info__t.html", [
+      [ "SSID", "structcy__wcm__associated__ap__info__t.html#a06331c62076e5bffb4bb152e10392c08", null ],
+      [ "BSSID", "structcy__wcm__associated__ap__info__t.html#ae6bea8ffe1b1fd74f0715601806b93cf", null ],
+      [ "security", "structcy__wcm__associated__ap__info__t.html#a4b47f1136ce398758b642a9497df4ac2", null ],
+      [ "channel_width", "structcy__wcm__associated__ap__info__t.html#a7c1cb78975c5725a09dd892fea008c83", null ],
+      [ "signal_strength", "structcy__wcm__associated__ap__info__t.html#a5509aacd600eed0acaa2233884326ba9", null ],
+      [ "channel", "structcy__wcm__associated__ap__info__t.html#ae9076adfc8363be7e62a43c3f21b8220", null ]
+    ] ],
+    [ "cy_wcm_wlan_statistics_t", "structcy__wcm__wlan__statistics__t.html", [
+      [ "rx_bytes", "structcy__wcm__wlan__statistics__t.html#a5d2bbf3841011afecbcb5d92d8a65815", null ],
+      [ "tx_bytes", "structcy__wcm__wlan__statistics__t.html#a98e6c33c50f4666a908f9d712f5c0a53", null ],
+      [ "rx_packets", "structcy__wcm__wlan__statistics__t.html#a91084eaf5e8cf3d57521af0b518f7e34", null ],
+      [ "tx_packets", "structcy__wcm__wlan__statistics__t.html#a3a8559869256dac2d7ad1011133eebd8", null ],
+      [ "tx_retries", "structcy__wcm__wlan__statistics__t.html#ace1911e7d5a9d48df6cc163f623dcbef", null ],
+      [ "tx_failed", "structcy__wcm__wlan__statistics__t.html#aefb719dce691a8f7e4742be439c19424", null ],
+      [ "tx_bitrate", "structcy__wcm__wlan__statistics__t.html#acf071fd3115d3483a5fd5a1520e9868d", null ]
     ] ]
 ];
