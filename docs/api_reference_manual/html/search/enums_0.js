@@ -2,6 +2,7 @@ var searchData=
 [
   ['cy_5fwcm_5fbss_5ftype_5ft',['cy_wcm_bss_type_t',['../group__group__wcm__enums.html#ga5da487a7ada216490a5f6787d617f10d',1,'cy_wcm.h']]],
   ['cy_5fwcm_5fevent_5ft',['cy_wcm_event_t',['../group__group__wcm__enums.html#gafada6a09a78bd0473f3daef54621567f',1,'cy_wcm.h']]],
+  ['cy_5fwcm_5fie_5fmask_5ft',['cy_wcm_ie_mask_t',['../group__group__wcm__enums.html#gac880508299364d38baeb869c761bc695',1,'cy_wcm.h']]],
   ['cy_5fwcm_5finterface_5ft',['cy_wcm_interface_t',['../group__group__wcm__enums.html#gac4c4ca6db8db6efdc3013b789a4c9cf8',1,'cy_wcm.h']]],
   ['cy_5fwcm_5fip_5fversion_5ft',['cy_wcm_ip_version_t',['../group__group__wcm__enums.html#ga24d3def17207a3c64b62fb4b8a44a7fc',1,'cy_wcm.h']]],
   ['cy_5fwcm_5fipv6_5ftype_5ft',['cy_wcm_ipv6_type_t',['../group__group__wcm__enums.html#ga04051d082e24439e436a17db75fadfef',1,'cy_wcm.h']]],

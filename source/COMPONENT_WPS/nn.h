@@ -31,52 +31,49 @@
  * so agrees to indemnify Cypress against all liability.
  */
 
-/**
-* @file cy_eapol.c
-* @brief EAPOL handling for receiving EAPOL data from WHD
-*/
+/*******************************************************************************
+ * @file
+ * Header for the natural numbers library
+ *******************************************************************************
+ */
 
-#include "cy_eapol.h"
-#include "whd_buffer_api.h"
-#include <stdio.h>
+#ifndef INCLUDED_NN_H
+#define INCLUDED_NN_H
 
-/******************************************************
- *                      Macros
- ******************************************************/
+#include <stdint.h>
 
-/******************************************************
- *                    Constants
- ******************************************************/
+#include "cy_wps_common.h"
+#include "cy_wps_structures.h"
 
-/******************************************************
- *                   Enumerations
- ******************************************************/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/******************************************************
- *                 Type Definitions
- ******************************************************/
-
-/******************************************************
- *                    Structures
- ******************************************************/
-
-/******************************************************
- *               Function Declarations
- ******************************************************/
-
-/******************************************************
- *               Variables Definitions
- ******************************************************/
-
-/******************************************************
- *               Function Definitions
- ******************************************************/
-uint8_t* cy_eapol_get_eapol_data( whd_buffer_t packet, whd_interface_t interface )
+typedef struct
 {
-    return whd_buffer_get_current_piece_data_pointer(interface->whd_driver, packet);
-}
+    uint32_t len;
+    uint32_t num[1];
+} NN_t;
 
-uint16_t cy_get_eapol_packet_size( whd_buffer_t packet, whd_interface_t interface )
-{
-    return whd_buffer_get_current_piece_size(interface->whd_driver, packet);
-}
+void     NN_Clr          ( NN_t* number );
+uint32_t NN_Add          ( NN_t* result, const NN_t*x, const NN_t*y );
+uint32_t NN_Sub          ( NN_t* result, const NN_t*x, const NN_t*y );
+void     NN_Mul          ( NN_t* result, const NN_t*x, const NN_t*y );
+void     NN_AddMod       ( NN_t* result, const NN_t*x, const NN_t*y, const NN_t*modulus );
+void     NN_SubMod       ( NN_t* result, const NN_t*x, const NN_t*y, const NN_t*modulus );
+void     NN_MulMod       ( NN_t* result, const NN_t*x, const NN_t*y, const NN_t*modulus );
+void     NN_ExpMod       ( NN_t* result, NN_t*x, NN_t*modulus, NN_t*e, NN_t*w );
+void     NN_MulModMont   ( NN_t* result, const NN_t*x, const NN_t*y, const NN_t*m, uint32_t t );
+void     NN_ExpModMont   ( NN_t* result, NN_t*x, NN_t*m, NN_t*e, NN_t*w );
+uint32_t NN_EmTick       ( const NN_t* mod );
+void     NN_ErModEm      ( NN_t* result, const NN_t*m );
+uint64_t NN_Mul32x32u64  ( uint32_t a, uint32_t b );
+void     wps_NN_set      ( cy_wps_NN_t* m, const uint8_t* buffer);
+void     wps_NN_get      ( const cy_wps_NN_t* m, uint8_t* buffer);
+
+#ifdef __cplusplus
+} /*extern "C" */
+#endif
+
+#endif /* ifndef INCLUDED_NN_H */
+

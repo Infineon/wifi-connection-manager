@@ -4,6 +4,7 @@ var group__group__wcm__macros =
     [ "CY_WCM_MAX_SSID_LEN", "group__group__wcm__macros.html#gad757aff6414a2ebb12dcdea491df9627", null ],
     [ "CY_WCM_MAX_PASSPHRASE_LEN", "group__group__wcm__macros.html#ga57d06f15bb823cd45d9542c1303f647a", null ],
     [ "CY_WCM_MAC_ADDR_LEN", "group__group__wcm__macros.html#gae032a02d61d8a9d68a502ac20591a1d5", null ],
+    [ "CY_WCM_MAX_IE_LENGTH", "group__group__wcm__macros.html#ga25c78c2899233a91a6e52821fecdd3bf", null ],
     [ "WEP_ENABLED", "group__group__wcm__macros.html#ga4199a1b37dba92f482ff0b9eb406c323", null ],
     [ "TKIP_ENABLED", "group__group__wcm__macros.html#ga20f0d7118c2d35a688bcdc5b8b0920d9", null ],
     [ "AES_ENABLED", "group__group__wcm__macros.html#ga577a9dbc615ba145496a41a2035bd615", null ],

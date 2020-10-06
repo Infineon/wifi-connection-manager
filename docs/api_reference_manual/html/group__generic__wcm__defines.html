@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Cypress Wi-Fi Connection Manager Library: WCM results/error codes</title>
+<title>Wi-Fi Connection Manager Library: WCM results/error codes</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td id="projectlogo"><a href="http://www.cypress.com/"><img alt="Logo" src="cypress_logo.png"/></a></td>
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">Cypress Wi-Fi Connection Manager Library</div>
+   <div id="projectname">Wi-Fi Connection Manager Library</div>
   </td>
  </tr>
  </tbody>
@@ -102,7 +102,7 @@ $(document).ready(function(){initNavTree('group__generic__wcm__defines.html','')
 
 See the macro section of this document for library-specific error codes.
 </pre><p>The data structure cy_rslt_t is part of cy_result.h located in &lt;core_lib/include&gt;.</p>
-<p>Module base: This base is derived from CY_RSLT_MODULE_MIDDLEWARE_BASE (defined in cy_result.h) and is an offset of the CY_RSLT_MODULE_MIDDLEWARE_BASE. The details of the offset and the middleware base are defined in cy_result_mw.h, that is part of <a href="https://github.com/cypresssemiconductorco/connectivity-utilities">GitHub connectivity-utilities</a> For instance, Wi-Fi Connection Manager (WCM) uses CY_RSLT_MODULE_WCM_BASE as the module base.</p>
+<p>Module base: This base is derived from CY_RSLT_MODULE_MIDDLEWARE_BASE (defined in cy_result.h) and is an offset of the CY_RSLT_MODULE_MIDDLEWARE_BASE. The details of the offset and the middleware base are defined in cy_result_mw.h, that is part of <a href="https://github.com/cypresssemiconductorco/connectivity-utilities">GitHub connectivity-utilities</a> For example, Wi-Fi Connection Manager (WCM) uses CY_RSLT_MODULE_WCM_BASE as the module base.</p>
 <p>Type: This type is defined in cy_result.h and can be one of CY_RSLT_TYPE_FATAL, CY_RSLT_TYPE_ERROR, CY_RSLT_TYPE_WARNING, or CY_RSLT_TYPE_INFO. AWS library error codes are of type CY_RSLT_TYPE_ERROR.</p>
 <p>Library-specific error code: These error codes are library-specific and defined in the macro section.</p>
 <p>Helper macros used for creating the library-specific result are provided as part of cy_result.h. </p>
@@ -137,64 +137,97 @@ Macros</h2></td></tr>
 <tr class="memitem:ga96569b88f43584ab0d8f13270e890ef1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga96569b88f43584ab0d8f13270e890ef1">CY_RSLT_WCM_MUTEX_ERROR</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 8)</td></tr>
 <tr class="memdesc:ga96569b88f43584ab0d8f13270e890ef1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mutex error.  <a href="#ga96569b88f43584ab0d8f13270e890ef1">More...</a><br /></td></tr>
 <tr class="separator:ga96569b88f43584ab0d8f13270e890ef1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga59a16d08086af3bbdc7b72aa823bb4dd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga59a16d08086af3bbdc7b72aa823bb4dd">CY_RSLT_WCM_DISCONNECT_ERROR</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 9)</td></tr>
-<tr class="memdesc:ga59a16d08086af3bbdc7b72aa823bb4dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disconnect error.  <a href="#ga59a16d08086af3bbdc7b72aa823bb4dd">More...</a><br /></td></tr>
-<tr class="separator:ga59a16d08086af3bbdc7b72aa823bb4dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga91e9bcdfff6fd3734830e691a3e8df5b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga91e9bcdfff6fd3734830e691a3e8df5b">CY_RSLT_WCM_NETWORK_DOWN</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 10)</td></tr>
-<tr class="memdesc:ga91e9bcdfff6fd3734830e691a3e8df5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Network is down.  <a href="#ga91e9bcdfff6fd3734830e691a3e8df5b">More...</a><br /></td></tr>
-<tr class="separator:ga91e9bcdfff6fd3734830e691a3e8df5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9f25bb09147c2b4baea03e7049144eea"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga9f25bb09147c2b4baea03e7049144eea">CY_RSLT_WCM_STA_DISCONNECT_ERROR</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 9)</td></tr>
+<tr class="memdesc:ga9f25bb09147c2b4baea03e7049144eea"><td class="mdescLeft">&#160;</td><td class="mdescRight">STA disconnect error.  <a href="#ga9f25bb09147c2b4baea03e7049144eea">More...</a><br /></td></tr>
+<tr class="separator:ga9f25bb09147c2b4baea03e7049144eea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6b5d340b62864115c40912b3c824618f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga6b5d340b62864115c40912b3c824618f">CY_RSLT_WCM_STA_NETWORK_DOWN</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 10)</td></tr>
+<tr class="memdesc:ga6b5d340b62864115c40912b3c824618f"><td class="mdescLeft">&#160;</td><td class="mdescRight">STA network is down.  <a href="#ga6b5d340b62864115c40912b3c824618f">More...</a><br /></td></tr>
+<tr class="separator:ga6b5d340b62864115c40912b3c824618f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaa6740929b50bb588c5eac2ce24a3b8a3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#gaa6740929b50bb588c5eac2ce24a3b8a3">CY_RSLT_WCM_BSP_INIT_ERROR</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 11)</td></tr>
 <tr class="memdesc:gaa6740929b50bb588c5eac2ce24a3b8a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">CY BSP initialization error.  <a href="#gaa6740929b50bb588c5eac2ce24a3b8a3">More...</a><br /></td></tr>
 <tr class="separator:gaa6740929b50bb588c5eac2ce24a3b8a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga75d572006f9f9e5537b6829f1a6e05d1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga75d572006f9f9e5537b6829f1a6e05d1">CY_RSLT_WCM_NO_ACTIVE_SCAN</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 12)</td></tr>
+<tr class="memitem:gae47a63270adf2e7623fc7e094f439149"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#gae47a63270adf2e7623fc7e094f439149">CY_RSLT_WCM_BSP_DEINIT_ERROR</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 12)</td></tr>
+<tr class="memdesc:gae47a63270adf2e7623fc7e094f439149"><td class="mdescLeft">&#160;</td><td class="mdescRight">CY BSP error while de-initialization.  <a href="#gae47a63270adf2e7623fc7e094f439149">More...</a><br /></td></tr>
+<tr class="separator:gae47a63270adf2e7623fc7e094f439149"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga75d572006f9f9e5537b6829f1a6e05d1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga75d572006f9f9e5537b6829f1a6e05d1">CY_RSLT_WCM_NO_ACTIVE_SCAN</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 13)</td></tr>
 <tr class="memdesc:ga75d572006f9f9e5537b6829f1a6e05d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">No active scan running currently.  <a href="#ga75d572006f9f9e5537b6829f1a6e05d1">More...</a><br /></td></tr>
 <tr class="separator:ga75d572006f9f9e5537b6829f1a6e05d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gad7f901e31b274c3875d4fffe5ad67e2b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#gad7f901e31b274c3875d4fffe5ad67e2b">CY_RSLT_WCM_SCAN_IN_PROGRESS</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 13)</td></tr>
+<tr class="memitem:gad7f901e31b274c3875d4fffe5ad67e2b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#gad7f901e31b274c3875d4fffe5ad67e2b">CY_RSLT_WCM_SCAN_IN_PROGRESS</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 14)</td></tr>
 <tr class="memdesc:gad7f901e31b274c3875d4fffe5ad67e2b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Scan in progress.  <a href="#gad7f901e31b274c3875d4fffe5ad67e2b">More...</a><br /></td></tr>
 <tr class="separator:gad7f901e31b274c3875d4fffe5ad67e2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga197800b45253fb46881ace6422f71cf2"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga197800b45253fb46881ace6422f71cf2">CY_RSLT_WCM_SCAN_ERROR</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 14)</td></tr>
+<tr class="memitem:ga197800b45253fb46881ace6422f71cf2"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga197800b45253fb46881ace6422f71cf2">CY_RSLT_WCM_SCAN_ERROR</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 15)</td></tr>
 <tr class="memdesc:ga197800b45253fb46881ace6422f71cf2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Scan error.  <a href="#ga197800b45253fb46881ace6422f71cf2">More...</a><br /></td></tr>
 <tr class="separator:ga197800b45253fb46881ace6422f71cf2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga0eb923b5580da458eed4a15793a1ffce"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga0eb923b5580da458eed4a15793a1ffce">CY_RSLT_WCM_STOP_SCAN_ERROR</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 15)</td></tr>
+<tr class="memitem:ga0eb923b5580da458eed4a15793a1ffce"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga0eb923b5580da458eed4a15793a1ffce">CY_RSLT_WCM_STOP_SCAN_ERROR</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 16)</td></tr>
 <tr class="memdesc:ga0eb923b5580da458eed4a15793a1ffce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop scan error.  <a href="#ga0eb923b5580da458eed4a15793a1ffce">More...</a><br /></td></tr>
 <tr class="separator:ga0eb923b5580da458eed4a15793a1ffce"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga3ff0df04af64b8e9885c7965c0323dfd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga3ff0df04af64b8e9885c7965c0323dfd">CY_RSLT_WCM_BAND_NOT_SUPPORTED</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 16)</td></tr>
+<tr class="memitem:ga3ff0df04af64b8e9885c7965c0323dfd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga3ff0df04af64b8e9885c7965c0323dfd">CY_RSLT_WCM_BAND_NOT_SUPPORTED</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 17)</td></tr>
 <tr class="memdesc:ga3ff0df04af64b8e9885c7965c0323dfd"><td class="mdescLeft">&#160;</td><td class="mdescRight">BAND not supported.  <a href="#ga3ff0df04af64b8e9885c7965c0323dfd">More...</a><br /></td></tr>
 <tr class="separator:ga3ff0df04af64b8e9885c7965c0323dfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaca7baad8249d644588355f5957dbeb23"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#gaca7baad8249d644588355f5957dbeb23">CY_RSLT_WCM_OUT_OF_MEMORY</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 17)</td></tr>
+<tr class="memitem:gaca7baad8249d644588355f5957dbeb23"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#gaca7baad8249d644588355f5957dbeb23">CY_RSLT_WCM_OUT_OF_MEMORY</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 18)</td></tr>
 <tr class="memdesc:gaca7baad8249d644588355f5957dbeb23"><td class="mdescLeft">&#160;</td><td class="mdescRight">WCM out of memory error.  <a href="#gaca7baad8249d644588355f5957dbeb23">More...</a><br /></td></tr>
 <tr class="separator:gaca7baad8249d644588355f5957dbeb23"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga3fbd0225b6475abc34f2631923abf7d6"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga3fbd0225b6475abc34f2631923abf7d6">CY_RSLT_WCM_CHANNEL_ERROR</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 18)</td></tr>
+<tr class="memitem:ga3fbd0225b6475abc34f2631923abf7d6"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga3fbd0225b6475abc34f2631923abf7d6">CY_RSLT_WCM_CHANNEL_ERROR</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 19)</td></tr>
 <tr class="memdesc:ga3fbd0225b6475abc34f2631923abf7d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Error in retrieving the Wi-Fi channel.  <a href="#ga3fbd0225b6475abc34f2631923abf7d6">More...</a><br /></td></tr>
 <tr class="separator:ga3fbd0225b6475abc34f2631923abf7d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga152d8dbea82f3fc8ac3bcd9134ba7c2b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga152d8dbea82f3fc8ac3bcd9134ba7c2b">CY_RSLT_WCM_NETIF_DOES_NOT_EXIST</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 19)</td></tr>
+<tr class="memitem:ga152d8dbea82f3fc8ac3bcd9134ba7c2b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga152d8dbea82f3fc8ac3bcd9134ba7c2b">CY_RSLT_WCM_NETIF_DOES_NOT_EXIST</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 20)</td></tr>
 <tr class="memdesc:ga152d8dbea82f3fc8ac3bcd9134ba7c2b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Network interface does not exist.  <a href="#ga152d8dbea82f3fc8ac3bcd9134ba7c2b">More...</a><br /></td></tr>
 <tr class="separator:ga152d8dbea82f3fc8ac3bcd9134ba7c2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga4e8841bff7f6f44e4338a7a5f4957430"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga4e8841bff7f6f44e4338a7a5f4957430">CY_RSLT_WCM_ARP_REQUEST_FAILURE</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 20)</td></tr>
+<tr class="memitem:ga4e8841bff7f6f44e4338a7a5f4957430"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga4e8841bff7f6f44e4338a7a5f4957430">CY_RSLT_WCM_ARP_REQUEST_FAILURE</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 21)</td></tr>
 <tr class="memdesc:ga4e8841bff7f6f44e4338a7a5f4957430"><td class="mdescLeft">&#160;</td><td class="mdescRight">Error returned for ARP request failure.  <a href="#ga4e8841bff7f6f44e4338a7a5f4957430">More...</a><br /></td></tr>
 <tr class="separator:ga4e8841bff7f6f44e4338a7a5f4957430"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaf238a2679be63d6c347384309d0ecdec"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#gaf238a2679be63d6c347384309d0ecdec">CY_RSLT_WCM_IPV6_GLOBAL_ADDRESS_NOT_SUPPORTED</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 21)</td></tr>
+<tr class="memitem:gaf238a2679be63d6c347384309d0ecdec"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#gaf238a2679be63d6c347384309d0ecdec">CY_RSLT_WCM_IPV6_GLOBAL_ADDRESS_NOT_SUPPORTED</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 22)</td></tr>
 <tr class="memdesc:gaf238a2679be63d6c347384309d0ecdec"><td class="mdescLeft">&#160;</td><td class="mdescRight">IPv6 global IP not supported.  <a href="#gaf238a2679be63d6c347384309d0ecdec">More...</a><br /></td></tr>
 <tr class="separator:gaf238a2679be63d6c347384309d0ecdec"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaec2dc6ae38fe8d511c6e9341a87460d4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#gaec2dc6ae38fe8d511c6e9341a87460d4">CY_RSLT_WCM_IPV6_INTERFACE_NOT_READY</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 22)</td></tr>
+<tr class="memitem:gaec2dc6ae38fe8d511c6e9341a87460d4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#gaec2dc6ae38fe8d511c6e9341a87460d4">CY_RSLT_WCM_IPV6_INTERFACE_NOT_READY</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 23)</td></tr>
 <tr class="memdesc:gaec2dc6ae38fe8d511c6e9341a87460d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">IPV6 interface not ready.  <a href="#gaec2dc6ae38fe8d511c6e9341a87460d4">More...</a><br /></td></tr>
 <tr class="separator:gaec2dc6ae38fe8d511c6e9341a87460d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga25e7e3f701dc1fb8d7695f12b197e792"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga25e7e3f701dc1fb8d7695f12b197e792">CY_RSLT_WCM_PING_FAILURE</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 23)</td></tr>
+<tr class="memitem:ga25e7e3f701dc1fb8d7695f12b197e792"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga25e7e3f701dc1fb8d7695f12b197e792">CY_RSLT_WCM_PING_FAILURE</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 24)</td></tr>
 <tr class="memdesc:ga25e7e3f701dc1fb8d7695f12b197e792"><td class="mdescLeft">&#160;</td><td class="mdescRight">Failure in executing ping.  <a href="#ga25e7e3f701dc1fb8d7695f12b197e792">More...</a><br /></td></tr>
 <tr class="separator:ga25e7e3f701dc1fb8d7695f12b197e792"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaeda8de6854236b599d845071a9de13f6"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#gaeda8de6854236b599d845071a9de13f6">CY_RSLT_WCM_PING_REQUEST_TIMEOUT</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 24)</td></tr>
+<tr class="memitem:gaeda8de6854236b599d845071a9de13f6"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#gaeda8de6854236b599d845071a9de13f6">CY_RSLT_WCM_PING_REQUEST_TIMEOUT</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 25)</td></tr>
 <tr class="memdesc:gaeda8de6854236b599d845071a9de13f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ping request timed out.  <a href="#gaeda8de6854236b599d845071a9de13f6">More...</a><br /></td></tr>
 <tr class="separator:gaeda8de6854236b599d845071a9de13f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gab647206b775cba6ee4b7b7b19c583f7b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#gab647206b775cba6ee4b7b7b19c583f7b">CY_RSLT_WCM_WPS_PBC_OVERLAP</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 25)</td></tr>
+<tr class="memitem:ga43b6f1f06a3602b8d084ee2d95ad5a2e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga43b6f1f06a3602b8d084ee2d95ad5a2e">CY_RSLT_WCM_STATIC_IP_NOT_SUPPORTED</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 26)</td></tr>
+<tr class="memdesc:ga43b6f1f06a3602b8d084ee2d95ad5a2e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Static IP address not supported for IPv6.  <a href="#ga43b6f1f06a3602b8d084ee2d95ad5a2e">More...</a><br /></td></tr>
+<tr class="separator:ga43b6f1f06a3602b8d084ee2d95ad5a2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab5427f7db66759198ece7997fb98b1d6"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#gab5427f7db66759198ece7997fb98b1d6">CY_RSLT_WCM_BAD_STATIC_IP</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 27)</td></tr>
+<tr class="memdesc:gab5427f7db66759198ece7997fb98b1d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bad Static IP address.  <a href="#gab5427f7db66759198ece7997fb98b1d6">More...</a><br /></td></tr>
+<tr class="separator:gab5427f7db66759198ece7997fb98b1d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab6f3189215b7eb6877302a14445af584"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#gab6f3189215b7eb6877302a14445af584">CY_RSLT_WCM_SECONDARY_INTERFACE_ERROR</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 28)</td></tr>
+<tr class="memdesc:gab6f3189215b7eb6877302a14445af584"><td class="mdescLeft">&#160;</td><td class="mdescRight">Error in bringing up the secondary interface.  <a href="#gab6f3189215b7eb6877302a14445af584">More...</a><br /></td></tr>
+<tr class="separator:gab6f3189215b7eb6877302a14445af584"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga417bfc0044bee5d22d44b2241f49f4a7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga417bfc0044bee5d22d44b2241f49f4a7">CY_RSLT_WCM_AP_NETWORK_BRINGUP_ERROR</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 29)</td></tr>
+<tr class="memdesc:ga417bfc0044bee5d22d44b2241f49f4a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">AP network bring up error.  <a href="#ga417bfc0044bee5d22d44b2241f49f4a7">More...</a><br /></td></tr>
+<tr class="separator:ga417bfc0044bee5d22d44b2241f49f4a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gabcb1cf00097ec4ed82c84389fbc1d64c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#gabcb1cf00097ec4ed82c84389fbc1d64c">CY_RSLT_WCM_AP_BAD_CHANNEL</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 30)</td></tr>
+<tr class="memdesc:gabcb1cf00097ec4ed82c84389fbc1d64c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bad AP channel number.  <a href="#gabcb1cf00097ec4ed82c84389fbc1d64c">More...</a><br /></td></tr>
+<tr class="separator:gabcb1cf00097ec4ed82c84389fbc1d64c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga76c0f03b758e55b8e3c2b5e0a478fee6"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga76c0f03b758e55b8e3c2b5e0a478fee6">CY_RSLT_WCM_AP_IE_REMOVAL_ERROR</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 31)</td></tr>
+<tr class="memdesc:ga76c0f03b758e55b8e3c2b5e0a478fee6"><td class="mdescLeft">&#160;</td><td class="mdescRight">AP IE removal error.  <a href="#ga76c0f03b758e55b8e3c2b5e0a478fee6">More...</a><br /></td></tr>
+<tr class="separator:ga76c0f03b758e55b8e3c2b5e0a478fee6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3f4a70557a584ae9d9692930d7251606"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga3f4a70557a584ae9d9692930d7251606">CY_RSLT_WCM_INVALID_IE</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 32)</td></tr>
+<tr class="memdesc:ga3f4a70557a584ae9d9692930d7251606"><td class="mdescLeft">&#160;</td><td class="mdescRight">Invalid IE.  <a href="#ga3f4a70557a584ae9d9692930d7251606">More...</a><br /></td></tr>
+<tr class="separator:ga3f4a70557a584ae9d9692930d7251606"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf320281f7c8bc5389e44731e76216b7d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#gaf320281f7c8bc5389e44731e76216b7d">CY_RSLT_WCM_AP_NOT_UP</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 33)</td></tr>
+<tr class="memdesc:gaf320281f7c8bc5389e44731e76216b7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">SoftAP is not started.  <a href="#gaf320281f7c8bc5389e44731e76216b7d">More...</a><br /></td></tr>
+<tr class="separator:gaf320281f7c8bc5389e44731e76216b7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3fbe3d03f2b124ee6b1f893170318b65"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga3fbe3d03f2b124ee6b1f893170318b65">CY_RSLT_WCM_INTERFACE_NOT_UP</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 34)</td></tr>
+<tr class="memdesc:ga3fbe3d03f2b124ee6b1f893170318b65"><td class="mdescLeft">&#160;</td><td class="mdescRight">Interface is not initialized.  <a href="#ga3fbe3d03f2b124ee6b1f893170318b65">More...</a><br /></td></tr>
+<tr class="separator:ga3fbe3d03f2b124ee6b1f893170318b65"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga17574dc98d92fa8947200e5550cbfeb4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga17574dc98d92fa8947200e5550cbfeb4">CY_RSLT_WCM_NOT_INITIALIZED</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 35)</td></tr>
+<tr class="memdesc:ga17574dc98d92fa8947200e5550cbfeb4"><td class="mdescLeft">&#160;</td><td class="mdescRight">WCM not initialized.  <a href="#ga17574dc98d92fa8947200e5550cbfeb4">More...</a><br /></td></tr>
+<tr class="separator:ga17574dc98d92fa8947200e5550cbfeb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab647206b775cba6ee4b7b7b19c583f7b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#gab647206b775cba6ee4b7b7b19c583f7b">CY_RSLT_WCM_WPS_PBC_OVERLAP</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 36)</td></tr>
 <tr class="memdesc:gab647206b775cba6ee4b7b7b19c583f7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">WPS Error Codes.  <a href="#gab647206b775cba6ee4b7b7b19c583f7b">More...</a><br /></td></tr>
 <tr class="separator:gab647206b775cba6ee4b7b7b19c583f7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gac6347a8774ce04d4e63619b0f7bf64f1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#gac6347a8774ce04d4e63619b0f7bf64f1">CY_RSLT_WCM_WPS_ERROR_RECEIVED_WEP_CREDENTIALS</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 26)</td></tr>
+<tr class="memitem:gac6347a8774ce04d4e63619b0f7bf64f1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#gac6347a8774ce04d4e63619b0f7bf64f1">CY_RSLT_WCM_WPS_ERROR_RECEIVED_WEP_CREDENTIALS</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 37)</td></tr>
 <tr class="memdesc:gac6347a8774ce04d4e63619b0f7bf64f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">WPS received incorrect credentials.  <a href="#gac6347a8774ce04d4e63619b0f7bf64f1">More...</a><br /></td></tr>
 <tr class="separator:gac6347a8774ce04d4e63619b0f7bf64f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga46d6e7393784bb35e110d5fe42c004e9"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga46d6e7393784bb35e110d5fe42c004e9">CY_RSLT_WCM_WPS_FAILED</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 27)</td></tr>
+<tr class="memitem:ga46d6e7393784bb35e110d5fe42c004e9"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#ga46d6e7393784bb35e110d5fe42c004e9">CY_RSLT_WCM_WPS_FAILED</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 38)</td></tr>
 <tr class="memdesc:ga46d6e7393784bb35e110d5fe42c004e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">WPS PBC/PIN mode failed.  <a href="#ga46d6e7393784bb35e110d5fe42c004e9">More...</a><br /></td></tr>
 <tr class="separator:ga46d6e7393784bb35e110d5fe42c004e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaadcc9a3f04cb2e2846a8d77489476fa1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#gaadcc9a3f04cb2e2846a8d77489476fa1">CY_RSLT_WCM_DHCP_TIMEOUT</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 28)</td></tr>
+<tr class="memitem:gaadcc9a3f04cb2e2846a8d77489476fa1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__generic__wcm__defines.html#gaadcc9a3f04cb2e2846a8d77489476fa1">CY_RSLT_WCM_DHCP_TIMEOUT</a>&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 39)</td></tr>
 <tr class="memdesc:gaadcc9a3f04cb2e2846a8d77489476fa1"><td class="mdescLeft">&#160;</td><td class="mdescRight">DHCP Error Code.  <a href="#gaadcc9a3f04cb2e2846a8d77489476fa1">More...</a><br /></td></tr>
 <tr class="separator:gaadcc9a3f04cb2e2846a8d77489476fa1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -328,35 +361,35 @@ Macros</h2></td></tr>
 
 </div>
 </div>
-<a id="ga59a16d08086af3bbdc7b72aa823bb4dd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga59a16d08086af3bbdc7b72aa823bb4dd">&#9670;&nbsp;</a></span>CY_RSLT_WCM_DISCONNECT_ERROR</h2>
+<a id="ga9f25bb09147c2b4baea03e7049144eea"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9f25bb09147c2b4baea03e7049144eea">&#9670;&nbsp;</a></span>CY_RSLT_WCM_STA_DISCONNECT_ERROR</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define CY_RSLT_WCM_DISCONNECT_ERROR&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 9)</td>
+          <td class="memname">#define CY_RSLT_WCM_STA_DISCONNECT_ERROR&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 9)</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Disconnect error. </p>
+<p>STA disconnect error. </p>
 
 </div>
 </div>
-<a id="ga91e9bcdfff6fd3734830e691a3e8df5b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga91e9bcdfff6fd3734830e691a3e8df5b">&#9670;&nbsp;</a></span>CY_RSLT_WCM_NETWORK_DOWN</h2>
+<a id="ga6b5d340b62864115c40912b3c824618f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga6b5d340b62864115c40912b3c824618f">&#9670;&nbsp;</a></span>CY_RSLT_WCM_STA_NETWORK_DOWN</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define CY_RSLT_WCM_NETWORK_DOWN&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 10)</td>
+          <td class="memname">#define CY_RSLT_WCM_STA_NETWORK_DOWN&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 10)</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Network is down. </p>
+<p>STA network is down. </p>
 
 </div>
 </div>
@@ -376,6 +409,22 @@ Macros</h2></td></tr>
 
 </div>
 </div>
+<a id="gae47a63270adf2e7623fc7e094f439149"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gae47a63270adf2e7623fc7e094f439149">&#9670;&nbsp;</a></span>CY_RSLT_WCM_BSP_DEINIT_ERROR</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CY_RSLT_WCM_BSP_DEINIT_ERROR&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 12)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>CY BSP error while de-initialization. </p>
+
+</div>
+</div>
 <a id="ga75d572006f9f9e5537b6829f1a6e05d1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga75d572006f9f9e5537b6829f1a6e05d1">&#9670;&nbsp;</a></span>CY_RSLT_WCM_NO_ACTIVE_SCAN</h2>
 
@@ -383,7 +432,7 @@ Macros</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define CY_RSLT_WCM_NO_ACTIVE_SCAN&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 12)</td>
+          <td class="memname">#define CY_RSLT_WCM_NO_ACTIVE_SCAN&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 13)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -399,7 +448,7 @@ Macros</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define CY_RSLT_WCM_SCAN_IN_PROGRESS&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 13)</td>
+          <td class="memname">#define CY_RSLT_WCM_SCAN_IN_PROGRESS&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 14)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -415,7 +464,7 @@ Macros</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define CY_RSLT_WCM_SCAN_ERROR&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 14)</td>
+          <td class="memname">#define CY_RSLT_WCM_SCAN_ERROR&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 15)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -431,7 +480,7 @@ Macros</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define CY_RSLT_WCM_STOP_SCAN_ERROR&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 15)</td>
+          <td class="memname">#define CY_RSLT_WCM_STOP_SCAN_ERROR&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 16)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -447,7 +496,7 @@ Macros</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define CY_RSLT_WCM_BAND_NOT_SUPPORTED&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 16)</td>
+          <td class="memname">#define CY_RSLT_WCM_BAND_NOT_SUPPORTED&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 17)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -463,7 +512,7 @@ Macros</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define CY_RSLT_WCM_OUT_OF_MEMORY&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 17)</td>
+          <td class="memname">#define CY_RSLT_WCM_OUT_OF_MEMORY&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 18)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -479,7 +528,7 @@ Macros</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define CY_RSLT_WCM_CHANNEL_ERROR&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 18)</td>
+          <td class="memname">#define CY_RSLT_WCM_CHANNEL_ERROR&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 19)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -495,7 +544,7 @@ Macros</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define CY_RSLT_WCM_NETIF_DOES_NOT_EXIST&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 19)</td>
+          <td class="memname">#define CY_RSLT_WCM_NETIF_DOES_NOT_EXIST&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 20)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -511,7 +560,7 @@ Macros</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define CY_RSLT_WCM_ARP_REQUEST_FAILURE&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 20)</td>
+          <td class="memname">#define CY_RSLT_WCM_ARP_REQUEST_FAILURE&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 21)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -527,7 +576,7 @@ Macros</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define CY_RSLT_WCM_IPV6_GLOBAL_ADDRESS_NOT_SUPPORTED&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 21)</td>
+          <td class="memname">#define CY_RSLT_WCM_IPV6_GLOBAL_ADDRESS_NOT_SUPPORTED&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 22)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -543,7 +592,7 @@ Macros</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define CY_RSLT_WCM_IPV6_INTERFACE_NOT_READY&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 22)</td>
+          <td class="memname">#define CY_RSLT_WCM_IPV6_INTERFACE_NOT_READY&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 23)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -559,7 +608,7 @@ Macros</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define CY_RSLT_WCM_PING_FAILURE&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 23)</td>
+          <td class="memname">#define CY_RSLT_WCM_PING_FAILURE&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 24)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -575,12 +624,172 @@ Macros</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define CY_RSLT_WCM_PING_REQUEST_TIMEOUT&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 24)</td>
+          <td class="memname">#define CY_RSLT_WCM_PING_REQUEST_TIMEOUT&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 25)</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Ping request timed out. </p>
+
+</div>
+</div>
+<a id="ga43b6f1f06a3602b8d084ee2d95ad5a2e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga43b6f1f06a3602b8d084ee2d95ad5a2e">&#9670;&nbsp;</a></span>CY_RSLT_WCM_STATIC_IP_NOT_SUPPORTED</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CY_RSLT_WCM_STATIC_IP_NOT_SUPPORTED&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 26)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Static IP address not supported for IPv6. </p>
+
+</div>
+</div>
+<a id="gab5427f7db66759198ece7997fb98b1d6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gab5427f7db66759198ece7997fb98b1d6">&#9670;&nbsp;</a></span>CY_RSLT_WCM_BAD_STATIC_IP</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CY_RSLT_WCM_BAD_STATIC_IP&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 27)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Bad Static IP address. </p>
+
+</div>
+</div>
+<a id="gab6f3189215b7eb6877302a14445af584"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gab6f3189215b7eb6877302a14445af584">&#9670;&nbsp;</a></span>CY_RSLT_WCM_SECONDARY_INTERFACE_ERROR</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CY_RSLT_WCM_SECONDARY_INTERFACE_ERROR&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 28)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Error in bringing up the secondary interface. </p>
+
+</div>
+</div>
+<a id="ga417bfc0044bee5d22d44b2241f49f4a7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga417bfc0044bee5d22d44b2241f49f4a7">&#9670;&nbsp;</a></span>CY_RSLT_WCM_AP_NETWORK_BRINGUP_ERROR</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CY_RSLT_WCM_AP_NETWORK_BRINGUP_ERROR&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 29)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>AP network bring up error. </p>
+
+</div>
+</div>
+<a id="gabcb1cf00097ec4ed82c84389fbc1d64c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gabcb1cf00097ec4ed82c84389fbc1d64c">&#9670;&nbsp;</a></span>CY_RSLT_WCM_AP_BAD_CHANNEL</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CY_RSLT_WCM_AP_BAD_CHANNEL&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 30)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Bad AP channel number. </p>
+
+</div>
+</div>
+<a id="ga76c0f03b758e55b8e3c2b5e0a478fee6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga76c0f03b758e55b8e3c2b5e0a478fee6">&#9670;&nbsp;</a></span>CY_RSLT_WCM_AP_IE_REMOVAL_ERROR</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CY_RSLT_WCM_AP_IE_REMOVAL_ERROR&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 31)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>AP IE removal error. </p>
+
+</div>
+</div>
+<a id="ga3f4a70557a584ae9d9692930d7251606"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3f4a70557a584ae9d9692930d7251606">&#9670;&nbsp;</a></span>CY_RSLT_WCM_INVALID_IE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CY_RSLT_WCM_INVALID_IE&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 32)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Invalid IE. </p>
+
+</div>
+</div>
+<a id="gaf320281f7c8bc5389e44731e76216b7d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaf320281f7c8bc5389e44731e76216b7d">&#9670;&nbsp;</a></span>CY_RSLT_WCM_AP_NOT_UP</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CY_RSLT_WCM_AP_NOT_UP&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 33)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>SoftAP is not started. </p>
+
+</div>
+</div>
+<a id="ga3fbe3d03f2b124ee6b1f893170318b65"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3fbe3d03f2b124ee6b1f893170318b65">&#9670;&nbsp;</a></span>CY_RSLT_WCM_INTERFACE_NOT_UP</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CY_RSLT_WCM_INTERFACE_NOT_UP&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 34)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Interface is not initialized. </p>
+
+</div>
+</div>
+<a id="ga17574dc98d92fa8947200e5550cbfeb4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga17574dc98d92fa8947200e5550cbfeb4">&#9670;&nbsp;</a></span>CY_RSLT_WCM_NOT_INITIALIZED</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CY_RSLT_WCM_NOT_INITIALIZED&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 35)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>WCM not initialized. </p>
 
 </div>
 </div>
@@ -591,13 +800,13 @@ Macros</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define CY_RSLT_WCM_WPS_PBC_OVERLAP&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 25)</td>
+          <td class="memname">#define CY_RSLT_WCM_WPS_PBC_OVERLAP&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 36)</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>WPS Error Codes. </p>
-<p>WPS PBC Overlap. </p>
+<p>WPS PBC overlap. </p>
 
 </div>
 </div>
@@ -608,7 +817,7 @@ Macros</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define CY_RSLT_WCM_WPS_ERROR_RECEIVED_WEP_CREDENTIALS&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 26)</td>
+          <td class="memname">#define CY_RSLT_WCM_WPS_ERROR_RECEIVED_WEP_CREDENTIALS&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 37)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -624,7 +833,7 @@ Macros</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define CY_RSLT_WCM_WPS_FAILED&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 27)</td>
+          <td class="memname">#define CY_RSLT_WCM_WPS_FAILED&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 38)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -640,7 +849,7 @@ Macros</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define CY_RSLT_WCM_DHCP_TIMEOUT&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 28)</td>
+          <td class="memname">#define CY_RSLT_WCM_DHCP_TIMEOUT&#160;&#160;&#160;(<a class="el" href="group__generic__wcm__defines.html#ga9fdce87b59ad5de873e8cda4a5939689">CY_RSLT_WCM_ERR_BASE</a> + 39)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -656,7 +865,7 @@ Macros</h2></td></tr>
 <div id="nav-path" class="navpath">
     <ul>
         <li class="footer">
-            Generated for <b>Cypress Wi-Fi Connection Manager Library</b> by <b>Cypress Semiconductor Corporation</b>.
+            Generated for <b>Wi-Fi Connection Manager Library</b> by <b>Cypress Semiconductor Corporation</b>.
             All rights reserved.
         </li>
     </ul>

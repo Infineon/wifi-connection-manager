@@ -43,23 +43,22 @@
 #include "cybsp_wifi.h"
 #include "cyabs_rtos.h"
 #include "cy_lwip.h"
-#include "cy_wps_common.h"
-
-/* Wi-Fi Host driver includes. */
 #include "whd.h"
 #include "whd_wifi_api.h"
 #include "whd_network_types.h"
 #include "whd_buffer_api.h"
 
-#include "cy_wps.h"
-#include "cy_wps_structures.h"
-#include "source/cy_wps_memory.h"
+#include "cy_wps_memory.h"
 #include "cy_wcm.h"
 #include "whd_types.h"
 #include "cyabs_rtos_impl.h"
 #include "whd_int.h"
 #include "cy_wcm_error.h"
+#include "cy_wps.h"
+#include "cy_wps_common.h"
+#include "cy_wps_structures.h"
 
+#define MAX_INTERFACE            (2)
 /******************************************************
  *             Structures
  ******************************************************/
@@ -68,7 +67,8 @@
  *               Variable Definitions
  ******************************************************/
 /* The primary WIFI driver  */
-extern whd_interface_t sta_interface;
+extern whd_interface_t whd_ifs[MAX_INTERFACE];
+extern bool is_wcm_initalized;
 /******************************************************
  *               Static Function Declarations
  ******************************************************/
@@ -118,6 +118,12 @@ cy_rslt_t cy_wcm_wps_generate_pin( char wps_pin_string[CY_WCM_WPS_PIN_LENGTH] )
     size_t    output_length = 0;
     char      temp_string[CY_WCM_WPS_PIN_LENGTH] = "00000000";
     cy_rslt_t result = CY_RSLT_SUCCESS;
+
+    if( !is_wcm_initalized )
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized, to initialize call cy_wcm_init() \n");
+        return CY_RSLT_WCM_NOT_INITIALIZED;
+    }
 
     memcpy( wps_pin_string, temp_string, CY_WCM_WPS_PIN_LENGTH );
 
@@ -174,12 +180,19 @@ cy_rslt_t cy_wcm_wps_enrollee(cy_wcm_wps_config_t* wps_config, const cy_wcm_wps_
 {
     cy_rslt_t result;
     cy_wps_agent_t *workspace = (cy_wps_agent_t*) cy_wps_calloc("wps", 1, sizeof(cy_wps_agent_t));
+
+    if( !is_wcm_initalized )
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized, to initialize call cy_wcm_init() \n");
+        return CY_RSLT_WCM_NOT_INITIALIZED;
+    }
+
     if ( workspace == NULL )
     {
         return CY_RSLT_WCM_OUT_OF_MEMORY;
     }
 
-    result = cy_wps_init ( workspace, (cy_wps_device_detail_t*) details, CY_WPS_ENROLLEE_AGENT, sta_interface );
+    result = cy_wps_init ( workspace, (cy_wps_device_detail_t*) details, CY_WPS_ENROLLEE_AGENT, whd_ifs[CY_WCM_INTERFACE_TYPE_STA] );
     if( result != CY_RSLT_SUCCESS )
     {
         goto convert_result_type;
@@ -206,7 +219,7 @@ convert_result_type:
     else
     {
         *credential_count = 0;
-        if( whd_wifi_stop_scan(sta_interface) != WHD_SUCCESS )
+        if( whd_wifi_stop_scan(whd_ifs[CY_WCM_INTERFACE_TYPE_STA]) != WHD_SUCCESS )
         {
             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR,"Failed to stop scan \r\n");
             /* Fall through to cleanup remaining resource */

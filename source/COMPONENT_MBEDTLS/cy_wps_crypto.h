@@ -43,10 +43,8 @@ extern "C" {
 
 #include <stdint.h>
 #include "stdio.h"
-#include "wps_helper_utility.h"
 #include "mbedtls/sha256.h"
 #include "mbedtls/aes.h"
-#include "cy_wps_result.h"
 #include "whd_types.h"
 /******************************************************
  *                      Macros

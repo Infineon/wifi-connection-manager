@@ -37,8 +37,8 @@
 */
 #pragma once
 
-#include "tlv.h"
 #include "cy_wps_structures.h"
+#include "tlv.h"
 
 #ifdef __cplusplus
 extern "C" {

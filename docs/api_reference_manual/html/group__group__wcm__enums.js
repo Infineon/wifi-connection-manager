@@ -111,7 +111,9 @@ var group__group__wcm__enums =
       [ "CY_WCM_EVENT_CONNECT_FAILED", "group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fafa85fe7467f303e5425b54a8f20072e5", null ],
       [ "CY_WCM_EVENT_RECONNECTED", "group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fab2e59655829c24bd5d0ea68622c8c56e", null ],
       [ "CY_WCM_EVENT_DISCONNECTED", "group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fa206d74c35be5bf29e7903367287efc79", null ],
-      [ "CY_WCM_EVENT_IP_CHANGED", "group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fafe83442aa63aa747c3025d0874482c86", null ]
+      [ "CY_WCM_EVENT_IP_CHANGED", "group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fafe83442aa63aa747c3025d0874482c86", null ],
+      [ "CY_WCM_EVENT_STA_JOINED_SOFTAP", "group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fa89bf3f175e03aabb5951138e229392c9", null ],
+      [ "CY_WCM_EVENT_STA_LEFT_SOFTAP", "group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fa54168b9c07156a695d1de5db77f03bcb", null ]
     ] ],
     [ "cy_wcm_scan_filter_type_t", "group__group__wcm__enums.html#ga568b22d5d446e751f62efe4eb021d451", [
       [ "CY_WCM_SCAN_FILTER_TYPE_SSID", "group__group__wcm__enums.html#gga568b22d5d446e751f62efe4eb021d451ae6a7c2fd74a727b9d1f3e0261533a7c4", null ],
@@ -125,5 +127,14 @@ var group__group__wcm__enums =
       [ "CY_WCM_BSS_TYPE_ANY", "group__group__wcm__enums.html#gga5da487a7ada216490a5f6787d617f10da10ddd970dd3995ab9cbc5d225f72aac5", null ],
       [ "CY_WCM_BSS_TYPE_MESH", "group__group__wcm__enums.html#gga5da487a7ada216490a5f6787d617f10da882ea81676503bb3af561c60200ae0db", null ],
       [ "CY_WCM_BSS_TYPE_UNKNOWN", "group__group__wcm__enums.html#gga5da487a7ada216490a5f6787d617f10da4d5f95cccb4ae209eb84c70254193ba3", null ]
+    ] ],
+    [ "cy_wcm_ie_mask_t", "group__group__wcm__enums.html#gac880508299364d38baeb869c761bc695", [
+      [ "CY_WCM_IE_MASK_BEACON", "group__group__wcm__enums.html#ggac880508299364d38baeb869c761bc695ae1e47cd521bf0c95da2d457936985f36", null ],
+      [ "CY_WCM_IE_MASK_PROBE_RESPONSE", "group__group__wcm__enums.html#ggac880508299364d38baeb869c761bc695a829e8241b21908745012b903f8f6e521", null ],
+      [ "CY_WCM_IE_MASK_ASSOC_RESPONSE", "group__group__wcm__enums.html#ggac880508299364d38baeb869c761bc695af20f5063141ee8041342aa430a393025", null ],
+      [ "CY_WCM_IE_MASK_AUTH_RESPONSE", "group__group__wcm__enums.html#ggac880508299364d38baeb869c761bc695a91f0304a9e0260ff0deabc1884190a9c", null ],
+      [ "CY_WCM_IE_MASK_PROBE_REQUEST", "group__group__wcm__enums.html#ggac880508299364d38baeb869c761bc695a41547feec293e037c4ee8b7caf7c9e45", null ],
+      [ "CY_WCM_IE_MASK_ASSOC_REQUEST", "group__group__wcm__enums.html#ggac880508299364d38baeb869c761bc695ab592236c8a899e0c8326e030cda107fa", null ],
+      [ "CY_WCM_IE_MASK_CUSTOM", "group__group__wcm__enums.html#ggac880508299364d38baeb869c761bc695a5a9943659b2c2a8c85a609e767af7f86", null ]
     ] ]
 ];

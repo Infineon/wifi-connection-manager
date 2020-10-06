@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['rssi_5frange',['rssi_range',['../structcy__wcm__scan__filter__t.html#a315bd8b9820c4f234ba0f3c430a0d15a',1,'cy_wcm_scan_filter_t']]],
-  ['rx_5fbytes',['rx_bytes',['../structcy__wcm__wlan__statistics__t.html#a5d2bbf3841011afecbcb5d92d8a65815',1,'cy_wcm_wlan_statistics_t']]],
-  ['rx_5fpackets',['rx_packets',['../structcy__wcm__wlan__statistics__t.html#a91084eaf5e8cf3d57521af0b518f7e34',1,'cy_wcm_wlan_statistics_t']]]
+  ['param',['param',['../structcy__wcm__scan__filter__t.html#a5c9dfdbc17237085973999b63d9b28e5',1,'cy_wcm_scan_filter_t']]],
+  ['passphrase',['passphrase',['../structcy__wcm__wps__credential__t.html#a050204a4875f55a337aae327c9d09e7e',1,'cy_wcm_wps_credential_t']]],
+  ['password',['password',['../structcy__wcm__wps__config__t.html#ac9878359549a01538c7a9bcda83abde7',1,'cy_wcm_wps_config_t::password()'],['../structcy__wcm__ap__credentials__t.html#ad9ba797a8bc9bcb7708eb9b4560e3095',1,'cy_wcm_ap_credentials_t::password()']]]
 ];

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.13"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Cypress Wi-Fi Connection Manager Library: Enumerated Types</title>
+<title>Wi-Fi Connection Manager Library: Enumerated Types</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -30,7 +30,7 @@
  <tr style="height: 56px;">
   <td id="projectlogo"><a href="http://www.cypress.com/"><img alt="Logo" src="cypress_logo.png"/></a></td>
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">Cypress Wi-Fi Connection Manager Library</div>
+   <div id="projectname">Wi-Fi Connection Manager Library</div>
   </td>
  </tr>
  </tbody>
@@ -297,7 +297,7 @@ Enumerations</h2></td></tr>
 <br />
 &#160;&#160;<a class="el" href="group__group__wcm__enums.html#gga2109f4415e7d9d586336f8c4415a270ea724e8110b6b40e0722f13a2fc66fd96f">CY_WCM_WPS_DEVICE_OTHER</a> = 0xFF
 <br />
- }<tr class="memdesc:ga2109f4415e7d9d586336f8c4415a270e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enumeration of WPS Device Category from the WSC2.0 Spec.  <a href="group__group__wcm__enums.html#ga2109f4415e7d9d586336f8c4415a270e">More...</a><br /></td></tr>
+ }<tr class="memdesc:ga2109f4415e7d9d586336f8c4415a270e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enumeration of WPS Device Category from the WSC 2.0 Spec.  <a href="group__group__wcm__enums.html#ga2109f4415e7d9d586336f8c4415a270e">More...</a><br /></td></tr>
 </td></tr>
 <tr class="separator:ga2109f4415e7d9d586336f8c4415a270e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gafada6a09a78bd0473f3daef54621567f"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__wcm__enums.html#gafada6a09a78bd0473f3daef54621567f">cy_wcm_event_t</a> { <br />
@@ -311,7 +311,11 @@ Enumerations</h2></td></tr>
 <br />
 &#160;&#160;<a class="el" href="group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fa206d74c35be5bf29e7903367287efc79">CY_WCM_EVENT_DISCONNECTED</a>, 
 <br />
-&#160;&#160;<a class="el" href="group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fafe83442aa63aa747c3025d0874482c86">CY_WCM_EVENT_IP_CHANGED</a>
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fafe83442aa63aa747c3025d0874482c86">CY_WCM_EVENT_IP_CHANGED</a>, 
+<br />
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fa89bf3f175e03aabb5951138e229392c9">CY_WCM_EVENT_STA_JOINED_SOFTAP</a>, 
+<br />
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fa54168b9c07156a695d1de5db77f03bcb">CY_WCM_EVENT_STA_LEFT_SOFTAP</a>
 <br />
  }<tr class="memdesc:gafada6a09a78bd0473f3daef54621567f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enumeration of WCM Events.  <a href="group__group__wcm__enums.html#gafada6a09a78bd0473f3daef54621567f">More...</a><br /></td></tr>
 </td></tr>
@@ -342,6 +346,24 @@ Enumerations</h2></td></tr>
  }<tr class="memdesc:ga5da487a7ada216490a5f6787d617f10d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enumeration of Network Types.  <a href="group__group__wcm__enums.html#ga5da487a7ada216490a5f6787d617f10d">More...</a><br /></td></tr>
 </td></tr>
 <tr class="separator:ga5da487a7ada216490a5f6787d617f10d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac880508299364d38baeb869c761bc695"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__wcm__enums.html#gac880508299364d38baeb869c761bc695">cy_wcm_ie_mask_t</a> { <br />
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#ggac880508299364d38baeb869c761bc695ae1e47cd521bf0c95da2d457936985f36">CY_WCM_IE_MASK_BEACON</a> = 0x1, 
+<br />
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#ggac880508299364d38baeb869c761bc695a829e8241b21908745012b903f8f6e521">CY_WCM_IE_MASK_PROBE_RESPONSE</a> = 0x2, 
+<br />
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#ggac880508299364d38baeb869c761bc695af20f5063141ee8041342aa430a393025">CY_WCM_IE_MASK_ASSOC_RESPONSE</a> = 0x4, 
+<br />
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#ggac880508299364d38baeb869c761bc695a91f0304a9e0260ff0deabc1884190a9c">CY_WCM_IE_MASK_AUTH_RESPONSE</a> = 0x8, 
+<br />
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#ggac880508299364d38baeb869c761bc695a41547feec293e037c4ee8b7caf7c9e45">CY_WCM_IE_MASK_PROBE_REQUEST</a> = 0x10, 
+<br />
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#ggac880508299364d38baeb869c761bc695ab592236c8a899e0c8326e030cda107fa">CY_WCM_IE_MASK_ASSOC_REQUEST</a> = 0x20, 
+<br />
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#ggac880508299364d38baeb869c761bc695a5a9943659b2c2a8c85a609e767af7f86">CY_WCM_IE_MASK_CUSTOM</a> = 0x100
+<br />
+ }<tr class="memdesc:gac880508299364d38baeb869c761bc695"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enumeration of applicable packet mask bits for custom Information Elements (IEs)  <a href="group__group__wcm__enums.html#gac880508299364d38baeb869c761bc695">More...</a><br /></td></tr>
+</td></tr>
+<tr class="separator:gac880508299364d38baeb869c761bc695"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
 <a id="ga24d3def17207a3c64b62fb4b8a44a7fc"></a>
@@ -434,15 +456,15 @@ Enumerations</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521a15e40dcc622cfbbc30189d58cc2d0d8d"></a>CY_WCM_SECURITY_WPA_AES_ENT&#160;</td><td class="fielddoc"><p>WPA Enterprise Security with AES. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521af859066c7f2a78b3f7e30cc397b9ffc4"></a>CY_WCM_SECURITY_WPA_MIXED_ENT&#160;</td><td class="fielddoc"><p>WPA Enterprise Security with AES &amp; TKIP. </p>
+<tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521af859066c7f2a78b3f7e30cc397b9ffc4"></a>CY_WCM_SECURITY_WPA_MIXED_ENT&#160;</td><td class="fielddoc"><p>WPA Enterprise Security with AES and TKIP. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521a6d42e04b696db4b267c4ef2ed6e23865"></a>CY_WCM_SECURITY_WPA2_TKIP_ENT&#160;</td><td class="fielddoc"><p>WPA2 Enterprise Security with TKIP. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521a59cd3a2dce43903162ce84a651152e7a"></a>CY_WCM_SECURITY_WPA2_AES_ENT&#160;</td><td class="fielddoc"><p>WPA2 Enterprise Security with AES. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521a83be3851b45fae13129c65ecdc1967e4"></a>CY_WCM_SECURITY_WPA2_MIXED_ENT&#160;</td><td class="fielddoc"><p>WPA2 Enterprise Security with AES &amp; TKIP. </p>
+<tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521a83be3851b45fae13129c65ecdc1967e4"></a>CY_WCM_SECURITY_WPA2_MIXED_ENT&#160;</td><td class="fielddoc"><p>WPA2 Enterprise Security with AES and TKIP. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521ab1b403f2f40134c180e60867b2a46786"></a>CY_WCM_SECURITY_WPA2_FBT_ENT&#160;</td><td class="fielddoc"><p>WPA2 Enterprise Security with AES &amp; FBT. </p>
+<tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521ab1b403f2f40134c180e60867b2a46786"></a>CY_WCM_SECURITY_WPA2_FBT_ENT&#160;</td><td class="fielddoc"><p>WPA2 Enterprise Security with AES and FBT. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521a3b9dc0504be49e6d0babf7b7cfeea81c"></a>CY_WCM_SECURITY_IBSS_OPEN&#160;</td><td class="fielddoc"><p>Open security on IBSS ad hoc network. </p>
 </td></tr>
@@ -522,10 +544,8 @@ Enumerations</h2></td></tr>
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggac4c4ca6db8db6efdc3013b789a4c9cf8ae93c4aa9ce482c333a23bdc535df3208"></a>CY_WCM_INTERFACE_TYPE_STA&#160;</td><td class="fielddoc"><p>STA or Client interface. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ggac4c4ca6db8db6efdc3013b789a4c9cf8a0a2745fb6696e54ad284f17dbad8755f"></a>CY_WCM_INTERFACE_TYPE_AP&#160;</td><td class="fielddoc"><p>SoftAP interface. </p>
-<dl class="section note"><dt>Note</dt><dd>Not supported; will be added in future. </dd></dl>
 </td></tr>
 <tr><td class="fieldname"><a id="ggac4c4ca6db8db6efdc3013b789a4c9cf8a864e150cea33f5d4cae3e6834bf56f2e"></a>CY_WCM_INTERFACE_TYPE_AP_STA&#160;</td><td class="fielddoc"><p>Concurrent AP + STA mode. </p>
-<dl class="section note"><dt>Note</dt><dd>Not supported; will be added in future. </dd></dl>
 </td></tr>
 </table>
 
@@ -545,7 +565,7 @@ Enumerations</h2></td></tr>
 
 <p>Enumeration of Scan Status. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga24a4ed65a9261c45abc8aa697eb2b8a2a01103577816da05a7b2b9521576c3c6e"></a>CY_WCM_SCAN_INCOMPLETE&#160;</td><td class="fielddoc"><p>Scan is in progress and more scan results will be returned. </p>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga24a4ed65a9261c45abc8aa697eb2b8a2a01103577816da05a7b2b9521576c3c6e"></a>CY_WCM_SCAN_INCOMPLETE&#160;</td><td class="fielddoc"><p>Scan is in progress; more scan results will be returned. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="gga24a4ed65a9261c45abc8aa697eb2b8a2aff52685fb45be610434226882c46e57f"></a>CY_WCM_SCAN_COMPLETE&#160;</td><td class="fielddoc"><p>Scan is completed. </p>
 </td></tr>
@@ -693,7 +713,7 @@ Enumerations</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Enumeration of WPS Device Category from the WSC2.0 Spec. </p>
+<p>Enumeration of WPS Device Category from the WSC 2.0 Spec. </p>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga2109f4415e7d9d586336f8c4415a270ea38c2c17db9981b8d58c56a03d9eea174"></a>CY_WCM_WPS_DEVICE_COMPUTER&#160;</td><td class="fielddoc"><p>Computer devices. </p>
 </td></tr>
@@ -751,6 +771,10 @@ Enumerations</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="ggafada6a09a78bd0473f3daef54621567fafe83442aa63aa747c3025d0874482c86"></a>CY_WCM_EVENT_IP_CHANGED&#160;</td><td class="fielddoc"><p>IP address change event. </p>
 <p>This event is notified after connection, re-connection, and IP address change due to DHCP renewal. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggafada6a09a78bd0473f3daef54621567fa89bf3f175e03aabb5951138e229392c9"></a>CY_WCM_EVENT_STA_JOINED_SOFTAP&#160;</td><td class="fielddoc"><p>An STA device connected to SoftAP. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggafada6a09a78bd0473f3daef54621567fa54168b9c07156a695d1de5db77f03bcb"></a>CY_WCM_EVENT_STA_LEFT_SOFTAP&#160;</td><td class="fielddoc"><p>An STA device disconnected from SoftAP. </p>
 </td></tr>
 </table>
 
@@ -811,13 +835,45 @@ Enumerations</h2></td></tr>
 
 </div>
 </div>
+<a id="gac880508299364d38baeb869c761bc695"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac880508299364d38baeb869c761bc695">&#9670;&nbsp;</a></span>cy_wcm_ie_mask_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__group__wcm__enums.html#gac880508299364d38baeb869c761bc695">cy_wcm_ie_mask_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Enumeration of applicable packet mask bits for custom Information Elements (IEs) </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggac880508299364d38baeb869c761bc695ae1e47cd521bf0c95da2d457936985f36"></a>CY_WCM_IE_MASK_BEACON&#160;</td><td class="fielddoc"><p>Denotes mask for beacon packet. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggac880508299364d38baeb869c761bc695a829e8241b21908745012b903f8f6e521"></a>CY_WCM_IE_MASK_PROBE_RESPONSE&#160;</td><td class="fielddoc"><p>Denotes mask for probe response packet. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggac880508299364d38baeb869c761bc695af20f5063141ee8041342aa430a393025"></a>CY_WCM_IE_MASK_ASSOC_RESPONSE&#160;</td><td class="fielddoc"><p>Denotes mask for association response packet. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggac880508299364d38baeb869c761bc695a91f0304a9e0260ff0deabc1884190a9c"></a>CY_WCM_IE_MASK_AUTH_RESPONSE&#160;</td><td class="fielddoc"><p>Denotes mask for authentication response packet. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggac880508299364d38baeb869c761bc695a41547feec293e037c4ee8b7caf7c9e45"></a>CY_WCM_IE_MASK_PROBE_REQUEST&#160;</td><td class="fielddoc"><p>Denotes mask for probe request packet. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggac880508299364d38baeb869c761bc695ab592236c8a899e0c8326e030cda107fa"></a>CY_WCM_IE_MASK_ASSOC_REQUEST&#160;</td><td class="fielddoc"><p>Denotes mask for association request packet. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggac880508299364d38baeb869c761bc695a5a9943659b2c2a8c85a609e767af7f86"></a>CY_WCM_IE_MASK_CUSTOM&#160;</td><td class="fielddoc"><p>Denotes mask for custom IE identifier. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath">
     <ul>
         <li class="footer">
-            Generated for <b>Cypress Wi-Fi Connection Manager Library</b> by <b>Cypress Semiconductor Corporation</b>.
+            Generated for <b>Wi-Fi Connection Manager Library</b> by <b>Cypress Semiconductor Corporation</b>.
             All rights reserved.
         </li>
     </ul>

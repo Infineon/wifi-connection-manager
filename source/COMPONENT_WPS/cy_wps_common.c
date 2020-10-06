@@ -37,13 +37,15 @@
 */
 
 
+#include "cy_wps_common.h"
+
 #include <stdint.h>
 #include <string.h>
+
 #include "cy_template_wps_packets.h"
-#include "cy_wcm_log.h"
-#include "cy_wps_common.h"
 #include "cy_wps_constants.h"
 #include "cy_wps_structures.h"
+#include "cy_wcm_log.h"
 #include "cy_wps_crypto.h"
 #include "nn.h"
 #include "whd_int.h"

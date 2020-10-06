@@ -37,9 +37,9 @@
 */
 
 #include "cy_template_wps_packets.h"
-#include "cy_wcm_log.h"
 #include "cy_wps_common.h"
 #include "cy_wps_structures.h"
+#include "cy_wcm_log.h"
 #include "string.h" /* For memcpy() */
 #include "whd_types.h"
 #include "whd_wlioctl.h"

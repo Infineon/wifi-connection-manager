@@ -37,9 +37,8 @@
 
 #include <string.h>
 #include <stdarg.h>
-#include "cy_wps_common.h"
+
 #include "cy_wps_crypto.h"
-#include "whd_wifi_api.h"
 #include "cyabs_rtos_impl.h"
 #include "cyhal.h"
 

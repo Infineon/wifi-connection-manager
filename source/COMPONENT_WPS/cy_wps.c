@@ -40,14 +40,15 @@
  *            Includes
  ******************************************************/
 
+#include "cy_wps.h"
+
+#include "cy_eapol.h"
+#include "cy_wps_common.h"
+#include "cy_wps_constants.h"
+#include "cy_wps_structures.h"
 #include "string.h"
 #include "stdlib.h"
 #include "cy_wcm_log.h"
-#include "cy_eapol.h"
-#include "cy_wps.h"
-#include "cy_wps_common.h"
-#include "cy_wps_constants.h"
-
 #include "whd_wifi_api.h"
 #include "cy_wps_memory.h"
 #include "whd_types_int.h"
@@ -58,7 +59,6 @@
 #include "whd_int.h"
 #include "whd_debug.h"
 #include "cy_lwip.h"
-#include "cy_wps_structures.h"
 
 /******************************************************
  *             Constants
