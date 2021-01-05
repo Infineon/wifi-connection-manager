@@ -123,6 +123,8 @@ int errno;
 #define MAX_WHD_INTERFACE                           (2)
 #define MAX_STA_CLIENTS                             (3)
 #define TX_BIT_RATE_CONVERTER                       (500)
+#define PING_IF_NAME_LEN                            (6)
+#define PING_RESPONSE_LEN                           (64)
 
 /******************************************************
  *             Structures
@@ -1776,7 +1778,7 @@ cy_rslt_t cy_wcm_ping(cy_wcm_interface_t interface, cy_wcm_ip_address_t* address
     uint16_t ping_seq_num = 0;
     int socket_for_ping = -1;
     struct netif *net_interface;
-    char if_name[3];
+    char if_name[PING_IF_NAME_LEN];
     struct ifreq iface;
     cy_lwip_nw_interface_role_t role;
     cy_rslt_t res = CY_RSLT_SUCCESS;
@@ -1841,9 +1843,9 @@ cy_rslt_t cy_wcm_ping(cy_wcm_interface_t interface, cy_wcm_ip_address_t* address
     /* Bind interface to device. */
     net_interface = cy_lwip_get_interface(role);
     memset(&iface, 0, sizeof(iface));
-    memcpy(if_name, net_interface->name, 2);
-    if_name[2] = net_interface->num;
-    memcpy(iface.ifr_name, if_name, 3);
+    memcpy(if_name, net_interface->name, sizeof(net_interface->name));
+    snprintf(&if_name[2], (PING_IF_NAME_LEN - 2), "%u", (uint8_t)(net_interface->num));
+    memcpy(iface.ifr_name, if_name, PING_IF_NAME_LEN);
     if(lwip_setsockopt(socket_for_ping, SOL_SOCKET, SO_BINDTODEVICE, &iface, sizeof(iface)) != ERR_OK)
     {
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Error while binding socket to interface \n");
@@ -2055,7 +2057,7 @@ static err_t ping_send(int socket_hnd, const cy_wcm_ip_address_t* address, struc
 
 static err_t ping_recv(int socket_hnd, cy_wcm_ip_address_t* address, uint16_t *ping_seq_num)
 {
-    char                  buf[64];
+    char                  buf[PING_RESPONSE_LEN];
     int                   fromlen;
     int                   len;
     struct sockaddr_in    from;
@@ -2294,8 +2296,6 @@ static bool check_wcm_security(cy_wcm_security_t sec)
 {
     switch (sec) {
         case CY_WCM_SECURITY_OPEN:
-        case CY_WCM_SECURITY_WEP_PSK:
-        case CY_WCM_SECURITY_WEP_SHARED:
         case CY_WCM_SECURITY_WPA_TKIP_PSK:
         case CY_WCM_SECURITY_WPA_AES_PSK:
         case CY_WCM_SECURITY_WPA_MIXED_PSK:
@@ -2326,8 +2326,20 @@ void internal_scan_callback(whd_scan_result_t **result_ptr,
                              void *user_data, whd_scan_status_t status)
 {
     /* Check if we don't have a scan result to send to the user */
-    if ( *result_ptr == NULL )
+    if (( result_ptr == NULL ) || ( *result_ptr == NULL ))
     {
+        /* Check for scan complete */
+        if (status == WHD_SCAN_COMPLETED_SUCCESSFULLY)
+        {
+            /* Notify scan complete */
+            scan_handler.scan_status = status;
+            memset(&scan_handler.scan_res, 0x0, sizeof(whd_scan_result_t));
+ 
+            if(cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_scan_event, &scan_handler) != CY_RSLT_SUCCESS)
+            {
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Error in calling the worker thread func \n");
+            }
+        }
         return;
     }
 
@@ -2339,7 +2351,18 @@ void internal_scan_callback(whd_scan_result_t **result_ptr,
          int16_t requested_range = scan_handler.scan_filter.param.rssi_range;
          int16_t signal_strength = scan_handler.scan_res.signal_strength;
          if(signal_strength < requested_range)
+         {
+             /* Notify the scan completion, even though the signal strength is not as requested. */
+             if (status == WHD_SCAN_COMPLETED_SUCCESSFULLY)
+             {
+                 if(cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_scan_event, &scan_handler) != CY_RSLT_SUCCESS)
+                 {
+                     cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Error in calling the worker thread func \n");
+                 }
+             }
+             memset(*result_ptr, 0, sizeof(whd_scan_result_t));
              return;
+         }
     }
 
     if(cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_scan_event, &scan_handler) != CY_RSLT_SUCCESS)
@@ -2347,7 +2370,6 @@ void internal_scan_callback(whd_scan_result_t **result_ptr,
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Error in calling the worker thread func \n");
     }
     memset(*result_ptr, 0, sizeof(whd_scan_result_t));
-
 }
 
 
@@ -2782,7 +2804,15 @@ static void link_up( void )
     }
     else
     {
-
+        /* Do not renew DHCP if the link was connected through static IP */
+#if LWIP_IPV4 && LWIP_IPV6
+        if(connected_ap_details.static_ip.addr.u_addr.ip4.addr != 0)
+#elif LWIP_IPV4
+        if(connected_ap_details.static_ip.addr.addr != 0)
+#endif
+        {
+            return;
+        }
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Executing DHCP renewal \n");
         /* This condition will be hit when handshake fails and wcm reconnection is successful through retry timer*/
         if((res = cy_worker_thread_enqueue(&cy_wcm_worker_thread, sta_link_up_renew_handler, NULL)) != CY_RSLT_SUCCESS)
@@ -3365,5 +3395,29 @@ static cy_rslt_t init_whd_wifi_interface(cy_wcm_interface_t iface_type)
             return CY_RSLT_WCM_SECONDARY_INTERFACE_ERROR;
         }
     }
+    return CY_RSLT_SUCCESS;
+}
+
+cy_rslt_t cy_wcm_get_whd_interface(cy_wcm_interface_t interface_type, whd_interface_t *whd_iface)
+{
+    if(whd_iface == NULL)
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Error : bad arguments \n");
+        return CY_RSLT_WCM_BAD_ARG;
+    }
+
+    if(!is_wcm_initalized)
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. Call cy_wcm_init() to initialize \n");
+        return CY_RSLT_WCM_NOT_INITIALIZED;
+    }
+
+    if((interface_type != CY_WCM_INTERFACE_TYPE_STA) || (current_interface == CY_WCM_INTERFACE_TYPE_AP))
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Supported only for STA interface !!\n");
+        return CY_RSLT_WCM_INTERFACE_NOT_SUPPORTED;
+    }
+
+    *whd_iface = whd_ifs[interface_type];
     return CY_RSLT_SUCCESS;
 }

@@ -674,6 +674,10 @@ cy_rslt_t cy_wcm_stop_scan(void);
  * @param[in]   connect_params      : Configuration to join the AP.
  * @param[out]  ip_addr             : Pointer to return the IP address (optional).
  *
+ * \note WEP (Wired Equivalent Privacy) security is not supported by this API.
+ *       WEP based authentication types are considered to be weaker security types,
+ *       hence this function doesn't connect to AP that is configured with WEP based authentication.
+ *
  * @return CY_RSLT_SUCCESS if connection is successful; returns [WCM-specific error codes](./cy_wcm_error.h) otherwise.
  */
 cy_rslt_t cy_wcm_connect_ap(const cy_wcm_connect_params_t *connect_params, cy_wcm_ip_address_t *ip_addr);

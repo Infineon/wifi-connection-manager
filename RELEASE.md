@@ -9,6 +9,11 @@ See the [README.md](./README.md) for a complete description of the Wi-Fi Connect
 | The `cy_wcm_deinit` API does not bring down the network stack as the default underlying lwIP stack does not have an implementation for deinit. Therefore, the expectation is that `cy_wcm_init` and `cy_wcm_deinit` APIs should be invoked only once. | No workaround. Support will be added in a future release. |
 
 ## Changelog
+### v2.0.1
+* Minor fixes added in ping API, and in re-connection logic for statically assigned IP.
+* WEP security support is disabled in connect AP API.
+* Documentation updates.
+
 ### v2.0.0
 * Added support for Soft-AP and concurrent (simultaneous Soft-AP + STA) modes.
 * Documentation updates.
