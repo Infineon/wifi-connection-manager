@@ -155,37 +155,37 @@ typedef struct
 
 struct icmp_packet
 {
-    struct icmp_echo_hdr hdr;
-    uint8_t data[PING_DATA_SIZE];
+    struct   icmp_echo_hdr hdr;
+    uint8_t  data[PING_DATA_SIZE];
 };
 
 static wcm_internal_scan_t scan_handler;
 
 typedef struct
 {
-    whd_ssid_t SSID;
-    whd_mac_t sta_mac;
+    whd_ssid_t         SSID;
+    whd_mac_t          sta_mac;
     cy_wcm_wifi_band_t band;
-    uint8_t key[CY_WCM_MAX_PASSPHRASE_LEN];
-    uint8_t keylen;
-    whd_security_t security;
-    ip_static_addr_t static_ip;
+    uint8_t            key[CY_WCM_MAX_PASSPHRASE_LEN];
+    uint8_t            keylen;
+    whd_security_t     security;
+    ip_static_addr_t   static_ip;
 }wcm_ap_details;
 
 static wcm_ap_details connected_ap_details;
 
 typedef struct
 {
-  cy_wcm_event_t event;
-  cy_wcm_mac_t   mac_addr;
+  cy_wcm_event_t   event;
+  cy_wcm_mac_t     mac_addr;
 } wcm_ap_link_event;
 
 
 typedef struct xtlv
 {
-    uint16    id;
-    uint16    len;
-    uint8    data[1];
+    uint16_t    id;
+    uint16_t    len;
+    uint8_t     data[1];
 } xtlv_t;
 
 /******************************************************
@@ -204,8 +204,8 @@ static bool wcm_sta_link_up            = false;
 static bool is_soft_ap_up              = false;
 static bool is_sta_network_up          = false;
 static bool is_ap_network_up           = false;
-static whd_security_t                  sta_security_type;
-static cy_worker_thread_info_t         cy_wcm_worker_thread;
+static whd_security_t                    sta_security_type;
+static cy_worker_thread_info_t           cy_wcm_worker_thread;
 static bool is_olm_initialized         = false;
 static void *olm_instance              = NULL;
 
@@ -228,7 +228,7 @@ static whd_mac_t *mac_addr_arr = NULL;
 static int current_bssid_arr_length = 0;
 static cy_semaphore_t stop_scan_semaphore;
 
-typedef uint16 xtlv_opts_t;
+typedef uint16_t xtlv_opts_t;
 
 /******************************************************
  *               Static Function Declarations
@@ -271,14 +271,14 @@ static void* ap_link_events_handler(whd_interface_t ifp, const whd_event_header_
 static cy_rslt_t init_whd_wifi_interface(cy_wcm_interface_t iface_type);
 static bool check_if_ent_auth_types(cy_wcm_security_t auth_type);
 
-static void unpack_xtlv_buf(const uint8 *tlv_buf, uint16 buflen,cy_wcm_wlan_statistics_t *stat);
-static cy_rslt_t wl_counters(const uint8 *data, cy_wcm_wlan_statistics_t *stat);
-static void xtlv_unpack_xtlv(const xtlv_t *xtlv, uint16 *type, uint16 *len, const uint8 **data, xtlv_opts_t opts);
-static int xtlv_hdr_size(xtlv_opts_t opts, const uint8 **data);
+static void unpack_xtlv_buf(const uint8_t *tlv_buf, uint16_t buflen,cy_wcm_wlan_statistics_t *stat);
+static cy_rslt_t wl_counters(const uint8_t *data, cy_wcm_wlan_statistics_t *stat);
+static void xtlv_unpack_xtlv(const xtlv_t *xtlv, uint16_t *type, uint16_t *len, const uint8_t **data, xtlv_opts_t opts);
+static int xtlv_hdr_size(xtlv_opts_t opts, const uint8_t **data);
 static int xtlv_id(const xtlv_t *elt, xtlv_opts_t opts);
 static int xtlv_len(const xtlv_t *elt, xtlv_opts_t opts);
-static int xtlv_size_for_data(int dlen, xtlv_opts_t opts, const uint8 **data);
-static int ltoh16_ua(const uint8 * bytes);
+static int xtlv_size_for_data(int dlen, xtlv_opts_t opts, const uint8_t **data);
+static int ltoh16_ua(const uint8_t * bytes);
 static void process_scan_data(void *arg);
 static void notify_scan_completed(void *arg);
 /******************************************************
@@ -1734,14 +1734,14 @@ cy_rslt_t cy_wcm_get_associated_ap_info(cy_wcm_associated_ap_info_t *ap_info)
     return res;
 }
 
-static int ltoh16_ua(const uint8 * bytes)
+static int ltoh16_ua(const uint8_t * bytes)
 {
-    const uint8 *_bytes = (const uint8 *)(bytes);
+    const uint8_t *_bytes = (const uint8_t *)(bytes);
     return _LTOH16_UA(_bytes);
 
 }
 
-static int xtlv_size_for_data(int dlen, xtlv_opts_t opts, const uint8 **data)
+static int xtlv_size_for_data(int dlen, xtlv_opts_t opts, const uint8_t **data)
 {
     int hsz;
     hsz = xtlv_hdr_size(opts, data);
@@ -1750,10 +1750,10 @@ static int xtlv_size_for_data(int dlen, xtlv_opts_t opts, const uint8 **data)
 
 static int xtlv_len(const xtlv_t *elt, xtlv_opts_t opts)
 {
-    const uint8 *lenp;
+    const uint8_t *lenp;
     int len;
 
-    lenp = (const uint8 *)&elt->len; /* nominal */
+    lenp = (const uint8_t *)&elt->len; /* nominal */
     if (opts & XTLV_OPTION_IDU8)
     {
         --lenp;
@@ -1774,16 +1774,16 @@ static int xtlv_id(const xtlv_t *elt, xtlv_opts_t opts)
     int id = 0;
     if (opts & XTLV_OPTION_IDU8)
     {
-        id =  *(const uint8 *)elt;
+        id =  *(const uint8_t *)elt;
     }
     else
     {
-        id = ltoh16_ua((const uint8 *)elt);
+        id = ltoh16_ua((const uint8_t *)elt);
     }
     return id;
 }
 
-static int xtlv_hdr_size(xtlv_opts_t opts, const uint8 **data)
+static int xtlv_hdr_size(xtlv_opts_t opts, const uint8_t **data)
 {
     int len = (int)OFFSETOF(xtlv_t, data); /* nominal */
     if (opts & XTLV_OPTION_LENU8)
@@ -1797,31 +1797,31 @@ static int xtlv_hdr_size(xtlv_opts_t opts, const uint8 **data)
     return len;
 }
 
-static void xtlv_unpack_xtlv(const xtlv_t *xtlv, uint16 *type, uint16 *len,
-    const uint8 **data, xtlv_opts_t opts)
+static void xtlv_unpack_xtlv(const xtlv_t *xtlv, uint16_t *type, uint16_t *len,
+    const uint8_t **data, xtlv_opts_t opts)
 {
     if (type)
     {
-        *type = (uint16)xtlv_id(xtlv, opts);
+        *type = (uint16_t)xtlv_id(xtlv, opts);
     }
     if (len)
     {
-        *len = (uint16)xtlv_len(xtlv, opts);
+        *len = (uint16_t)xtlv_len(xtlv, opts);
     }
     if (data)
     {
-        *data = (const uint8 *)xtlv + xtlv_hdr_size(opts, data);
+        *data = (const uint8_t *)xtlv + xtlv_hdr_size(opts, data);
     }
 }
 
-static void unpack_xtlv_buf(const uint8 *tlv_buf, uint16 buflen,cy_wcm_wlan_statistics_t *stat)
+static void unpack_xtlv_buf(const uint8_t *tlv_buf, uint16_t buflen,cy_wcm_wlan_statistics_t *stat)
 {
-    uint16 len;
-    uint16 type;
+    uint16_t len;
+    uint16_t type;
     int size;
     const xtlv_t *ptlv;
     int sbuflen = buflen;
-    const uint8 *data;
+    const uint8_t *data;
     int hdr_size;
 
     hdr_size = xtlv_hdr_size(XTLV_OPTION_ALIGN32, &data);
@@ -1848,7 +1848,7 @@ static void unpack_xtlv_buf(const uint8 *tlv_buf, uint16 buflen,cy_wcm_wlan_stat
     return;
 }
 
-static cy_rslt_t wl_counters(const uint8 *data, cy_wcm_wlan_statistics_t *stat)
+static cy_rslt_t wl_counters(const uint8_t *data, cy_wcm_wlan_statistics_t *stat)
 {
     wl_cnt_ver_30_t *cnt = (wl_cnt_ver_30_t *)data;
     stat->rx_bytes   = cnt->rxbyte;
@@ -1893,8 +1893,8 @@ cy_rslt_t cy_wcm_get_wlan_statistics(cy_wcm_interface_t interface, cy_wcm_wlan_s
     if (wl_cnt_info->version == WL_CNT_VER_30)
     {
         /* 43012 board - Process xtlv buffer data to get statistics */
-        uint8 *cntdata;
-        cntdata = (uint8 *)malloc(wl_cnt_info->datalen);
+        uint8_t *cntdata;
+        cntdata = (uint8_t *)malloc(wl_cnt_info->datalen);
         
         CHK_CNTBUF_DATALEN(wl_cnt_info, WLC_IOCTL_MEDLEN);
         if (cntdata == NULL) {
@@ -2587,7 +2587,7 @@ void internal_scan_callback(whd_scan_result_t **result_ptr,
                 cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Error in calling the worker thread func \n");
             }
         }
-        goto exit;
+        return;
     }
 
     whd_scan_result = (whd_scan_result_t *)malloc(sizeof(whd_scan_result_t));
@@ -2713,7 +2713,7 @@ static void process_scan_data(void *arg)
     if(scan_handler.scan_filter.mode == CY_WCM_SCAN_FILTER_TYPE_RSSI)
     {
          int16_t requested_range = scan_handler.scan_filter.param.rssi_range;
-         int16_t signal_strength = wcm_scan_res.signal_strength;
+         int16_t signal_strength = whd_scan_res->signal_strength;
          if(signal_strength < requested_range)
          {
              goto exit;

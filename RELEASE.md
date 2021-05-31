@@ -10,6 +10,9 @@ See the [README.md](./README.md) for a complete description of the Wi-Fi Connect
 | cy_wcm_connect_ap API does not connect to AP, if MAC address is specified as connection parameter.| No workaround. This issue will be fixed in future release. |
 
 ## Changelog
+### v2.0.3
+* Added coverity fixes.
+
 ### v2.0.2
 * Fixed passphrase length check for enterprise security auth types.
 
