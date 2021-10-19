@@ -114,14 +114,16 @@ extern "C" {
 #define CY_RSLT_WCM_INTERFACE_NOT_UP                       (CY_RSLT_WCM_ERR_BASE + 34) /**< Interface is not initialized.                 */
 #define CY_RSLT_WCM_NOT_INITIALIZED                        (CY_RSLT_WCM_ERR_BASE + 35) /**< WCM not initialized.                          */
 #define CY_RSLT_WCM_SEMAPHORE_ERROR                        (CY_RSLT_WCM_ERR_BASE + 36) /**< Semaphore error.                              */
+#define CY_RSLT_WCM_SECURITY_NOT_FOUND                     (CY_RSLT_WCM_ERR_BASE + 37) /**< Security type could not be determined         */
+#define CY_RSLT_WCM_CONNECT_IN_PROGRESS                    (CY_RSLT_WCM_ERR_BASE + 38) /**< Connect to AP is in progress                  */
 
 /** WPS Error Codes */
-#define CY_RSLT_WCM_WPS_PBC_OVERLAP                        (CY_RSLT_WCM_ERR_BASE + 37) /**< WPS PBC overlap.                              */
-#define CY_RSLT_WCM_WPS_ERROR_RECEIVED_WEP_CREDENTIALS     (CY_RSLT_WCM_ERR_BASE + 38) /**< WPS received incorrect credentials.           */
-#define CY_RSLT_WCM_WPS_FAILED                             (CY_RSLT_WCM_ERR_BASE + 39) /**< WPS PBC/PIN mode failed.                      */
+#define CY_RSLT_WCM_WPS_PBC_OVERLAP                        (CY_RSLT_WCM_ERR_BASE + 39) /**< WPS PBC overlap.                              */
+#define CY_RSLT_WCM_WPS_ERROR_RECEIVED_WEP_CREDENTIALS     (CY_RSLT_WCM_ERR_BASE + 40) /**< WPS received incorrect credentials.           */
+#define CY_RSLT_WCM_WPS_FAILED                             (CY_RSLT_WCM_ERR_BASE + 41) /**< WPS PBC/PIN mode failed.                      */
 
 /** DHCP Error Code */
-#define CY_RSLT_WCM_DHCP_TIMEOUT                           (CY_RSLT_WCM_ERR_BASE + 40)  /**< DHCP timeout.                                */
+#define CY_RSLT_WCM_DHCP_TIMEOUT                           (CY_RSLT_WCM_ERR_BASE + 42)  /**< DHCP timeout.                                */
 
 /** \} error codes */
 

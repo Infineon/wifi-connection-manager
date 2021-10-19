@@ -9,6 +9,7 @@ var searchData=
   ['cy_5fwcm_5fevent_5fconnected',['CY_WCM_EVENT_CONNECTED',['../group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fa3cb25ea52d7dfe04a55193c5289d501f',1,'cy_wcm.h']]],
   ['cy_5fwcm_5fevent_5fconnecting',['CY_WCM_EVENT_CONNECTING',['../group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fa683d1014dce666536998f4d185975852',1,'cy_wcm.h']]],
   ['cy_5fwcm_5fevent_5fdisconnected',['CY_WCM_EVENT_DISCONNECTED',['../group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fa206d74c35be5bf29e7903367287efc79',1,'cy_wcm.h']]],
+  ['cy_5fwcm_5fevent_5finitiated_5fretry',['CY_WCM_EVENT_INITIATED_RETRY',['../group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567faf69cff70a802b9f8dae63efc10c70e1d',1,'cy_wcm.h']]],
   ['cy_5fwcm_5fevent_5fip_5fchanged',['CY_WCM_EVENT_IP_CHANGED',['../group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fafe83442aa63aa747c3025d0874482c86',1,'cy_wcm.h']]],
   ['cy_5fwcm_5fevent_5freconnected',['CY_WCM_EVENT_RECONNECTED',['../group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fab2e59655829c24bd5d0ea68622c8c56e',1,'cy_wcm.h']]],
   ['cy_5fwcm_5fevent_5fsta_5fjoined_5fsoftap',['CY_WCM_EVENT_STA_JOINED_SOFTAP',['../group__group__wcm__enums.html#ggafada6a09a78bd0473f3daef54621567fa89bf3f175e03aabb5951138e229392c9',1,'cy_wcm.h']]],

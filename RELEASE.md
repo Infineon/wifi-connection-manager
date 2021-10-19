@@ -10,6 +10,11 @@ See the [README.md](./README.md) for a complete description of the Wi-Fi Connect
 | cy_wcm_connect_ap API does not connect to AP, if MAC address is specified as connection parameter.| No workaround. This issue will be fixed in future release. |
 
 ## Changelog
+### v2.0.4
+* Documentation updates.
+* Minor updates and improvements added in connect to AP and WPS APIs.
+* General bug fixes.
+
 ### v2.0.3
 * Added coverity fixes.
 
@@ -51,11 +56,11 @@ See the [README.md](./README.md) for a complete description of the Wi-Fi Connect
 ### Supported Software and Tools
 This version of the library was validated for compatibility with the following Software and Tools:
 
-| Software and Tools                                      | Version |
-| :---                                                    | :----:  |
-| ModusToolbox Software Environment                       | 2.2     |
-| - ModusToolbox Device Configurator                      | 2.20    |
-| - ModusToolbox CapSense Configurator / Tuner tools      | 3.10    |
-| PSoC 6 Peripheral Driver Library (PDL)                  | 2.0.0   |
-| GCC Compiler                                            | 9.3.1   |
-| IAR Compiler (only for AnyCloud)                        | 8.32    |
+| Software and Tools                                         | Version |
+| :---                                                       | :----:  |
+| ModusToolbox&trade; Software Environment                   | 2.4     |
+| - ModusToolbox&trade; Device Configurator                  | 3.10    |
+| - ModusToolbox&trade; CapSense Configurator / Tuner tools  | 4.0     |
+| PSoC 6 Peripheral Driver Library (PDL)                     | 2.3.0   |
+| GCC Compiler                                               | 10.3.1  |
+| IAR Compiler (only for AnyCloud)                           | 8.32    |

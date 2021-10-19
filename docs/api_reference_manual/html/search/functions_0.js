@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['cy_5fwcm_5fconnect_5fap',['cy_wcm_connect_ap',['../group__group__wcm__functions.html#ga9e8e04210ba0fc7429473d28d4643c7c',1,'cy_wcm.h']]],
+  ['cy_5fwcm_5fconnect_5fap',['cy_wcm_connect_ap',['../group__group__wcm__functions.html#ga0aae35b5ae477a1a10caccf937beff0d',1,'cy_wcm.h']]],
   ['cy_5fwcm_5fdeinit',['cy_wcm_deinit',['../group__group__wcm__functions.html#ga5699a6a4d8f914d86022f3f973916316',1,'cy_wcm.h']]],
   ['cy_5fwcm_5fderegister_5fevent_5fcallback',['cy_wcm_deregister_event_callback',['../group__group__wcm__functions.html#ga957a1964b1a2bf191266ee3e60549b9e',1,'cy_wcm.h']]],
   ['cy_5fwcm_5fdisconnect_5fap',['cy_wcm_disconnect_ap',['../group__group__wcm__functions.html#gaabda4c932e13e0c8f29486d393a18c5b',1,'cy_wcm.h']]],
@@ -17,6 +17,7 @@ var searchData=
   ['cy_5fwcm_5fis_5fconnected_5fto_5fap',['cy_wcm_is_connected_to_ap',['../group__group__wcm__functions.html#ga98c3513c75507fcddb7650b7d20b6f3a',1,'cy_wcm.h']]],
   ['cy_5fwcm_5fping',['cy_wcm_ping',['../group__group__wcm__functions.html#gaa42251a4b728f775786d1781afbc32a2',1,'cy_wcm.h']]],
   ['cy_5fwcm_5fregister_5fevent_5fcallback',['cy_wcm_register_event_callback',['../group__group__wcm__functions.html#ga02f205b4d522c99d6c0b48f15683b0b6',1,'cy_wcm.h']]],
+  ['cy_5fwcm_5fset_5fap_5fip_5fsetting',['cy_wcm_set_ap_ip_setting',['../group__group__wcm__functions.html#gadfcd3cdd92c62bcfd7b0ee53c7e4da7b',1,'cy_wcm.h']]],
   ['cy_5fwcm_5fstart_5fap',['cy_wcm_start_ap',['../group__group__wcm__functions.html#ga4b6c66ca0e28ef817bdab02c56d180e6',1,'cy_wcm.h']]],
   ['cy_5fwcm_5fstart_5fscan',['cy_wcm_start_scan',['../group__group__wcm__functions.html#gae0f0b5f3e6138bfdae943e9f7b16aa07',1,'cy_wcm.h']]],
   ['cy_5fwcm_5fstop_5fap',['cy_wcm_stop_ap',['../group__group__wcm__functions.html#gaaf300adeaed2e9251dc85d6c85be9d72',1,'cy_wcm.h']]],

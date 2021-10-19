@@ -305,13 +305,14 @@ typedef enum
  */
 typedef enum
 {
-    CY_WCM_EVENT_CONNECTING  = 0,   /**< STA connecting to an AP.         */
-    CY_WCM_EVENT_CONNECTED,         /**< STA connected to the AP.         */
-    CY_WCM_EVENT_CONNECT_FAILED,    /**< STA connection to the AP failed. */
-    CY_WCM_EVENT_RECONNECTED,       /**< STA reconnected to the AP.       */
-    CY_WCM_EVENT_DISCONNECTED,      /**< STA disconnected from the AP.    */
-    CY_WCM_EVENT_IP_CHANGED,        /**< IP address change event. This event is notified after connection, re-connection, and IP address change due to DHCP renewal. */
-    CY_WCM_EVENT_STA_JOINED_SOFTAP, /**< An STA device connected to SoftAP. */
+    CY_WCM_EVENT_CONNECTING  = 0,    /**< STA connecting to an AP.         */
+    CY_WCM_EVENT_CONNECTED,          /**< STA connected to the AP.         */
+    CY_WCM_EVENT_CONNECT_FAILED,     /**< STA connection to the AP failed. */
+    CY_WCM_EVENT_RECONNECTED,        /**< STA reconnected to the AP.       */
+    CY_WCM_EVENT_DISCONNECTED,       /**< STA disconnected from the AP.    */
+    CY_WCM_EVENT_IP_CHANGED,         /**< IP address change event. This event is notified after connection, re-connection, and IP address change due to DHCP renewal. */
+    CY_WCM_EVENT_INITIATED_RETRY,    /**< Indicates that WCM will initiate a retry logic to re-connect to the AP */
+    CY_WCM_EVENT_STA_JOINED_SOFTAP,  /**< An STA device connected to SoftAP. */
     CY_WCM_EVENT_STA_LEFT_SOFTAP    /**< An STA device disconnected from SoftAP. */
 } cy_wcm_event_t;
 
@@ -475,7 +476,7 @@ typedef struct
  */
 typedef struct
 {
-    cy_wcm_ssid_t                SSID;             /**< SSID (i.e., name of the AP).                                              */
+    cy_wcm_ssid_t                SSID;             /**< SSID (i.e., name of the AP). In case of a hidden AP, SSID.value will be empty and SSID.length will be 0. */
     cy_wcm_mac_t                 BSSID;            /**< Basic Service Set Identification (BSSID), i.e., MAC address of the AP.              */
     int16_t                      signal_strength;  /**< RSSI in dBm. (<-90=Very poor, >-30=Excellent).                                    */
     uint32_t                     max_data_rate;    /**< Maximum data rate in kbps.         */
@@ -580,8 +581,12 @@ typedef struct
  *
  * @param[in] result_ptr       : A pointer to the scan result; the scan result will be freed once the callback function returns from the application.
  *                               There will not be any scan result when the scan status is CY_WCM_SCAN_COMPLETE.
+ *                               For more details on content of result_ptr, refer \ref cy_wcm_scan_result_t. 
  * @param[in] user_data        : User-provided data.
  * @param[in] status           : Status of the scan process.
+ *                               CY_WCM_SCAN_COMPLETE   : Indicates the scan is completed. In this case the result_ptr will not contain any results.
+ *                               CY_WCM_SCAN_INCOMPLETE : Indicates the scan is in progress. In this case result_ptr contains one of the scan result. 
+ *                                                        
  *
  * Note: The callback function will be executed in the context of the WCM.
  */
@@ -643,7 +648,8 @@ cy_rslt_t cy_wcm_deinit(void);
  *
  *  @param[in]  scan_callback  : Callback function which receives the scan results;
  *                               callback will be executed in the context of the WCM.
- *
+ *                               Scan results will be individually provided to this callback function.
+ *                               For more details on the scan results refer \ref cy_wcm_scan_result_callback_t.
  *  @param[in]  user_data      : User data to be returned as an argument in the callback function
  *                               when the callback function is invoked.
  *  @param[in]  scan_filter    : Scan filter parameter passed for scanning (optional).
@@ -665,11 +671,15 @@ cy_rslt_t cy_wcm_stop_scan(void);
 /**
  * Connects the STA interface to a AP using the Wi-Fi credentials and configuration parameters provided.
  * On successful connection to the Wi-Fi network, the API returns the IP address.
+ * If the user does not know the security type of the AP then, connect_param.ap_credentials.security must 
+ * be set to CY_WCM_SECURITY_UNKNOWN so that the library will internally find the security type before
+ * connecting to AP.
  *
  * This API is a blocking call; this function additionally performs the following checks:
  * 1) Checks for and ignores duplicate connect requests to an already connected AP.
  * 2) Checks the current connection state; if already connected, disconnects from the current
  *    Wi-Fi network and connects to the new Wi-Fi network.
+ * 3) If the user does not know the security type of the AP, the library internally finds the security type.
  *
  * @param[in]   connect_params      : Configuration to join the AP.
  * @param[out]  ip_addr             : Pointer to return the IP address (optional).
@@ -680,7 +690,7 @@ cy_rslt_t cy_wcm_stop_scan(void);
  *
  * @return CY_RSLT_SUCCESS if connection is successful; returns [WCM-specific error codes](./cy_wcm_error.h) otherwise.
  */
-cy_rslt_t cy_wcm_connect_ap(const cy_wcm_connect_params_t *connect_params, cy_wcm_ip_address_t *ip_addr);
+cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_address_t *ip_addr);
 
 /**
  * Disconnects the STA interface from the currently connected AP.
@@ -894,6 +904,20 @@ cy_rslt_t cy_wcm_stop_ap(void);
  * @return CY_RSLT_SUCCESS If getting the client list is successful; returns [WCM-specific error codes](./cy_wcm_error.h) otherwise.
  */
 cy_rslt_t cy_wcm_get_associated_client_list(cy_wcm_mac_t *sta_list, uint8_t num_clients);
+
+/**
+ * Stores the AP settings provided by the user.
+ * NOTE: Dotted-decimal format example: 192.168.0.1
+ *
+ * @param[in] ip_addr       : Pointer to an array containing IP address of the AP in dotted-decimal format.
+ * @param[in] netmask       : Pointer to an array containing network mask in dotted-decimal format.
+ * @param[in] gateway_addr  : Pointer to an array containing gateway address in dotted-decimal format.
+ * @param[in] ver           : IP version. Possible values \ref CY_WCM_IP_VER_V6 or \ref CY_WCM_IP_VER_V4.
+ * @param[in] ap_ip         : Pointer to variable which stores AP settings.
+ *
+ * @result CY_RSLT_SUCCESS if the AP settings are successfully stored in the user provided variable; returns [WCM-specific error codes](./cy_wcm_error.h) otherwise.
+ */
+cy_rslt_t cy_wcm_set_ap_ip_setting(cy_wcm_ip_setting_t *ap_ip, const char *ip_addr, const char *netmask, const char *gateway_addr, cy_wcm_ip_version_t ver);
 
 /** \} group_wcm_functions */
 
