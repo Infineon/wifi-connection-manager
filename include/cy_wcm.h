@@ -622,7 +622,7 @@ typedef void (*cy_wcm_event_callback_t)(cy_wcm_event_t event, cy_wcm_event_data_
  * 
  * @param[in]  config: The configuration to be initialized.
  *
- * @return CY_RSLT_SUCCESS if WCM initialization was successful; returns [WCM-specific error codes](./cy_wcm_error.h) otherwise.
+ * @return CY_RSLT_SUCCESS if WCM initialization was successful; returns \ref cy_wcm_error otherwise.
  *
  */
 cy_rslt_t cy_wcm_init(cy_wcm_config_t *config);
@@ -636,7 +636,7 @@ cy_rslt_t cy_wcm_init(cy_wcm_config_t *config);
  *       an implementation for deinit. Therefore, the expectation is that \ref cy_wcm_init and this API should
  *       be invoked only once.
  *
- * @return CY_RSLT_SUCCESS if the Wi-Fi module was successfully turned off; returns [WCM-specific error codes](./cy_wcm_error.h) otherwise.
+ * @return CY_RSLT_SUCCESS if the Wi-Fi module was successfully turned off; returns \ref cy_wcm_error otherwise.
  */
 cy_rslt_t cy_wcm_deinit(void);
 
@@ -654,7 +654,7 @@ cy_rslt_t cy_wcm_deinit(void);
  *                               when the callback function is invoked.
  *  @param[in]  scan_filter    : Scan filter parameter passed for scanning (optional).
  *
- * @return CY_RSLT_SUCCESS if the Wi-Fi network scan was successful; returns [WCM-specific error codes](./cy_wcm_error.h) otherwise.
+ * @return CY_RSLT_SUCCESS if the Wi-Fi network scan was successful; returns \ref cy_wcm_error otherwise.
  * While a scan is in progress, if the user issues another scan, this API returns "CY_RSLT_WCM_SCAN_IN_PROGRESS".
  *
  */
@@ -663,7 +663,7 @@ cy_rslt_t cy_wcm_start_scan(cy_wcm_scan_result_callback_t scan_callback, void *u
 /**
  * Stops an ongoing Wi-Fi network scan.
  *
- * @return CY_RSLT_SUCCESS if the Wi-Fi network scan was successful; returns [WCM-specific error codes](./cy_wcm_error.h) otherwise.
+ * @return CY_RSLT_SUCCESS if the Wi-Fi network scan was successful; returns \ref cy_wcm_error otherwise.
  *
  */
 cy_rslt_t cy_wcm_stop_scan(void);
@@ -688,7 +688,7 @@ cy_rslt_t cy_wcm_stop_scan(void);
  *       WEP based authentication types are considered to be weaker security types,
  *       hence this function doesn't connect to AP that is configured with WEP based authentication.
  *
- * @return CY_RSLT_SUCCESS if connection is successful; returns [WCM-specific error codes](./cy_wcm_error.h) otherwise.
+ * @return CY_RSLT_SUCCESS if connection is successful; returns \ref cy_wcm_error otherwise.
  */
 cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_address_t *ip_addr);
 
@@ -696,7 +696,7 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
  * Disconnects the STA interface from the currently connected AP.
  *
  * @return CY_RSLT_SUCCESS if disconnection was successful or if the device is already
- * disconnected; returns [WCM-specific error codes](./cy_wcm_error.h) otherwise.
+ * disconnected; returns \ref cy_wcm_error otherwise.
  */
 cy_rslt_t cy_wcm_disconnect_ap(void);
 
@@ -709,7 +709,7 @@ cy_rslt_t cy_wcm_disconnect_ap(void);
  *                                If the given interface type is CY_WCM_INTERFACE_TYPE_AP_STA, index-0 stores the IPv4 address of the STA interface and index-1 stores the IPV4 address of the AP interface.
  * @param[in]   addr_count      : Length of the array passed in ip_addr.
  *
- * @return CY_RSLT_SUCCESS if IP-address get is successful; returns [WCM-specific error codes](./cy_wcm_error.h) otherwise.
+ * @return CY_RSLT_SUCCESS if IP-address get is successful; returns \ref cy_wcm_error otherwise.
 
  */
 cy_rslt_t cy_wcm_get_ip_addr(cy_wcm_interface_t interface_type, cy_wcm_ip_address_t *ip_addr, uint8_t addr_count);
@@ -726,7 +726,7 @@ cy_rslt_t cy_wcm_get_ip_addr(cy_wcm_interface_t interface_type, cy_wcm_ip_addres
  *                                If the given interface type is CY_WCM_INTERFACE_TYPE_AP_STA, index-0 stores the IPv6 link-local address of the STA interface and index-1 stores the IPv6 link-local address of the AP interface.
  * @param[in]   addr_count      : Length of the array passed in ip_addr.
  *
- * @return CY_RSLT_SUCCESS if IPv6 interface is up and IPv6 address is ready; returns [WCM-specific error codes](./cy_wcm_error.h) otherwise.
+ * @return CY_RSLT_SUCCESS if IPv6 interface is up and IPv6 address is ready; returns \ref cy_wcm_error otherwise.
  */
 cy_rslt_t cy_wcm_get_ipv6_addr(cy_wcm_interface_t interface_type, cy_wcm_ipv6_type_t ipv6_addr_type, cy_wcm_ip_address_t *ip_addr, uint8_t addr_count);
 
@@ -741,7 +741,7 @@ cy_rslt_t cy_wcm_get_ipv6_addr(cy_wcm_interface_t interface_type, cy_wcm_ipv6_ty
  *
  * @param[in]   addr_count      : Length of the array passed in gateway_addr.
  *
- * @return CY_RSLT_SUCCESS if retrieval of the gateway IP address was successful; returns [WCM-specific error codes](./cy_wcm_error.h) otherwise.
+ * @return CY_RSLT_SUCCESS if retrieval of the gateway IP address was successful; returns \ref cy_wcm_error otherwise.
  */
 cy_rslt_t cy_wcm_get_gateway_ip_address(cy_wcm_interface_t interface_type, cy_wcm_ip_address_t *gateway_addr, uint8_t addr_count);
 
@@ -756,7 +756,7 @@ cy_rslt_t cy_wcm_get_gateway_ip_address(cy_wcm_interface_t interface_type, cy_wc
  *
  * @param[in]   addr_count      : Length of the array passed in net_mask_addr.
  *
- * @return CY_RSLT_SUCCESS if retrieval of the subnet mask address was successful; returns [WCM-specific error codes](./cy_wcm_error.h) otherwise.
+ * @return CY_RSLT_SUCCESS if retrieval of the subnet mask address was successful; returns \ref cy_wcm_error otherwise.
  */
 cy_rslt_t cy_wcm_get_ip_netmask(cy_wcm_interface_t interface_type, cy_wcm_ip_address_t *net_mask_addr, uint8_t addr_count);
 
@@ -770,7 +770,7 @@ cy_rslt_t cy_wcm_get_ip_netmask(cy_wcm_interface_t interface_type, cy_wcm_ip_add
  *
  * @param[in]   addr_count      : Length of the array passed in mac_addr.
  * 
- * @return CY_RSLT_SUCCESS if the MAC address get is successful; returns [WCM-specific error codes](./cy_wcm_error.h) otherwise.
+ * @return CY_RSLT_SUCCESS if the MAC address get is successful; returns \ref cy_wcm_error otherwise.
  */
 cy_rslt_t cy_wcm_get_mac_addr(cy_wcm_interface_t interface_type, cy_wcm_mac_t *mac_addr, uint8_t addr_count);
 
@@ -785,7 +785,7 @@ cy_rslt_t cy_wcm_get_mac_addr(cy_wcm_interface_t interface_type, cy_wcm_mac_t *m
  * @param[in, out] credential_count : Upon invocation, this parameter stores the size of the credentials parameter. Upon return, denotes the actual
  *                                    number of credentials returned.
  *
- * @return CY_RSLT_SUCCESS if credentials are retrieved successfully; returns [WCM-specific error codes](./cy_wcm_error.h) otherwise.
+ * @return CY_RSLT_SUCCESS if credentials are retrieved successfully; returns \ref cy_wcm_error otherwise.
  */
 cy_rslt_t cy_wcm_wps_enrollee(cy_wcm_wps_config_t* config, const cy_wcm_wps_device_detail_t *details, cy_wcm_wps_credential_t *credentials, uint16_t *credential_count);
 
@@ -794,7 +794,7 @@ cy_rslt_t cy_wcm_wps_enrollee(cy_wcm_wps_config_t* config, const cy_wcm_wps_devi
  *
  * @param[out]  wps_pin_string  : Pointer to store the WPS PIN as a null-terminated string.
  *
- * @return CY_RSLT_SUCCESS if WPS PIN generated; returns [WCM-specific error codes](./cy_wcm_error.h) otherwise.
+ * @return CY_RSLT_SUCCESS if WPS PIN generated; returns \ref cy_wcm_error otherwise.
  */
 cy_rslt_t cy_wcm_wps_generate_pin(char wps_pin_string[CY_WCM_WPS_PIN_LENGTH]);
 
@@ -807,7 +807,7 @@ cy_rslt_t cy_wcm_wps_generate_pin(char wps_pin_string[CY_WCM_WPS_PIN_LENGTH]);
  * @param[in]  event_callback  : Callback function to be invoked for event notification.
  *                               The callback will be executed in the context of the WCM.
  *
- * @return CY_RSLT_SUCCESS if application callback registration was successful; returns [WCM-specific error codes](./cy_wcm_error.h) otherwise.
+ * @return CY_RSLT_SUCCESS if application callback registration was successful; returns \ref cy_wcm_error otherwise.
 */
 cy_rslt_t cy_wcm_register_event_callback(cy_wcm_event_callback_t event_callback);
 
@@ -816,7 +816,7 @@ cy_rslt_t cy_wcm_register_event_callback(cy_wcm_event_callback_t event_callback)
  *
  * @param[in]  event_callback  : Callback function to de-register from getting notifications.
  *
- * @return CY_RSLT_SUCCESS if application callback de-registration was successful; returns [WCM-specific error codes](./cy_wcm_error.h) otherwise.
+ * @return CY_RSLT_SUCCESS if application callback de-registration was successful; returns \ref cy_wcm_error otherwise.
 */
 cy_rslt_t cy_wcm_deregister_event_callback(cy_wcm_event_callback_t event_callback);
 
@@ -832,7 +832,7 @@ uint8_t cy_wcm_is_connected_to_ap(void);
  *
  * @param[out] ap_info : Pointer to store the information of the associated AP \ref cy_wcm_associated_ap_info_t.
  *
- * @return CY_RSLT_SUCCESS if retrieving the information of the associated AP was successful; returns [WCM-specific error codes](./cy_wcm_error.h) otherwise.
+ * @return CY_RSLT_SUCCESS if retrieving the information of the associated AP was successful; returns \ref cy_wcm_error otherwise.
  */
 cy_rslt_t cy_wcm_get_associated_ap_info(cy_wcm_associated_ap_info_t *ap_info);
 
@@ -845,7 +845,7 @@ cy_rslt_t cy_wcm_get_associated_ap_info(cy_wcm_associated_ap_info_t *ap_info);
  * @param[in] interface : Type of the WCM interface.
  * @param[in] stat      : Pointer to store the statistics \ref cy_wcm_wlan_statistics_t.
  *
- * @return CY_RSLT_SUCCESS if retrieval of statistics was successful; returns [WCM-specific error codes](./cy_wcm_error.h) otherwise.
+ * @return CY_RSLT_SUCCESS if retrieval of statistics was successful; returns \ref cy_wcm_error otherwise.
  */
 cy_rslt_t cy_wcm_get_wlan_statistics(cy_wcm_interface_t interface, cy_wcm_wlan_statistics_t *stat);
 
@@ -856,7 +856,7 @@ cy_rslt_t cy_wcm_get_wlan_statistics(cy_wcm_interface_t interface, cy_wcm_wlan_s
  *
  * @param[out]  mac_addr : Pointer to a MAC address structure which is filled with the gateway's MAC address on successful return.
  *
- * @return CY_RSLT_SUCCESS if retrieval of the gateway MAC address was successful; returns [WCM-specific error codes](./cy_wcm_error.h) otherwise.
+ * @return CY_RSLT_SUCCESS if retrieval of the gateway MAC address was successful; returns \ref cy_wcm_error otherwise.
  */
 cy_rslt_t cy_wcm_get_gateway_mac_address(cy_wcm_mac_t *mac_addr);
 
@@ -869,7 +869,7 @@ cy_rslt_t cy_wcm_get_gateway_mac_address(cy_wcm_mac_t *mac_addr);
  * @param[out] elapsed_ms  : Pointer to store the round-trip time (in milliseconds),
  *                           i.e., the time taken to receive the ping response from the destination.
  *
- * @return CY_RSLT_SUCCESS if pinging to the IP address was successful; returns [WCM-specific error codes](./cy_wcm_error.h) otherwise.
+ * @return CY_RSLT_SUCCESS if pinging to the IP address was successful; returns \ref cy_wcm_error otherwise.
  */
 cy_rslt_t cy_wcm_ping(cy_wcm_interface_t interface, cy_wcm_ip_address_t *ip_addr, uint32_t timeout_ms, uint32_t* elapsed_ms);
 
@@ -880,14 +880,14 @@ cy_rslt_t cy_wcm_ping(cy_wcm_interface_t interface, cy_wcm_ip_address_t *ip_addr
  *
  * @param[in]   ap_config   : Configuration parameters for the SoftAP.
  *
- * @return CY_RSLT_SUCCESS if SoftAp is started ; returns [WCM-specific error codes](./cy_wcm_error.h) otherwise.
+ * @return CY_RSLT_SUCCESS if SoftAp is started ; returns \ref cy_wcm_error otherwise.
  */
 cy_rslt_t cy_wcm_start_ap(const cy_wcm_ap_config_t *ap_config);
 
 /**
  * Stops the infrastructure Wi-Fi network (SoftAP), removes the Information Element and stops the internal DHCP server.
  *
- * @return CY_RSLT_SUCCESS if connection is successful; returns [WCM-specific error codes](./cy_wcm_error.h) otherwise.
+ * @return CY_RSLT_SUCCESS if connection is successful; returns \ref cy_wcm_error otherwise.
  */
 cy_rslt_t cy_wcm_stop_ap(void);
 
@@ -901,7 +901,7 @@ cy_rslt_t cy_wcm_stop_ap(void);
  * \note If the number of connected client are less than the num_clients, then elements of sta_list beyond number of connected clients will be set to zero.
  *       Maximum number of supported client list varies for different Wi-Fi chips.
  *
- * @return CY_RSLT_SUCCESS If getting the client list is successful; returns [WCM-specific error codes](./cy_wcm_error.h) otherwise.
+ * @return CY_RSLT_SUCCESS If getting the client list is successful; returns \ref cy_wcm_error otherwise.
  */
 cy_rslt_t cy_wcm_get_associated_client_list(cy_wcm_mac_t *sta_list, uint8_t num_clients);
 
@@ -915,7 +915,7 @@ cy_rslt_t cy_wcm_get_associated_client_list(cy_wcm_mac_t *sta_list, uint8_t num_
  * @param[in] ver           : IP version. Possible values \ref CY_WCM_IP_VER_V6 or \ref CY_WCM_IP_VER_V4.
  * @param[in] ap_ip         : Pointer to variable which stores AP settings.
  *
- * @result CY_RSLT_SUCCESS if the AP settings are successfully stored in the user provided variable; returns [WCM-specific error codes](./cy_wcm_error.h) otherwise.
+ * @result CY_RSLT_SUCCESS if the AP settings are successfully stored in the user provided variable; returns \ref cy_wcm_error otherwise.
  */
 cy_rslt_t cy_wcm_set_ap_ip_setting(cy_wcm_ip_setting_t *ap_ip, const char *ip_addr, const char *netmask, const char *gateway_addr, cy_wcm_ip_version_t ver);
 

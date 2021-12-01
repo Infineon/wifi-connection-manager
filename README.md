@@ -14,7 +14,7 @@ The current implementation has the following features and functionality:
 * The library is built on top of the abstraction-rtos library that provides the RTOS abstraction API for FreeRTOS.
 
 ## Supported Platforms
-This library and its features are supported on the following Cypress platforms:
+This library and its features are supported on the following Infineon platforms:
 * [PSoC&trade; 6 Wi-Fi BT Prototyping Kit (CY8CPROTO-062-4343W)](https://www.cypress.com/documentation/development-kitsboards/psoc-6-wi-fi-bt-prototyping-kit-cy8cproto-062-4343w)
 
 * [PSoC&trade; 62S2 Wi-Fi BT Pioneer Kit (CY8CKIT-062S2-43012)](https://www.cypress.com/documentation/development-kitsboards/psoc-62s2-wi-fi-bt-pioneer-kit-cy8ckit-062s2-43012)
@@ -23,15 +23,19 @@ This library and its features are supported on the following Cypress platforms:
 
 * [PSoC&trade; 62S2 evaluation kit (CY8CEVAL-062S2-LAI-4373M2)](https://www.cypress.com/documentation/development-kitsboards/psoc-62s2-evaluation-kit-cy8ceval-062s2)
 
+* [CYW954907AEVAL1F Evaluation Kit(CYW954907AEVAL1F)](https://www.cypress.com/documentation/development-kitsboards/cyw954907aeval1f-evaluation-kit)
+
+* [CYW943907AEVAL1F Evaluation Kit(CYW943907AEVAL1F)](https://www.cypress.com/documentation/development-kitsboards/cyw943907aeval1f-evaluation-kit)
+
 ## Dependent Libraries
 This library depends on the following:
-* [Wi-Fi Middleware Core](https://github.com/cypresssemiconductorco/wifi-mw-core)
-* [Wi-Fi Host Driver](https://github.com/cypresssemiconductorco/wifi-host-driver)
+* [Wi-Fi Middleware Core](https://github.com/Infineon/wifi-mw-core)
+* [Wi-Fi Host Driver](https://github.com/Infineon/wifi-host-driver)
 
 ## Quick Start
-* A set of pre-defined configuration files have been bundled with the wifi-mw-core library for FreeRTOS, lwIP, and mbed TLS. The developer is expected to review the configuration and make adjustments. See the "Quick Start" section in [README.md](https://github.com/cypresssemiconductorco/wifi-mw-core/blob/master/README.md).
+* A set of pre-defined configuration files have been bundled with the wifi-mw-core library for FreeRTOS, lwIP, and mbed TLS. The developer is expected to review the configuration and make adjustments. See the "Quick Start" section in [README.md](https://github.com/Infineon/wifi-mw-core/blob/master/README.md).
 
-* A set of COMPONENTS must be defined in the code example project's Makefile for this library. See the "Quick Start" section in [README.md](https://github.com/cypresssemiconductorco/wifi-mw-core/blob/master/README.md).
+* A set of COMPONENTS must be defined in the code example project's Makefile for this library. See the "Quick Start" section in [README.md](https://github.com/Infineon/wifi-mw-core/blob/master/README.md).
 
 * The WCM library disables all the debug log messages by default. To enable log messages, the application must perform the following:
 
@@ -42,7 +46,7 @@ This library depends on the following:
  
  - Call the `cy_log_init()` function provided by the *cy-log* module. cy-log is part of the *connectivity-utilities* library. 
  
- - See [connectivity-utilities library API documentation](https://cypresssemiconductorco.github.io/connectivity-utilities/api_reference_manual/html/group__logging__utils.html).
+ - See [connectivity-utilities library API documentation](https://Infineon.github.io/connectivity-utilities/api_reference_manual/html/group__logging__utils.html).
 
 * WPS is disabled by default. WPS uses Mbed TLS security stack. Enable the following components for WPS.
   ```
@@ -52,9 +56,9 @@ This library depends on the following:
 ## Additional Information
 * [Wi-Fi Connection Manager RELEASE.md](./RELEASE.md)
 
-* [Wi-Fi Connection Manager API Documentation](https://cypresssemiconductorco.github.io/wifi-connection-manager/api_reference_manual/html/index.html)
+* [Wi-Fi Connection Manager API Documentation](https://Infineon.github.io/wifi-connection-manager/api_reference_manual/html/index.html)
 
-* [Connectivity Utilities API documentation - for cy-log details](https://cypresssemiconductorco.github.io/connectivity-utilities/api_reference_manual/html/group__logging__utils.html)
+* [Connectivity Utilities API documentation - for cy-log details](https://Infineon.github.io/connectivity-utilities/api_reference_manual/html/group__logging__utils.html)
 
 * [ModusToolbox&trade; Software Environment, Quick Start Guide, Documentation, and Videos](https://www.cypress.com/products/modustoolbox-software-environment)
 

@@ -42,9 +42,11 @@ extern "C" {
 #include "cy_result_mw.h"
 
 /**
- * @defgroup generic_wcm_defines WCM results/error codes
+ * @defgroup cy_wcm_error WCM-specific error codes
  * @ingroup group_wcm_macros
- * Cypress middleware APIs return results of type cy_rslt_t and consist of three parts:
+ * Cypress middleware APIs return results of type cy_rslt_t.
+ *
+ * It consists of three parts:
  * - module base
  * - type
  * - error code

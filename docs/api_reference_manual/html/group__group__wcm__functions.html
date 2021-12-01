@@ -196,7 +196,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if WCM initialization was successful; returns <a href="./cy_wcm_error.h">WCM-specific error codes</a> otherwise. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if WCM initialization was successful; returns <a class="el" href="group__cy__wcm__error.html">WCM-specific error codes</a> otherwise. </dd></dl>
 
 </div>
 </div>
@@ -219,7 +219,7 @@ Functions</h2></td></tr>
 <p>Shuts down the WCM. </p>
 <p>This function cleans up all the resources of the WCM and brings down the Wi-Fi driver.</p>
 <dl class="section note"><dt>Note</dt><dd>This API does not bring down the network stack because the default underlying stack does not have an implementation for deinit. Therefore, the expectation is that <a class="el" href="group__group__wcm__functions.html#ga888428a2325f131528f7447e894002eb">cy_wcm_init</a> and this API should be invoked only once.</dd></dl>
-<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if the Wi-Fi module was successfully turned off; returns <a href="./cy_wcm_error.h">WCM-specific error codes</a> otherwise. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if the Wi-Fi module was successfully turned off; returns <a class="el" href="group__cy__wcm__error.html">WCM-specific error codes</a> otherwise. </dd></dl>
 
 </div>
 </div>
@@ -265,7 +265,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if the Wi-Fi network scan was successful; returns <a href="./cy_wcm_error.h">WCM-specific error codes</a> otherwise. While a scan is in progress, if the user issues another scan, this API returns "CY_RSLT_WCM_SCAN_IN_PROGRESS". </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if the Wi-Fi network scan was successful; returns <a class="el" href="group__cy__wcm__error.html">WCM-specific error codes</a> otherwise. While a scan is in progress, if the user issues another scan, this API returns "CY_RSLT_WCM_SCAN_IN_PROGRESS". </dd></dl>
 
 </div>
 </div>
@@ -286,7 +286,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Stops an ongoing Wi-Fi network scan. </p>
-<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if the Wi-Fi network scan was successful; returns <a href="./cy_wcm_error.h">WCM-specific error codes</a> otherwise. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if the Wi-Fi network scan was successful; returns <a class="el" href="group__cy__wcm__error.html">WCM-specific error codes</a> otherwise. </dd></dl>
 
 </div>
 </div>
@@ -327,7 +327,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section note"><dt>Note</dt><dd>WEP (Wired Equivalent Privacy) security is not supported by this API. WEP based authentication types are considered to be weaker security types, hence this function doesn't connect to AP that is configured with WEP based authentication.</dd></dl>
-<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if connection is successful; returns <a href="./cy_wcm_error.h">WCM-specific error codes</a> otherwise. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if connection is successful; returns <a class="el" href="group__cy__wcm__error.html">WCM-specific error codes</a> otherwise. </dd></dl>
 
 </div>
 </div>
@@ -348,7 +348,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Disconnects the STA interface from the currently connected AP. </p>
-<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if disconnection was successful or if the device is already disconnected; returns <a href="./cy_wcm_error.h">WCM-specific error codes</a> otherwise. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if disconnection was successful or if the device is already disconnected; returns <a class="el" href="group__cy__wcm__error.html">WCM-specific error codes</a> otherwise. </dd></dl>
 
 </div>
 </div>
@@ -394,7 +394,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if IP-address get is successful; returns <a href="./cy_wcm_error.h">WCM-specific error codes</a> otherwise. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if IP-address get is successful; returns <a class="el" href="group__cy__wcm__error.html">WCM-specific error codes</a> otherwise. </dd></dl>
 
 </div>
 </div>
@@ -447,7 +447,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if IPv6 interface is up and IPv6 address is ready; returns <a href="./cy_wcm_error.h">WCM-specific error codes</a> otherwise. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if IPv6 interface is up and IPv6 address is ready; returns <a class="el" href="group__cy__wcm__error.html">WCM-specific error codes</a> otherwise. </dd></dl>
 
 </div>
 </div>
@@ -492,7 +492,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if retrieval of the gateway IP address was successful; returns <a href="./cy_wcm_error.h">WCM-specific error codes</a> otherwise. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if retrieval of the gateway IP address was successful; returns <a class="el" href="group__cy__wcm__error.html">WCM-specific error codes</a> otherwise. </dd></dl>
 
 </div>
 </div>
@@ -537,7 +537,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if retrieval of the subnet mask address was successful; returns <a href="./cy_wcm_error.h">WCM-specific error codes</a> otherwise. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if retrieval of the subnet mask address was successful; returns <a class="el" href="group__cy__wcm__error.html">WCM-specific error codes</a> otherwise. </dd></dl>
 
 </div>
 </div>
@@ -582,7 +582,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if the MAC address get is successful; returns <a href="./cy_wcm_error.h">WCM-specific error codes</a> otherwise. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if the MAC address get is successful; returns <a class="el" href="group__cy__wcm__error.html">WCM-specific error codes</a> otherwise. </dd></dl>
 
 </div>
 </div>
@@ -634,7 +634,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if credentials are retrieved successfully; returns <a href="./cy_wcm_error.h">WCM-specific error codes</a> otherwise. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if credentials are retrieved successfully; returns <a class="el" href="group__cy__wcm__error.html">WCM-specific error codes</a> otherwise. </dd></dl>
 
 </div>
 </div>
@@ -661,7 +661,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if WPS PIN generated; returns <a href="./cy_wcm_error.h">WCM-specific error codes</a> otherwise. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if WPS PIN generated; returns <a class="el" href="group__cy__wcm__error.html">WCM-specific error codes</a> otherwise. </dd></dl>
 
 </div>
 </div>
@@ -690,7 +690,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if application callback registration was successful; returns <a href="./cy_wcm_error.h">WCM-specific error codes</a> otherwise. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if application callback registration was successful; returns <a class="el" href="group__cy__wcm__error.html">WCM-specific error codes</a> otherwise. </dd></dl>
 
 </div>
 </div>
@@ -717,7 +717,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if application callback de-registration was successful; returns <a href="./cy_wcm_error.h">WCM-specific error codes</a> otherwise. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if application callback de-registration was successful; returns <a class="el" href="group__cy__wcm__error.html">WCM-specific error codes</a> otherwise. </dd></dl>
 
 </div>
 </div>
@@ -765,7 +765,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if retrieving the information of the associated AP was successful; returns <a href="./cy_wcm_error.h">WCM-specific error codes</a> otherwise. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if retrieving the information of the associated AP was successful; returns <a class="el" href="group__cy__wcm__error.html">WCM-specific error codes</a> otherwise. </dd></dl>
 
 </div>
 </div>
@@ -804,7 +804,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if retrieval of statistics was successful; returns <a href="./cy_wcm_error.h">WCM-specific error codes</a> otherwise. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if retrieval of statistics was successful; returns <a class="el" href="group__cy__wcm__error.html">WCM-specific error codes</a> otherwise. </dd></dl>
 
 </div>
 </div>
@@ -833,7 +833,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if retrieval of the gateway MAC address was successful; returns <a href="./cy_wcm_error.h">WCM-specific error codes</a> otherwise. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if retrieval of the gateway MAC address was successful; returns <a class="el" href="group__cy__wcm__error.html">WCM-specific error codes</a> otherwise. </dd></dl>
 
 </div>
 </div>
@@ -886,7 +886,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if pinging to the IP address was successful; returns <a href="./cy_wcm_error.h">WCM-specific error codes</a> otherwise. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if pinging to the IP address was successful; returns <a class="el" href="group__cy__wcm__error.html">WCM-specific error codes</a> otherwise. </dd></dl>
 
 </div>
 </div>
@@ -914,7 +914,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if SoftAp is started ; returns <a href="./cy_wcm_error.h">WCM-specific error codes</a> otherwise. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if SoftAp is started ; returns <a class="el" href="group__cy__wcm__error.html">WCM-specific error codes</a> otherwise. </dd></dl>
 
 </div>
 </div>
@@ -935,7 +935,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Stops the infrastructure Wi-Fi network (SoftAP), removes the Information Element and stops the internal DHCP server. </p>
-<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if connection is successful; returns <a href="./cy_wcm_error.h">WCM-specific error codes</a> otherwise. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if connection is successful; returns <a class="el" href="group__cy__wcm__error.html">WCM-specific error codes</a> otherwise. </dd></dl>
 
 </div>
 </div>
@@ -974,7 +974,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section note"><dt>Note</dt><dd>If the number of connected client are less than the num_clients, then elements of sta_list beyond number of connected clients will be set to zero. Maximum number of supported client list varies for different Wi-Fi chips.</dd></dl>
-<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS If getting the client list is successful; returns <a href="./cy_wcm_error.h">WCM-specific error codes</a> otherwise. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS If getting the client list is successful; returns <a class="el" href="group__cy__wcm__error.html">WCM-specific error codes</a> otherwise. </dd></dl>
 
 </div>
 </div>
@@ -1034,7 +1034,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if the AP settings are successfully stored in the user provided variable; returns <a href="./cy_wcm_error.h">WCM-specific error codes</a> otherwise. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if the AP settings are successfully stored in the user provided variable; returns <a class="el" href="group__cy__wcm__error.html">WCM-specific error codes</a> otherwise. </dd></dl>
 
 </div>
 </div>

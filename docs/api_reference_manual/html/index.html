@@ -98,21 +98,23 @@ Features and Functionality</h1>
 </ul>
 <h1><a class="anchor" id="section_supported_platforms"></a>
 Supported Platforms</h1>
-<p>This library and its features are supported on the following Cypress platforms:</p><ul>
+<p>This library and its features are supported on the following Infineon platforms:</p><ul>
 <li><a href="https://www.cypress.com/documentation/development-kitsboards/psoc-6-wi-fi-bt-prototyping-kit-cy8cproto-062-4343w">PSoC&trade; 6 Wi-Fi BT Prototyping Kit (CY8CPROTO-062-4343W)</a></li>
 <li><a href="https://www.cypress.com/documentation/development-kitsboards/psoc-62s2-wi-fi-bt-pioneer-kit-cy8ckit-062s2-43012">PSoC&trade; 62S2 Wi-Fi BT Pioneer Kit (CY8CKIT-062S2-43012)</a></li>
 <li><a href="https://www.cypress.com/documentation/development-kitsboards/psoc-6-wifi-bt-pioneer-kit-cy8ckit-062-wifi-bt">PSoC&trade; 6 WiFi-BT Pioneer Kit (CY8CKIT-062-WiFi-BT)</a></li>
 <li><a href="https://www.cypress.com/documentation/development-kitsboards/psoc-62s2-evaluation-kit-cy8ceval-062s2">PSoC&trade; 62S2 evaluation kit (CY8CEVAL-062S2-LAI-4373M2)</a></li>
+<li><a href="https://www.cypress.com/documentation/development-kitsboards/cyw954907aeval1f-evaluation-kit">CYW954907AEVAL1F Evaluation Kit(CYW954907AEVAL1F)</a></li>
+<li><a href="https://www.cypress.com/documentation/development-kitsboards/cyw943907aeval1f-evaluation-kit">CYW943907AEVAL1F Evaluation Kit(CYW943907AEVAL1F)</a></li>
 </ul>
 <h1><a class="anchor" id="section_dependencies"></a>
 Dependent Libraries</h1>
-<p>This library includes <a href="https://github.com/cypresssemiconductorco/wifi-mw-core">Wi-Fi Middleware Core</a> by default. It helps code examples to enable Wi-Fi connectivity components without having to include additional libraries. The Wi-Fi Host Driver library is part of the Wi-Fi Middleware Core.</p>
+<p>This library includes <a href="https://github.com/Infineon/wifi-mw-core">Wi-Fi Middleware Core</a> by default. It helps code examples to enable Wi-Fi connectivity components without having to include additional libraries. The Wi-Fi Host Driver library is part of the Wi-Fi Middleware Core.</p>
 <h1><a class="anchor" id="section_integration"></a>
 Quick Start</h1>
 <ul>
-<li>A set of pre-defined configuration files have been bundled with the wifi-mw-core library for FreeRTOS, lwIP, and mbed TLS. The developer is expected to review the configuration and make adjustments. See the Quick Start section in <a href="https://github.com/cypresssemiconductorco/wifi-mw-core/blob/master/README.md">README.md</a>. A set of COMPONENTS must be defined in the code example project's Makefile for this library. See the Quick Start section in <a href="https://github.com/cypresssemiconductorco/wifi-mw-core/blob/master/README.md">README.md</a>. The WCM library disables all the debug log messages by default. To enable log messages, the application must perform the following:<ol type="1">
+<li>A set of pre-defined configuration files have been bundled with the wifi-mw-core library for FreeRTOS, lwIP, and mbed TLS. The developer is expected to review the configuration and make adjustments. See the Quick Start section in <a href="https://github.com/Infineon/wifi-mw-core/blob/master/README.md">README.md</a>. A set of COMPONENTS must be defined in the code example project's Makefile for this library. See the Quick Start section in <a href="https://github.com/Infineon/wifi-mw-core/blob/master/README.md">README.md</a>. The WCM library disables all the debug log messages by default. To enable log messages, the application must perform the following:<ol type="1">
 <li>Add the <code>ENABLE_WCM_LOGS</code> macro to the <em>DEFINES</em> in the code example's Makefile. The Makefile entry would look like as follows: <div class="fragment"><div class="line">DEFINES+=ENABLE_WCM_LOGS</div></div><!-- fragment --></li>
-<li>Call the <code>cy_log_init()</code> function provided by the <em>cy-log</em> module. cy-log is part of the <em>connectivity-utilities</em> library. See *<a href="* https://cypresssemiconductorco.github.io/connectivity-utilities/api_reference_manual/html/group__logging__utils.html">connectivity-utilities library API documentation</a>.</li>
+<li>Call the <code>cy_log_init()</code> function provided by the <em>cy-log</em> module. cy-log is part of the <em>connectivity-utilities</em> library. See *<a href="* https://Infineon.github.io/connectivity-utilities/api_reference_manual/html/group__logging__utils.html">connectivity-utilities library API documentation</a>.</li>
 </ol>
 </li>
 </ul>

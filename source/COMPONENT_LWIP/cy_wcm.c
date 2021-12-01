@@ -201,6 +201,7 @@ typedef struct xtlv
 whd_interface_t whd_ifs[MAX_WHD_INTERFACE];
 
 bool is_wcm_initalized                 = false;
+bool is_tcp_initialized                = false;
 static cy_mutex_t wcm_mutex;
 static cy_wcm_interface_t                current_interface;
 static bool wcm_sta_link_up            = false;
@@ -365,7 +366,11 @@ cy_rslt_t cy_wcm_init(cy_wcm_config_t *config)
     }
 
     /** Initialize TCP ip stack, LWIP init is called through tcpip_init **/
-    tcpip_init(donothing, NULL) ;
+    if(!is_tcp_initialized)
+    {
+        tcpip_init(donothing, NULL);
+        is_tcp_initialized = true;
+    }
 
     if (cy_rtos_init_mutex(&wcm_mutex) != CY_RSLT_SUCCESS)
     {
@@ -3895,6 +3900,18 @@ static cy_rslt_t check_soft_ap_config(const cy_wcm_ap_config_t *ap_config_params
 {
     uint8_t ssid_len;
     uint8_t pwd_len;
+    cy_rslt_t result = CY_RSLT_SUCCESS;
+    whd_interface_t prim_ifp;
+    if(whd_ifs[CY_WCM_INTERFACE_TYPE_AP] == NULL)
+    {
+        return CY_RSLT_WCM_INTERFACE_NOT_UP;
+    }
+    /* In concurrent mode (AP+STA), use the primary interface(STA) to get the band-list and channel_list, as only the
+     * primary interface is initialized at this point.
+     * This is as per the recommendation provided by WHD.
+     * Note: This does not affect the AP mode since the primary interface will be the AP interface itself.
+     */
+    prim_ifp = whd_get_primary_interface(whd_ifs[CY_WCM_INTERFACE_TYPE_AP]->whd_driver);
 
     if(ap_config_params == NULL)
     {
@@ -3938,37 +3955,68 @@ static cy_rslt_t check_soft_ap_config(const cy_wcm_ap_config_t *ap_config_params
     }
 
     /*
-     * Validate the channel and return appropriate error
+     * Validate the band and update the appropriate error code
      * channel number 1 to 11 is 2G
-     * channel number 36 to 100 is 5G
+     * channel number 36 to 165 is 5G
      */
-    if((ap_config_params->channel > 0) && (ap_config_params->channel < 12))
+    do
     {
-        /* All platforms by default supports 2.4Ghz so return success*/
-        return CY_RSLT_SUCCESS;
-    }
-    else if((ap_config_params->channel > 35) && (ap_config_params->channel < 101))
-    {
-        whd_interface_t prim_ifp;
-        if(whd_ifs[CY_WCM_INTERFACE_TYPE_AP] == NULL)
+        if((ap_config_params->channel > 0) && (ap_config_params->channel < 12))
         {
-            return CY_RSLT_WCM_INTERFACE_NOT_UP;
+            /* All platforms by default supports 2.4Ghz so return success*/
+            break;
         }
-        /* WAR for DRIVERS-7307. whd_wifi_get_ioctl_buffer is failing on secondary interface in concurrent mode,
-         * hence using the primary interface as a workaround.
-         */
-        prim_ifp = whd_get_primary_interface(whd_ifs[CY_WCM_INTERFACE_TYPE_AP]->whd_driver);
-        if(!check_if_platform_supports_band(prim_ifp, CY_WCM_WIFI_BAND_5GHZ))
+        else if((ap_config_params->channel > 35) && (ap_config_params->channel < 166))
         {
-            return CY_RSLT_WCM_BAND_NOT_SUPPORTED;
+            if(!check_if_platform_supports_band(prim_ifp, CY_WCM_WIFI_BAND_5GHZ))
+            {
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "5GHz band not supported \n");
+                result = CY_RSLT_WCM_BAND_NOT_SUPPORTED;
+                break;
+            }
         }
-    }
-    else
+        else
+        {
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Invalid channel. Channel not in expected range \n");
+            result = CY_RSLT_WCM_AP_BAD_CHANNEL;
+            break;
+        }
+    }while(0);
+
+    /*
+     * Validate if the given channel is supported on the kit and update appropriate error codes.
+     */
+    if(result == CY_RSLT_SUCCESS)
     {
-        return CY_RSLT_WCM_AP_BAD_CHANNEL;
+        whd_list_t *whd_channel_list;
+        uint32_t channel_buf[ WL_NUMCHANNELS+1 ];
+        whd_channel_list = (whd_list_t *)(void *)channel_buf;
+        uint8_t index;
+        cy_rslt_t res;
+
+        whd_channel_list->count = WL_NUMCHANNELS;  /* Initialize to maximum channels that can be supported as defined in WHD */
+        res = whd_wifi_get_channels(prim_ifp, whd_channel_list);
+        if(res != CY_RSLT_SUCCESS)
+        {
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "whd_wifi_get_channels failed \n");
+            return CY_RSLT_WCM_BAD_ARG;
+        }
+        for(index=0 ; index<whd_channel_list->count ; index++)
+        {
+            if(ap_config_params->channel == *(whd_channel_list->element+index))
+            {
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Input channel is supported \n");
+                break;
+            }
+        }
+        if(index == whd_channel_list->count)
+        {
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Invalid Channel \n");
+            return CY_RSLT_WCM_AP_BAD_CHANNEL;
+        }
     }
 
-    return CY_RSLT_SUCCESS;
+    return result;
 }
 
 static cy_rslt_t init_whd_wifi_interface(cy_wcm_interface_t iface_type)

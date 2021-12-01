@@ -10,6 +10,9 @@ See the [README.md](./README.md) for a complete description of the Wi-Fi Connect
 | cy_wcm_connect_ap API does not connect to AP, if MAC address is specified as connection parameter.| No workaround. This issue will be fixed in future release. |
 
 ## Changelog
+### v2.1.0
+* Added support for CYW943907AEVAL1F and CYW954907AEVAL1F kits
+
 ### v2.0.4
 * Documentation updates.
 * Minor updates and improvements added in connect to AP and WPS APIs.
@@ -64,3 +67,4 @@ This version of the library was validated for compatibility with the following S
 | PSoC 6 Peripheral Driver Library (PDL)                     | 2.3.0   |
 | GCC Compiler                                               | 10.3.1  |
 | IAR Compiler (only for AnyCloud)                           | 8.32    |
+| Arm Compiler 6                                             | 6.14    |
