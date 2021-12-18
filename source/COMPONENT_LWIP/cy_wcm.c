@@ -2369,6 +2369,11 @@ cy_rslt_t cy_wcm_start_ap(const cy_wcm_ap_config_t *ap_config)
                            keylen, ap_config->channel);
     if (res != CY_RSLT_SUCCESS)
     {
+        if(res == WHD_UNSUPPORTED || res == WHD_WEP_NOT_ALLOWED)
+        {
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Security type not supported, result = %d \n", res);
+            res = CY_RSLT_WCM_SECURITY_NOT_SUPPORTED;
+        }
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "ERROR initializing AP = %d \n", res);
         goto exit;
     }
@@ -2665,9 +2670,9 @@ static cy_rslt_t check_ap_credentials(const cy_wcm_connect_params_t *connect_par
     sec_type = connect_params->ap_credentials.security ;
     /* For open and enterprise security auth types pwd len can be ignored */
     if(((sec_type != CY_WCM_SECURITY_OPEN) && (!check_if_ent_auth_types(sec_type))) &&
-       (pwd_len == 0 || pwd_len > CY_WCM_MAX_PASSPHRASE_LEN))
+       (pwd_len < CY_WCM_MIN_PASSPHRASE_LEN || pwd_len > CY_WCM_MAX_PASSPHRASE_LEN))
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "AP credentials passphrase length error\n");
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "AP credentials passphrase length error. Length must be between 8 and 63\n");
         return CY_RSLT_WCM_BAD_PASSPHRASE_LEN;
     }
     return CY_RSLT_SUCCESS;
@@ -3939,9 +3944,9 @@ static cy_rslt_t check_soft_ap_config(const cy_wcm_ap_config_t *ap_config_params
     }
 
     if((ap_config_params->ap_credentials.security != CY_WCM_SECURITY_OPEN) &&
-       (pwd_len == 0 || pwd_len > CY_WCM_MAX_PASSPHRASE_LEN))
+       (pwd_len < CY_WCM_MIN_PASSPHRASE_LEN || pwd_len > CY_WCM_MAX_PASSPHRASE_LEN))
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "AP credentials passphrase length error\n");
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "AP credentials passphrase length error. Length must be between 8 and 63\n");
         return CY_RSLT_WCM_BAD_PASSPHRASE_LEN;
     }
 

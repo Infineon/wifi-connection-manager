@@ -10,6 +10,10 @@ See the [README.md](./README.md) for a complete description of the Wi-Fi Connect
 | cy_wcm_connect_ap API does not connect to AP, if MAC address is specified as connection parameter.| No workaround. This issue will be fixed in future release. |
 
 ## Changelog
+
+### v2.2.0
+* Added support for CY8CEVAL-062S2-MUR-43439M2 kit
+
 ### v2.1.0
 * Added support for CYW943907AEVAL1F and CYW954907AEVAL1F kits
 

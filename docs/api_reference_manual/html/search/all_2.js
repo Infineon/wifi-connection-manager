@@ -112,6 +112,7 @@ var searchData=
   ['cy_5fwcm_5fmax_5fpassphrase_5flen',['CY_WCM_MAX_PASSPHRASE_LEN',['../group__group__wcm__macros.html#ga57d06f15bb823cd45d9542c1303f647a',1,'cy_wcm.h']]],
   ['cy_5fwcm_5fmax_5fssid_5flen',['CY_WCM_MAX_SSID_LEN',['../group__group__wcm__macros.html#gad757aff6414a2ebb12dcdea491df9627',1,'cy_wcm.h']]],
   ['cy_5fwcm_5fmaximum_5fcallbacks_5fcount',['CY_WCM_MAXIMUM_CALLBACKS_COUNT',['../group__group__wcm__macros.html#gac7494a533045203834447aab9e85b4da',1,'cy_wcm.h']]],
+  ['cy_5fwcm_5fmin_5fpassphrase_5flen',['CY_WCM_MIN_PASSPHRASE_LEN',['../group__group__wcm__macros.html#ga93a8ed3b3f773cb1c211afbba3edf853',1,'cy_wcm.h']]],
   ['cy_5fwcm_5fpassphrase_5ft',['cy_wcm_passphrase_t',['../group__group__wcm__typedefs.html#ga0c9f42f203c1dee3e3344163d1fdeba8',1,'cy_wcm.h']]],
   ['cy_5fwcm_5fping',['cy_wcm_ping',['../group__group__wcm__functions.html#gaa42251a4b728f775786d1781afbc32a2',1,'cy_wcm.h']]],
   ['cy_5fwcm_5fregister_5fevent_5fcallback',['cy_wcm_register_event_callback',['../group__group__wcm__functions.html#ga02f205b4d522c99d6c0b48f15683b0b6',1,'cy_wcm.h']]],

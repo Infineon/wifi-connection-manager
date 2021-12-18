@@ -96,7 +96,8 @@ extern "C" {
  *                    Constants
  ******************************************************/
 #define CY_WCM_MAX_SSID_LEN                (32)        /**< Max SSID length.                       */
-#define CY_WCM_MAX_PASSPHRASE_LEN          (64)        /**< Max passphrase length.                 */
+#define CY_WCM_MAX_PASSPHRASE_LEN          (63)        /**< Max passphrase length.                 */
+#define CY_WCM_MIN_PASSPHRASE_LEN          (8)         /**< Min passphrase length.                 */
 #define CY_WCM_MAC_ADDR_LEN                (6)         /**< MAC address length.                    */
 #define CY_WCM_MAX_IE_LENGTH               (3)         /**< Maximum Length of Information Element  */
 #define WEP_ENABLED                        0x0001      /**< Flag to enable WEP security.           */
