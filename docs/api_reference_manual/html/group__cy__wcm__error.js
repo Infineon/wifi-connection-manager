@@ -34,6 +34,7 @@ var group__cy__wcm__error =
     [ "CY_RSLT_WCM_AP_IE_REMOVAL_ERROR", "group__cy__wcm__error.html#ga76c0f03b758e55b8e3c2b5e0a478fee6", null ],
     [ "CY_RSLT_WCM_INVALID_IE", "group__cy__wcm__error.html#ga3f4a70557a584ae9d9692930d7251606", null ],
     [ "CY_RSLT_WCM_AP_NOT_UP", "group__cy__wcm__error.html#gaf320281f7c8bc5389e44731e76216b7d", null ],
+    [ "CY_RSLT_WCM_AP_ALREADY_UP", "group__cy__wcm__error.html#gab1c4b93d427076db33977746dd005bde", null ],
     [ "CY_RSLT_WCM_INTERFACE_NOT_UP", "group__cy__wcm__error.html#ga3fbe3d03f2b124ee6b1f893170318b65", null ],
     [ "CY_RSLT_WCM_NOT_INITIALIZED", "group__cy__wcm__error.html#ga17574dc98d92fa8947200e5550cbfeb4", null ],
     [ "CY_RSLT_WCM_SEMAPHORE_ERROR", "group__cy__wcm__error.html#gaced51f450b0f6fd546796bf4528731ee", null ],
@@ -42,5 +43,6 @@ var group__cy__wcm__error =
     [ "CY_RSLT_WCM_WPS_PBC_OVERLAP", "group__cy__wcm__error.html#gab647206b775cba6ee4b7b7b19c583f7b", null ],
     [ "CY_RSLT_WCM_WPS_ERROR_RECEIVED_WEP_CREDENTIALS", "group__cy__wcm__error.html#gac6347a8774ce04d4e63619b0f7bf64f1", null ],
     [ "CY_RSLT_WCM_WPS_FAILED", "group__cy__wcm__error.html#ga46d6e7393784bb35e110d5fe42c004e9", null ],
-    [ "CY_RSLT_WCM_DHCP_TIMEOUT", "group__cy__wcm__error.html#gaadcc9a3f04cb2e2846a8d77489476fa1", null ]
+    [ "CY_RSLT_WCM_DHCP_TIMEOUT", "group__cy__wcm__error.html#gaadcc9a3f04cb2e2846a8d77489476fa1", null ],
+    [ "CY_RSLT_WCM_WPA3_SUPPLICANT_ERROR", "group__cy__wcm__error.html#ga9cd976a0636639966074db15a9a5c05f", null ]
 ];

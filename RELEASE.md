@@ -11,6 +11,9 @@ See the [README.md](./README.md) for a complete description of the Wi-Fi Connect
 
 ## Changelog
 
+### v2.3.0
+* Added support for WPA3-EXT SAE Supplicant
+
 ### v2.2.0
 * Added support for CY8CEVAL-062S2-MUR-43439M2 kit
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021, Cypress Semiconductor Corporation (an Infineon company) or
+ * Copyright 2022, Cypress Semiconductor Corporation (an Infineon company) or
  * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
  *
  * This software, including source code, documentation and related
@@ -75,6 +75,9 @@
 
 #include "whd_debug.h"
 #include "cy_nw_helper.h"
+
+
+extern cy_rslt_t wpa3_supplicant_sae_start (uint8_t *ssid, uint8_t ssid_len, uint8_t *passphrase, uint8_t passphrase_len);
 
 /**
  *  Macro for comparing MAC addresses
@@ -224,7 +227,7 @@ static cy_wcm_event_callback_t wcm_event_handler[CY_WCM_MAXIMUM_CALLBACKS_COUNT]
 static uint16_t sta_event_handler_index   = 0xFF;
 static uint16_t ap_event_handler_index    = 0xFF;
 static const whd_event_num_t  sta_link_events[] = {WLC_E_LINK, WLC_E_DEAUTH_IND, WLC_E_DISASSOC_IND, WLC_E_PSK_SUP, WLC_E_CSA_COMPLETE_IND, WLC_E_NONE};
-static const whd_event_num_t  ap_link_events[]  = {WLC_E_DISASSOC_IND, WLC_E_ASSOC_IND, WLC_E_REASSOC_IND, WLC_E_AUTHORIZED, WLC_E_NONE};
+static const whd_event_num_t  ap_link_events[]  = {WLC_E_DISASSOC_IND, WLC_E_DEAUTH_IND, WLC_E_ASSOC_IND, WLC_E_REASSOC_IND, WLC_E_AUTHORIZED, WLC_E_NONE};
 static bool too_many_ie_error          = false;
 static bool link_up_event_received     = false;
 static uint32_t retry_backoff_timeout  = DEFAULT_RETRY_BACKOFF_TIMEOUT_IN_MS;
@@ -345,6 +348,15 @@ CYPRESS_WEAK void *cy_get_olm_instance( void )
 {
     cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "%s \n", __func__);
     return NULL;
+}
+
+/*
+ *  Function for starting WPA3 EXT SAE supplicant
+ */
+CYPRESS_WEAK cy_rslt_t wpa3_supplicant_sae_start (uint8_t *ssid, uint8_t ssid_len, uint8_t *passphrase, uint8_t passphrase_len)
+{
+    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "%s \n", __func__);
+    return CY_RSLT_SUCCESS;
 }
 
 cy_rslt_t cy_wcm_init(cy_wcm_config_t *config)
@@ -893,6 +905,7 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
     uint8_t connection_status;
     struct netif *net_interface = NULL;
     uint8_t num_scan = 0;
+    uint32_t ext_sae_support = 0;
 
     if(!is_wcm_initalized)
     {
@@ -984,10 +997,25 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
         sta_security_type = security;
         
         connection_status = CY_WCM_EVENT_CONNECTING;
+        whd_wifi_get_fwcap(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], &ext_sae_support);
         if((res = cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, &connection_status)) != CY_RSLT_SUCCESS)
         {
             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "L%d : %s() : ERROR : Failed to send connection status. Err = [%lu]\r\n", __LINE__, __FUNCTION__, res);
             goto exit;
+        }
+        if ( ( ext_sae_support & (1 << WHD_FWCAP_SAE_EXT))
+             && ((connect_params->ap_credentials.security == CY_WCM_SECURITY_WPA3_SAE)
+             ||  (connect_params->ap_credentials.security == CY_WCM_SECURITY_WPA3_WPA2_PSK)))
+        {
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "calling wpa3_supplicant_sae_start\n");
+            /* supplicant SAE Start */
+            res = wpa3_supplicant_sae_start(ssid.value, ssid.length, key, keylen);
+            if ( res != CY_RSLT_SUCCESS)
+            {
+                res = CY_RSLT_WCM_WPA3_SUPPLICANT_ERROR;
+                goto exit;
+            }
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "wpa3_supplicant_sae_start returned res=%d\n", res);
         }
 
         if(!NULL_MAC(bssid.octet))
@@ -2358,6 +2386,7 @@ cy_rslt_t cy_wcm_start_ap(const cy_wcm_ap_config_t *ap_config)
     if(is_soft_ap_up)
     {
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "AP is already Up !!\n");
+        res = CY_RSLT_WCM_AP_ALREADY_UP;
         goto exit;
     }
 
@@ -3006,7 +3035,7 @@ static void* ap_link_events_handler(whd_interface_t ifp, const whd_event_header_
         return handler_user_data;
     }
 
-    if (event_header->event_type == WLC_E_DISASSOC_IND)
+    if (event_header->event_type == WLC_E_DISASSOC_IND || event_header->event_type == WLC_E_DEAUTH_IND)
     {
         ap_event_data->event = CY_WCM_EVENT_STA_LEFT_SOFTAP;
     }
@@ -3134,6 +3163,16 @@ static void* link_events_handler(whd_interface_t ifp, const whd_event_header_t *
 
                     /* Clear the error flag */
                     too_many_ie_error = WHD_FALSE;
+                }
+                /* Check if the beacon is lost */
+                else if (event_header->reason == WLC_E_LINK_BCN_LOSS)
+                {
+                    link_down();
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Beacon Lost notify application that WCM will retry to connect to the AP!\n");
+                    invoke_app_callbacks(CY_WCM_EVENT_INITIATED_RETRY, NULL);
+     
+                    /* Try to join the AP again */
+                    handshake_timeout_handler(0);
                 }
                 else
                 {
@@ -3454,7 +3493,9 @@ static void handshake_error_callback(void *arg)
 {
     cy_rslt_t res;
     uint8_t   retries;
-
+    uint32_t  ext_sae_support = 0;
+    uint8_t   connection_status;
+    
     UNUSED_PARAMETER(arg);
 
     /* stop the retry timer */
@@ -3495,6 +3536,21 @@ static void handshake_error_callback(void *arg)
         {
             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Unable to acquire WCM mutex \n");
             return;
+        }
+
+        whd_wifi_get_fwcap(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], &ext_sae_support);
+        if (( ext_sae_support & (1 << WHD_FWCAP_SAE_EXT)) && 
+           ((connected_ap_details.security == WHD_SECURITY_WPA3_SAE) || (connected_ap_details.security == WHD_SECURITY_WPA3_WPA2_PSK)))
+        {
+             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "calling wpa3_supplicant_sae_start\n");
+             /* supplicant SAE Start */
+             res = wpa3_supplicant_sae_start(connected_ap_details.SSID.value, connected_ap_details.SSID.length, connected_ap_details.key, connected_ap_details.keylen);
+             if ( res != CY_RSLT_SUCCESS)
+             {
+                 res = CY_RSLT_WCM_WPA3_SUPPLICANT_ERROR;
+                 goto exit;
+             }
+             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "wpa3_supplicant_sae_start returned res=%d\n", res);
         }
 
         if (is_disconnect_triggered == true || cy_wcm_is_connected_to_ap())
@@ -3554,6 +3610,16 @@ static void handshake_error_callback(void *arg)
             retry_backoff_timeout = DEFAULT_RETRY_BACKOFF_TIMEOUT_IN_MS;
             goto exit;
         }
+        else
+        {
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "whd_wifi_join failed : %ld \n", res);
+            connection_status = CY_WCM_EVENT_CONNECT_FAILED;
+            if((cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, &connection_status)) != CY_RSLT_SUCCESS)
+            {
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Failed to send connection status. Err = [%lu]\r\n", res);
+            }
+        }
+        
         if (cy_rtos_set_mutex(&wcm_mutex) != CY_RSLT_SUCCESS)
         {
             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Mutex release error \n");

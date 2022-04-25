@@ -1,5 +1,5 @@
 /*
- * Copyright 2021, Cypress Semiconductor Corporation (an Infineon company) or
+ * Copyright 2022, Cypress Semiconductor Corporation (an Infineon company) or
  * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
  *
  * This software, including source code, documentation and related
@@ -113,19 +113,23 @@ extern "C" {
 #define CY_RSLT_WCM_AP_IE_REMOVAL_ERROR                    (CY_RSLT_WCM_ERR_BASE + 31) /**< AP IE removal error.                          */
 #define CY_RSLT_WCM_INVALID_IE                             (CY_RSLT_WCM_ERR_BASE + 32) /**< Invalid IE.                                   */
 #define CY_RSLT_WCM_AP_NOT_UP                              (CY_RSLT_WCM_ERR_BASE + 33) /**< SoftAP is not started.                        */
-#define CY_RSLT_WCM_INTERFACE_NOT_UP                       (CY_RSLT_WCM_ERR_BASE + 34) /**< Interface is not initialized.                 */
-#define CY_RSLT_WCM_NOT_INITIALIZED                        (CY_RSLT_WCM_ERR_BASE + 35) /**< WCM not initialized.                          */
-#define CY_RSLT_WCM_SEMAPHORE_ERROR                        (CY_RSLT_WCM_ERR_BASE + 36) /**< Semaphore error.                              */
-#define CY_RSLT_WCM_SECURITY_NOT_FOUND                     (CY_RSLT_WCM_ERR_BASE + 37) /**< Security type could not be determined         */
-#define CY_RSLT_WCM_CONNECT_IN_PROGRESS                    (CY_RSLT_WCM_ERR_BASE + 38) /**< Connect to AP is in progress                  */
+#define CY_RSLT_WCM_AP_ALREADY_UP                          (CY_RSLT_WCM_ERR_BASE + 34) /**< SoftAP is already started                     */
+#define CY_RSLT_WCM_INTERFACE_NOT_UP                       (CY_RSLT_WCM_ERR_BASE + 35) /**< Interface is not initialized.                 */
+#define CY_RSLT_WCM_NOT_INITIALIZED                        (CY_RSLT_WCM_ERR_BASE + 36) /**< WCM not initialized.                          */
+#define CY_RSLT_WCM_SEMAPHORE_ERROR                        (CY_RSLT_WCM_ERR_BASE + 37) /**< Semaphore error.                              */
+#define CY_RSLT_WCM_SECURITY_NOT_FOUND                     (CY_RSLT_WCM_ERR_BASE + 38) /**< Security type could not be determined         */
+#define CY_RSLT_WCM_CONNECT_IN_PROGRESS                    (CY_RSLT_WCM_ERR_BASE + 39) /**< Connect to AP is in progress                  */
 
 /** WPS Error Codes */
-#define CY_RSLT_WCM_WPS_PBC_OVERLAP                        (CY_RSLT_WCM_ERR_BASE + 39) /**< WPS PBC overlap.                              */
-#define CY_RSLT_WCM_WPS_ERROR_RECEIVED_WEP_CREDENTIALS     (CY_RSLT_WCM_ERR_BASE + 40) /**< WPS received incorrect credentials.           */
-#define CY_RSLT_WCM_WPS_FAILED                             (CY_RSLT_WCM_ERR_BASE + 41) /**< WPS PBC/PIN mode failed.                      */
+#define CY_RSLT_WCM_WPS_PBC_OVERLAP                        (CY_RSLT_WCM_ERR_BASE + 40) /**< WPS PBC overlap.                              */
+#define CY_RSLT_WCM_WPS_ERROR_RECEIVED_WEP_CREDENTIALS     (CY_RSLT_WCM_ERR_BASE + 41) /**< WPS received incorrect credentials.           */
+#define CY_RSLT_WCM_WPS_FAILED                             (CY_RSLT_WCM_ERR_BASE + 42) /**< WPS PBC/PIN mode failed.                      */
 
 /** DHCP Error Code */
-#define CY_RSLT_WCM_DHCP_TIMEOUT                           (CY_RSLT_WCM_ERR_BASE + 42)  /**< DHCP timeout.                                */
+#define CY_RSLT_WCM_DHCP_TIMEOUT                           (CY_RSLT_WCM_ERR_BASE + 43)  /**< DHCP timeout.                                */
+
+/** WPA3 Supplicant Error Code */
+#define CY_RSLT_WCM_WPA3_SUPPLICANT_ERROR                  (CY_RSLT_WCM_ERR_BASE + 44) /**< WPA3 Supplicant Error                         */
 
 /** \} error codes */
 
