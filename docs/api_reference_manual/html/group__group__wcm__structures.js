@@ -15,7 +15,8 @@ var group__group__wcm__structures =
     ] ],
     [ "cy_wcm_event_data_t", "unioncy__wcm__event__data__t.html", [
       [ "ip_addr", "unioncy__wcm__event__data__t.html#a9c8f9a98e351394d704d1796328ae466", null ],
-      [ "sta_mac", "unioncy__wcm__event__data__t.html#aa2f4d769a35b7859bf0649d29b5f46a4", null ]
+      [ "sta_mac", "unioncy__wcm__event__data__t.html#aa2f4d769a35b7859bf0649d29b5f46a4", null ],
+      [ "reason", "unioncy__wcm__event__data__t.html#a76ff95f0ba21e2c958ba88784cb81bda", null ]
     ] ],
     [ "cy_wcm_ap_credentials_t", "structcy__wcm__ap__credentials__t.html", [
       [ "SSID", "structcy__wcm__ap__credentials__t.html#aefb4693ca1fa808349032561a2e4b3bc", null ],

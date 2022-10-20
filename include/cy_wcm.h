@@ -420,6 +420,7 @@ typedef union
 {
     cy_wcm_ip_address_t ip_addr;  /**< Contains the IP address for the CY_WCM_EVENT_IP_CHANGED event. */
     cy_wcm_mac_t        sta_mac;  /**< MAC address of the STA for the CY_WCM_EVENT_STA_JOINED or CY_WCM_EVENT_STA_LEFT */
+    cy_wcm_reason_code  reason;   /**< Reason code which specifies the reason for disconnection. */
 } cy_wcm_event_data_t;
 
 
@@ -707,13 +708,12 @@ cy_rslt_t cy_wcm_disconnect_ap(void);
  * @param[in]   interface_type  : Type of the WCM interface.
  * @param[out]  ip_addr         : Pointer to an IP address structure (or) an IP address structure array.
  *                                If the given interface is CY_WCM_INTERFACE_TYPE_STA or CY_WCM_INTERFACE_TYPE_AP upon return, index-0 stores the IPv4 address of the interface.
- *                                If the given interface type is CY_WCM_INTERFACE_TYPE_AP_STA, index-0 stores the IPv4 address of the STA interface and index-1 stores the IPV4 address of the AP interface.
- * @param[in]   addr_count      : Length of the array passed in ip_addr.
+ *                                If the given interface type is CY_WCM_INTERFACE_TYPE_AP_STA, index-0 stores the IPv4 address of the STA interface and index-1 stores the IPV4 address of the AP interface. ip_addr should have enough valid memory to hold two IP address structures.
  *
  * @return CY_RSLT_SUCCESS if IP-address get is successful; returns \ref cy_wcm_error otherwise.
 
  */
-cy_rslt_t cy_wcm_get_ip_addr(cy_wcm_interface_t interface_type, cy_wcm_ip_address_t *ip_addr, uint8_t addr_count);
+cy_rslt_t cy_wcm_get_ip_addr(cy_wcm_interface_t interface_type, cy_wcm_ip_address_t *ip_addr);
 
 /**
  * Retrieves the IPv6 address of the given interface.
@@ -724,12 +724,11 @@ cy_rslt_t cy_wcm_get_ip_addr(cy_wcm_interface_t interface_type, cy_wcm_ip_addres
  * @param[in]   ipv6_addr_type  : IPv6 address type.
  * @param[out]  ip_addr         : Pointer to an IP address structure (or) an IP address structure array.
  *                                If the given interface is CY_WCM_INTERFACE_TYPE_STA or CY_WCM_INTERFACE_TYPE_AP upon return, index-0 stores the IPv6 link-local address of the interface.
- *                                If the given interface type is CY_WCM_INTERFACE_TYPE_AP_STA, index-0 stores the IPv6 link-local address of the STA interface and index-1 stores the IPv6 link-local address of the AP interface.
- * @param[in]   addr_count      : Length of the array passed in ip_addr.
+ *                                If the given interface type is CY_WCM_INTERFACE_TYPE_AP_STA, index-0 stores the IPv6 link-local address of the STA interface and index-1 stores the IPv6 link-local address of the AP interface. ip_addr should have enough valid memory to hold two IP address structures.
  *
  * @return CY_RSLT_SUCCESS if IPv6 interface is up and IPv6 address is ready; returns \ref cy_wcm_error otherwise.
  */
-cy_rslt_t cy_wcm_get_ipv6_addr(cy_wcm_interface_t interface_type, cy_wcm_ipv6_type_t ipv6_addr_type, cy_wcm_ip_address_t *ip_addr, uint8_t addr_count);
+cy_rslt_t cy_wcm_get_ipv6_addr(cy_wcm_interface_t interface_type, cy_wcm_ipv6_type_t ipv6_addr_type, cy_wcm_ip_address_t *ip_addr);
 
 /**
  * Retrieves the gateway IP address of the given interface.
@@ -737,14 +736,13 @@ cy_rslt_t cy_wcm_get_ipv6_addr(cy_wcm_interface_t interface_type, cy_wcm_ipv6_ty
  * @param[in]   interface_type  : Type of the WCM interface.
  * @param[out]  gateway_addr    : Pointer to a single structure or an array of structures to be filled with the gateway IP address or addresses.
  *                                If the given interface is CY_WCM_INTERFACE_TYPE_STA or CY_WCM_INTERFACE_TYPE_AP upon return, index-0 stores the IPv4 gateway address of the interface.
- *                                If the given interface type is CY_WCM_INTERFACE_TYPE_AP_STA, index-0 stores the IPv4 gateway address of the STA interface and index-1 stores the IPV4 gateway address of the AP interface.
+ *                                If the given interface type is CY_WCM_INTERFACE_TYPE_AP_STA, index-0 stores the IPv4 gateway address of the STA interface and index-1 stores the IPV4 gateway address of the AP interface. gateway_addr should have enough valid memory to hold two IP address structures.
  *                                In future, IPv6 addresses will be supported.
  *
- * @param[in]   addr_count      : Length of the array passed in gateway_addr.
  *
  * @return CY_RSLT_SUCCESS if retrieval of the gateway IP address was successful; returns \ref cy_wcm_error otherwise.
  */
-cy_rslt_t cy_wcm_get_gateway_ip_address(cy_wcm_interface_t interface_type, cy_wcm_ip_address_t *gateway_addr, uint8_t addr_count);
+cy_rslt_t cy_wcm_get_gateway_ip_address(cy_wcm_interface_t interface_type, cy_wcm_ip_address_t *gateway_addr);
 
 
 /**
@@ -753,13 +751,12 @@ cy_rslt_t cy_wcm_get_gateway_ip_address(cy_wcm_interface_t interface_type, cy_wc
  * @param[in]   interface_type  : Type of the WCM interface.
  * @param[out]  net_mask_addr   : Pointer to a single structure or an array of structures to be filled with the subnet mask address or masks.
  *                                If the given interface is CY_WCM_INTERFACE_TYPE_STA or CY_WCM_INTERFACE_TYPE_AP upon return, index-0 stores the subnet mask address of the interface.
- *                                If the given interface type is CY_WCM_INTERFACE_TYPE_AP_STA, index-0 stores the subnet mask address of the STA interface and index-1 stores the subnet mask address of the AP interface.
+ *                                If the given interface type is CY_WCM_INTERFACE_TYPE_AP_STA, index-0 stores the subnet mask address of the STA interface and index-1 stores the subnet mask address of the AP interface. net_mask_addr should have enough valid memory to hold two IP address structures.
  *
- * @param[in]   addr_count      : Length of the array passed in net_mask_addr.
  *
  * @return CY_RSLT_SUCCESS if retrieval of the subnet mask address was successful; returns \ref cy_wcm_error otherwise.
  */
-cy_rslt_t cy_wcm_get_ip_netmask(cy_wcm_interface_t interface_type, cy_wcm_ip_address_t *net_mask_addr, uint8_t addr_count);
+cy_rslt_t cy_wcm_get_ip_netmask(cy_wcm_interface_t interface_type, cy_wcm_ip_address_t *net_mask_addr);
 
 /**
  * Retrieves the MAC address of the given interface.
@@ -767,13 +764,12 @@ cy_rslt_t cy_wcm_get_ip_netmask(cy_wcm_interface_t interface_type, cy_wcm_ip_add
  * @param[in]   interface_type  : Type of the WCM interface.
  * @param[out]  mac_addr        : Pointer to a MAC address structure (or) a MAC address structure array.
  *                                If the given interface is CY_WCM_INTERFACE_TYPE_STA or CY_WCM_INTERFACE_TYPE_AP upon return, index-0 stores the MAC address of the interface.
- *                                If the given interface type is CY_WCM_INTERFACE_TYPE_AP_STA, index-0 stores the MAC address of the STA interface and index-1 stores the MAC address of the AP interface.
+ *                                If the given interface type is CY_WCM_INTERFACE_TYPE_AP_STA, index-0 stores the MAC address of the STA interface and index-1 stores the MAC address of the AP interface. mac_addr should have enough valid memory to hold two MAC address structures.
  *
- * @param[in]   addr_count      : Length of the array passed in mac_addr.
  * 
  * @return CY_RSLT_SUCCESS if the MAC address get is successful; returns \ref cy_wcm_error otherwise.
  */
-cy_rslt_t cy_wcm_get_mac_addr(cy_wcm_interface_t interface_type, cy_wcm_mac_t *mac_addr, uint8_t addr_count);
+cy_rslt_t cy_wcm_get_mac_addr(cy_wcm_interface_t interface_type, cy_wcm_mac_t *mac_addr);
 
 /**
  * Negotiates securely with a Wi-Fi Protected Setup (WPS) Registrar (usually an

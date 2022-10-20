@@ -39,13 +39,15 @@
 * Refer individual APIs for more details.
 */
 
+#include <stdlib.h>
+
 #include "cy_wcm.h"
 #include "cy_wcm_log.h"
 #include "cy_wcm_error.h"
 #include "cybsp_wifi.h"
 #include "cyabs_rtos.h"
 #include "cy_worker_thread.h"
-#include "cy_lwip.h"
+#include "cy_network_mw_core.h"
 #include "cy_chip_constants.h"
 
 /* Wi-Fi Host driver includes. */
@@ -55,30 +57,10 @@
 #include "whd_buffer_api.h"
 #include "whd_wlioctl.h"
 
-/* lwIP stack includes */
-#include <lwipopts.h>
-#include <lwip/dhcp.h>
-#include <lwip/dns.h>
-#include <lwip/inet.h>
-#include <lwip/netdb.h>
-#include <lwip/netif.h>
-#include <lwip/netifapi.h>
-#include <lwip/init.h>
-#include <lwip/dhcp.h>
-#include <lwip/etharp.h>
-#include <lwip/tcpip.h>
-#include <lwip/ethip6.h>
-#include <lwip/igmp.h>
-#include <lwip/icmp.h>
-#include <lwip/inet_chksum.h>
-#include <netif/ethernet.h>
-
 #include "whd_debug.h"
 #include "cy_nw_helper.h"
 
-
 extern cy_rslt_t wpa3_supplicant_sae_start (uint8_t *ssid, uint8_t ssid_len, uint8_t *passphrase, uint8_t passphrase_len);
-
 /**
  *  Macro for comparing MAC addresses
  */
@@ -127,7 +109,7 @@ extern cy_rslt_t wpa3_supplicant_sae_start (uint8_t *ssid, uint8_t ssid_len, uin
 
 /* Macro for 43012 statistics */
 #define WL_CNT_VER_30                               (30)
-#define WL_CNT_VER_10                               (10) 
+#define WL_CNT_VER_10                               (10)
 #define CHK_CNTBUF_DATALEN(cntbuf, ioctl_buflen) do { \
 if (((wl_cnt_info_t *)cntbuf)->datalen + \
 OFFSETOF(wl_cnt_info_t, data) > ioctl_buflen) \
@@ -159,23 +141,17 @@ typedef struct
     bool                          get_security_type;    /* Indicates if cy_wcm_connect_ap is trying to find the security type */
 }wcm_internal_scan_t;
 
-struct icmp_packet
-{
-    struct   icmp_echo_hdr hdr;
-    uint8_t  data[PING_DATA_SIZE];
-};
-
 static wcm_internal_scan_t scan_handler;
 
 typedef struct
 {
-    whd_ssid_t         SSID;
-    whd_mac_t          sta_mac;
-    cy_wcm_wifi_band_t band;
-    uint8_t            key[CY_WCM_MAX_PASSPHRASE_LEN];
-    uint8_t            keylen;
-    whd_security_t     security;
-    ip_static_addr_t   static_ip;
+    whd_ssid_t                    SSID;
+    whd_mac_t                     sta_mac;
+    cy_wcm_wifi_band_t            band;
+    uint8_t                       key[CY_WCM_MAX_PASSPHRASE_LEN];
+    uint8_t                       keylen;
+    whd_security_t                security;
+    cy_network_static_ip_addr_t   static_ip;
 }wcm_ap_details;
 
 static wcm_ap_details connected_ap_details;
@@ -216,6 +192,7 @@ static cy_worker_thread_info_t           cy_wcm_worker_thread;
 static bool is_olm_initialized         = false;
 static void *olm_instance              = NULL;
 static bool is_disconnect_triggered    = false;
+static bool is_connect_triggered       = false;
 
 whd_scan_result_t scan_result;
 cy_wcm_scan_result_callback_t p_scan_calback;
@@ -237,6 +214,8 @@ static int current_bssid_arr_length = 0;
 static cy_semaphore_t stop_scan_semaphore;
 static cy_semaphore_t security_type_start_scan_semaphore;
 static cy_wcm_security_t ap_security;
+static cy_network_interface_context *nw_ap_if_ctx;
+static cy_network_interface_context *nw_sta_if_ctx;
 
 typedef uint16_t xtlv_opts_t;
 
@@ -244,24 +223,23 @@ typedef uint16_t xtlv_opts_t;
  *               Static Function Declarations
  ******************************************************/
 static cy_rslt_t check_ap_credentials(const cy_wcm_connect_params_t *connect_params);
-static cy_rslt_t convert_connect_params(const cy_wcm_connect_params_t *connect_params, whd_ssid_t *ssid, whd_mac_t *bssid, uint8_t **key, uint8_t *keylen, whd_security_t *security, ip_static_addr_t *static_ip_addr);
-static void donothing(void *arg);
+static cy_rslt_t convert_connect_params(const cy_wcm_connect_params_t *connect_params, whd_ssid_t *ssid, whd_mac_t *bssid, uint8_t **key, uint8_t *keylen, whd_security_t *security, cy_network_static_ip_addr_t *static_ip_addr);
 static bool is_connected_to_same_ap(const cy_wcm_connect_params_t *connect_params);
 static bool check_wcm_security(cy_wcm_security_t sec);
 static void internal_scan_callback(whd_scan_result_t **result_ptr, void *user_data, whd_scan_status_t status);
 static void *link_events_handler(whd_interface_t ifp, const whd_event_header_t *event_header, const uint8_t *event_data, void *handler_user_data);
 static void link_up(void);
-static void link_down(void);
+static void link_down(uint32_t reason);
 static void handshake_timeout_handler(cy_timer_callback_arg_t arg);
 static void handshake_error_callback(void *arg);
-static void lwip_ip_change_callback(void *arg);
+static void lwip_ip_change_callback(cy_network_interface_context *iface_context, void *user_data);
 static bool check_if_platform_supports_band(whd_interface_t interface, cy_wcm_wifi_band_t requested_band);
 static void sta_link_down_handler(void* arg);
 static void sta_link_up_handler(void* arg);
 static void sta_link_up_renew_handler(void* arg);
 void notify_ip_change(void *arg);
-static cy_rslt_t network_up(whd_interface_t interface, cy_lwip_nw_interface_role_t role, ip_static_addr_t *static_ip_ptr);
-static void network_down(whd_interface_t interface, cy_lwip_nw_interface_role_t role);
+static cy_rslt_t network_up(whd_interface_t interface, cy_network_hw_interface_type_t iface_type, cy_network_static_ip_addr_t *static_ip_ptr);
+static void network_down(whd_interface_t interface, cy_network_hw_interface_type_t iface_type);
 static void hanshake_retry_timer(cy_timer_callback_arg_t arg);
 static void invoke_app_callbacks(cy_wcm_event_t event_type, cy_wcm_event_data_t* arg);
 static cy_wcm_security_t whd_to_wcm_security(whd_security_t sec);
@@ -270,13 +248,8 @@ static cy_wcm_wifi_band_t whd_to_wcm_band(whd_802_11_band_t band);
 static whd_security_t wcm_to_whd_security(cy_wcm_security_t sec);
 static uint16_t channel_to_bandwidth(wl_chanspec_t chanspec);
 static void notify_connection_status(void* arg);
-#if LWIP_IPV4
-static void ping_prepare_echo(struct icmp_packet *iecho, uint16_t len, uint16_t *ping_seq_num);
-static err_t ping_send(int socket_hnd, const cy_wcm_ip_address_t* address, struct icmp_packet *iecho, uint16_t *sequence_number);
-static err_t ping_recv(int socket_hnd, cy_wcm_ip_address_t* address, uint16_t *ping_seq_num);
-#endif
 static cy_rslt_t check_soft_ap_config(const cy_wcm_ap_config_t *ap_config_params);
-static void read_ap_config(const cy_wcm_ap_config_t *ap_config, whd_ssid_t *ssid, uint8_t **key, uint8_t *keylen, whd_security_t *security, ip_static_addr_t *static_ip_addr);
+static void read_ap_config(const cy_wcm_ap_config_t *ap_config, whd_ssid_t *ssid, uint8_t **key, uint8_t *keylen, whd_security_t *security, cy_network_static_ip_addr_t *static_ip_addr);
 static void* ap_link_events_handler(whd_interface_t ifp, const whd_event_header_t *event_header, const uint8_t *event_data, void *handler_user_data);
 static cy_rslt_t init_whd_wifi_interface(cy_wcm_interface_t iface_type);
 static bool check_if_ent_auth_types(cy_wcm_security_t auth_type);
@@ -377,10 +350,14 @@ cy_rslt_t cy_wcm_init(cy_wcm_config_t *config)
         return CY_RSLT_SUCCESS;
     }
 
-    /** Initialize TCP ip stack, LWIP init is called through tcpip_init **/
+    /** Initialize network stack **/
     if(!is_tcp_initialized)
     {
-        tcpip_init(donothing, NULL);
+        res = cy_network_init();
+        if(res != CY_RSLT_SUCCESS)
+        {
+            return CY_RSLT_WCM_NW_INIT_ERROR;
+        }
         is_tcp_initialized = true;
     }
 
@@ -442,7 +419,7 @@ cy_rslt_t cy_wcm_init(cy_wcm_config_t *config)
             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Off loads not configured \n");
         }
         /* Register to ip change callback from LwIP, all other internal callbacks are in WCM */
-        cy_lwip_register_ip_change_cb(lwip_ip_change_callback);
+        cy_network_register_ip_change_cb(nw_sta_if_ctx, lwip_ip_change_callback, NULL);
     }
 
     memset(wcm_event_handler, 0, sizeof(wcm_event_handler));
@@ -564,7 +541,7 @@ cy_rslt_t cy_wcm_start_scan(cy_wcm_scan_result_callback_t callback, void *user_d
         res = CY_RSLT_WCM_SCAN_IN_PROGRESS;
         goto exit;
     }
-    
+
     /* Reset mac_addr_arr before each scan and set current_bssid_arr_length to 0 */
     mac_addr_arr = (whd_mac_t *)malloc(SCAN_BSSID_ARR_LENGTH * sizeof(whd_mac_t) );
     if (mac_addr_arr == NULL)
@@ -807,6 +784,7 @@ static void internal_scan_cb_get_security_type(whd_scan_result_t **result_ptr, v
         if((**result_ptr).SSID.length != 0)
         {
             cy_wcm_connect_params_t *connect_params = (cy_wcm_connect_params_t *)user_data;
+
             if(strcmp((char *)(**result_ptr).SSID.value, (char *)connect_params->ap_credentials.SSID) != 0)
             {
                 cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Scanned SSID did not match SSID passed by user \n");
@@ -833,6 +811,16 @@ exit:
     if(cy_rtos_set_semaphore(&security_type_start_scan_semaphore, false) != CY_RSLT_SUCCESS)
     {
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "unable to set security_type_start_scan_semaphore \n");
+    }
+
+    /* We have received the security type of the interested SSID. It is possible that this
+     * callback is called again with same SSID which will cause to trigger the semaphore again.
+     * That will cause issues in cy_wcm_connect_ap. Setting 'result_ptr' NULL to inform WHD
+     * to abort the scan.
+     */
+    if(result_ptr != NULL)
+    {
+        *result_ptr = NULL;
     }
 
     if (cy_rtos_set_mutex(&wcm_mutex) != CY_RSLT_SUCCESS)
@@ -894,17 +882,15 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
     uint8_t *key;
     uint8_t keylen;
     whd_security_t security;
-    ip_static_addr_t static_ip, *static_ip_ptr;
+    cy_network_static_ip_addr_t static_ip, *static_ip_ptr;
     static_ip_ptr = NULL;
-#if LWIP_IPV4
     uint32_t retry_count = 0;
-    uint32_t ipv4_addr;
-    ip4_addr_t* addr = NULL;
-    UNUSED_VARIABLE(addr);
-#endif
-    uint8_t connection_status;
-    struct netif *net_interface = NULL;
+    cy_nw_ip_address_t ipv4_addr;
+    uint32_t connection_status;
     uint8_t num_scan = 0;
+#ifdef ENABLE_WCM_LOGS
+    char ip_str[15];
+#endif
     uint32_t ext_sae_support = 0;
 
     if(!is_wcm_initalized)
@@ -961,25 +947,24 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
     {
         whd_scan_result_t ap;
         is_disconnect_triggered = false;
+        is_connect_triggered = true;
         if (is_connected_to_same_ap(connect_params))
         {
             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "already connected to same AP \n");
             /* Store the IP address before returning */
-            net_interface = cy_lwip_get_interface(CY_LWIP_STA_NW_INTERFACE);
-#if LWIP_IPV4
-#if LWIP_IPV6
-            ipv4_addr = net_interface->ip_addr.u_addr.ip4.addr;
-            addr = &net_interface->ip_addr.u_addr.ip4;
-#else
-            ipv4_addr = net_interface->ip_addr.addr;
-            addr = &net_interface->ip_addr;
-#endif
-            if(ip_addr != NULL)
+
+            res = cy_network_get_ip_address(nw_sta_if_ctx, &ipv4_addr);
+            if(res == CY_RSLT_SUCCESS)
             {
                 ip_addr->version = CY_WCM_IP_VER_V4;
-                ip_addr->ip.v4 = ipv4_addr;
+                ip_addr->ip.v4 = ipv4_addr.ip.v4;
             }
-#endif
+            else
+            {
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Failed to get the IP address\n");
+                res = CY_RSLT_WCM_IP_ADDR_ERROR;
+            }
+
             goto exit;
         }
         if (wcm_sta_link_up  && (cy_wcm_disconnect_ap() != CY_RSLT_SUCCESS))
@@ -992,16 +977,17 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
             res = CY_RSLT_WCM_STA_DISCONNECT_ERROR;
             goto exit;
         }
-        
+
         convert_connect_params(connect_params, &ssid, &bssid, &key, &keylen, &security, &static_ip);
         sta_security_type = security;
-        
+
         connection_status = CY_WCM_EVENT_CONNECTING;
         whd_wifi_get_fwcap(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], &ext_sae_support);
-        if((res = cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, &connection_status)) != CY_RSLT_SUCCESS)
+
+        if((res = cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, (void *)connection_status)) != CY_RSLT_SUCCESS)
         {
-            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "L%d : %s() : ERROR : Failed to send connection status. Err = [%lu]\r\n", __LINE__, __FUNCTION__, res);
-            goto exit;
+             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "L%d : %s() : ERROR : Failed to send connection status. Err = [%lu]\r\n", __LINE__, __FUNCTION__, res);
+             goto exit;
         }
         if ( ( ext_sae_support & (1 << WHD_FWCAP_SAE_EXT))
              && ((connect_params->ap_credentials.security == CY_WCM_SECURITY_WPA3_SAE)
@@ -1047,7 +1033,7 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
                     cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "band not supported \n");
                     res =  CY_RSLT_WCM_BAND_NOT_SUPPORTED;
                     connection_status = CY_WCM_EVENT_CONNECT_FAILED;
-                    if((cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, &connection_status)) != CY_RSLT_SUCCESS)
+                    if((cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, (void *)connection_status)) != CY_RSLT_SUCCESS)
                     {
                         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "L%d : %s() : ERROR : Failed to send connection status. Err = [%lu]\r\n", __LINE__, __FUNCTION__, res);
                     }
@@ -1070,7 +1056,7 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
         {
             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "whd_wifi join failed : %ld \n", res);
             connection_status = CY_WCM_EVENT_CONNECT_FAILED;
-            if((cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, &connection_status)) != CY_RSLT_SUCCESS)
+            if((cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, (void *)connection_status)) != CY_RSLT_SUCCESS)
             {
                 cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "L%d : %s() : ERROR : Failed to send connection status. Err = [%lu]\r\n", __LINE__, __FUNCTION__, res);
             }
@@ -1091,36 +1077,32 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
                 static_ip_ptr = &static_ip;
             }
 
-            if((res = network_up(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], CY_LWIP_STA_NW_INTERFACE, static_ip_ptr)) != CY_RSLT_SUCCESS)
+            if((res = network_up(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], CY_NETWORK_WIFI_STA_INTERFACE, static_ip_ptr)) != CY_RSLT_SUCCESS)
             {
                 cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Failed to bring up the network stack\n");
                 res = CY_RSLT_WCM_STA_NETWORK_DOWN;
                 connection_status = CY_WCM_EVENT_CONNECT_FAILED;
-                if((cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, &connection_status)) != CY_RSLT_SUCCESS)
+                if((cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, (void *)connection_status)) != CY_RSLT_SUCCESS)
                 {
                     cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "L%d : %s() : ERROR : Failed to send connection status. Err = [%lu]\r\n", __LINE__, __FUNCTION__, res);
                 }
                 goto exit;
             }
-            net_interface = cy_lwip_get_interface(CY_LWIP_STA_NW_INTERFACE);
-#if LWIP_IPV4
+
             /** wait in busy loop till dhcp starts and ip address gets assigned **/
             while (true)
             {
-#if LWIP_IPV6
-                ipv4_addr = net_interface->ip_addr.u_addr.ip4.addr;
-                addr = &net_interface->ip_addr.u_addr.ip4;
-#else
-                ipv4_addr = net_interface->ip_addr.addr;
-                addr = &net_interface->ip_addr;
-#endif
-                if (ipv4_addr != 0)
+                res = cy_network_get_ip_address(nw_sta_if_ctx, &ipv4_addr);
+                if (res == CY_RSLT_SUCCESS)
                 {
-                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "IPV4 Address %s assigned \n", ip4addr_ntoa(addr));
+#ifdef ENABLE_WCM_LOGS
+                    cy_nw_ntoa(&ipv4_addr, ip_str);
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "IPV4 Address %s assigned \n", ip_str);
+#endif
                     if(ip_addr != NULL)
                     {
                         ip_addr->version = CY_WCM_IP_VER_V4;
-                        ip_addr->ip.v4 = ipv4_addr;
+                        ip_addr->ip.v4 = ipv4_addr.ip.v4;
                     }
                     break;
                 }
@@ -1143,7 +1125,7 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
                         wcm_sta_link_up = false;
                         res = CY_RSLT_WCM_STA_DISCONNECT_ERROR;
                         connection_status = CY_WCM_EVENT_CONNECT_FAILED;
-                        if(cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, &connection_status) != CY_RSLT_SUCCESS)
+                        if(cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, (void *)connection_status) != CY_RSLT_SUCCESS)
                         {
                             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "L%d : %s() : ERROR : Failed to send connection status. Err = [%lu]\r\n", __LINE__, __FUNCTION__, res);
                         }
@@ -1152,24 +1134,24 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
                     /* Return DHCP Timeout Error when DHCP discover failed and disconnect done properly */
                     res = CY_RSLT_WCM_DHCP_TIMEOUT;
                     connection_status = CY_WCM_EVENT_CONNECT_FAILED;
-                    if(cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, &connection_status) != CY_RSLT_SUCCESS)
+                    if(cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, (void *)connection_status) != CY_RSLT_SUCCESS)
                     {
                         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "L%d : %s() : ERROR : Failed to send connection status. Err = [%lu]\r\n", __LINE__, __FUNCTION__, res);
                     }
                     goto exit;
                 }
             }
-#endif
+
             /* Register for Link events*/
             res = whd_management_set_event_handler(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], sta_link_events, link_events_handler, NULL, &sta_event_handler_index);
             if(res != CY_RSLT_SUCCESS)
             {
                 /* bring down the network and leave */
                 cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Unable to register for Link events \n");
-                network_down(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], CY_LWIP_STA_NW_INTERFACE);
+                network_down(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], CY_NETWORK_WIFI_STA_INTERFACE);
                 whd_wifi_leave(whd_ifs[CY_WCM_INTERFACE_TYPE_STA]);
                 connection_status = CY_WCM_EVENT_CONNECT_FAILED;
-                if(cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, &connection_status) != CY_RSLT_SUCCESS)
+                if(cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, (void *)connection_status) != CY_RSLT_SUCCESS)
                 {
                     cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "L%d : %s() : ERROR : Failed to send connection status. Err = [%lu]\r\n", __LINE__, __FUNCTION__, res);
                 }
@@ -1187,7 +1169,7 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
             memcpy(&connected_ap_details.static_ip, &static_ip, sizeof(static_ip));
             wcm_sta_link_up = true;
             connection_status = CY_WCM_EVENT_CONNECTED;
-            if((res = cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, &connection_status)) != CY_RSLT_SUCCESS)
+            if((res = cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, (void *)connection_status)) != CY_RSLT_SUCCESS)
             {
                 cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "L%d : %s() : ERROR : Failed to send connection status. Err = [%lu]\r\n", __LINE__, __FUNCTION__, res);
                 goto exit;
@@ -1204,13 +1186,14 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
     {
         res = CY_RSLT_WCM_WAIT_TIMEOUT;
         connection_status = CY_WCM_EVENT_CONNECT_FAILED;
-        if(cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, &connection_status) != CY_RSLT_SUCCESS)
+        if(cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, (void *)connection_status) != CY_RSLT_SUCCESS)
         {
             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "L%d : %s() : ERROR : Failed to send connection status. Err = [%lu]\r\n", __LINE__, __FUNCTION__, res);
         }
     }
 
 exit:
+    is_connect_triggered = false;
     if (cy_rtos_set_mutex(&wcm_mutex) != CY_RSLT_SUCCESS)
     {
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Mutex release error \n");
@@ -1238,27 +1221,26 @@ cy_rslt_t cy_wcm_disconnect_ap()
         return CY_RSLT_WCM_WAIT_TIMEOUT;
     }
 
-    if (wcm_sta_link_up)
+    /* Deregister the link event handler */
+    whd_wifi_deregister_event_handler(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], sta_event_handler_index);
+    network_down(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], CY_NETWORK_WIFI_STA_INTERFACE);
+    res = whd_wifi_leave(whd_ifs[CY_WCM_INTERFACE_TYPE_STA]);
+    if (res != CY_RSLT_SUCCESS)
     {
-        /* Deregister the link event handler */
-        whd_wifi_deregister_event_handler(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], sta_event_handler_index);
-        network_down(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], CY_LWIP_STA_NW_INTERFACE);
-        res = whd_wifi_leave(whd_ifs[CY_WCM_INTERFACE_TYPE_STA]);
-        if (res != CY_RSLT_SUCCESS)
-        {
-            goto exit;
-        }
-        wcm_sta_link_up = false;
-
-        /* Call Offload deinit after disconnect to AP */
-        if ( (is_olm_initialized == true) && (olm_instance != NULL) )
-        {
-           cy_olm_deinit_ols(olm_instance);
-           is_olm_initialized = false;
-        }
+        goto exit;
     }
+    wcm_sta_link_up = false;
+
+    /* Call Offload deinit after disconnect to AP */
+    if ( (is_olm_initialized == true) && (olm_instance != NULL) )
+    {
+       cy_olm_deinit_ols(olm_instance);
+       is_olm_initialized = false;
+    }
+
 exit:
     is_disconnect_triggered = true;
+    is_connect_triggered = false;
     /* clear the saved ap credentials */
     memset(&connected_ap_details, 0, sizeof(connected_ap_details));
     if (cy_rtos_set_mutex(&wcm_mutex) != CY_RSLT_SUCCESS)
@@ -1270,18 +1252,13 @@ exit:
     return res;
 }
 
-#if LWIP_IPV4
-cy_rslt_t cy_wcm_get_ip_addr(cy_wcm_interface_t interface_type, cy_wcm_ip_address_t *ip_addr, uint8_t addr_count)
+cy_rslt_t cy_wcm_get_ip_addr(cy_wcm_interface_t interface_type, cy_wcm_ip_address_t *ip_addr)
 {
-    struct netif *net_interface  = NULL;
-    uint32_t ipv4_addr;
-    UNUSED_PARAMETER(addr_count);
-
-#if LWIP_IPV4
-    ip4_addr_t* addr = NULL;
-    UNUSED_VARIABLE(addr);
+    cy_rslt_t res = CY_RSLT_SUCCESS;
+    cy_nw_ip_address_t ipv4_addr;
+#ifdef ENABLE_WCM_LOGS
+    char ip_str[15];
 #endif
-
     if(!is_wcm_initalized)
     {
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized \n");
@@ -1298,12 +1275,6 @@ cy_rslt_t cy_wcm_get_ip_addr(cy_wcm_interface_t interface_type, cy_wcm_ip_addres
         return CY_RSLT_WCM_BAD_ARG;
     }
 
-    if((interface_type == CY_WCM_INTERFACE_TYPE_AP_STA) && (addr_count < MAX_WHD_INTERFACE))
-    {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Error in size of IP address array \r\n");
-        return CY_RSLT_WCM_BAD_ARG;
-    }
-
     if(interface_type == CY_WCM_INTERFACE_TYPE_STA)
     {
         if(is_sta_network_up == false)
@@ -1314,18 +1285,18 @@ cy_rslt_t cy_wcm_get_ip_addr(cy_wcm_interface_t interface_type, cy_wcm_ip_addres
             return CY_RSLT_WCM_STA_NETWORK_DOWN;
         }
 
-        net_interface  = cy_lwip_get_interface(CY_LWIP_STA_NW_INTERFACE);
-#if LWIP_IPV6
-        ipv4_addr = net_interface->ip_addr.u_addr.ip4.addr;
-        addr = &net_interface->ip_addr.u_addr.ip4;
-#else
-        ipv4_addr = net_interface->ip_addr.addr;
-        addr = &net_interface->ip_addr;
-#endif
-
+        res = cy_network_get_ip_address(nw_sta_if_ctx, &ipv4_addr);
+        if(res != CY_RSLT_SUCCESS)
+        {
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Failed to get the IP address\n");
+            return CY_RSLT_WCM_IP_ADDR_ERROR;
+        }
         ip_addr->version = CY_WCM_IP_VER_V4;
-        ip_addr->ip.v4 = ipv4_addr;
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "IP Address %s assigned \n", ip4addr_ntoa(addr));
+        ip_addr->ip.v4 = ipv4_addr.ip.v4;
+#ifdef ENABLE_WCM_LOGS
+        cy_nw_ntoa(&ipv4_addr, ip_str);
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "IP Address %s assigned \n", ip_str);
+#endif
         return CY_RSLT_SUCCESS;
     }
     else if(interface_type == CY_WCM_INTERFACE_TYPE_AP)
@@ -1338,18 +1309,18 @@ cy_rslt_t cy_wcm_get_ip_addr(cy_wcm_interface_t interface_type, cy_wcm_ip_addres
             return CY_RSLT_WCM_AP_NOT_UP;
         }
 
-        net_interface  = cy_lwip_get_interface(CY_LWIP_AP_NW_INTERFACE);
-#if LWIP_IPV6
-        ipv4_addr = net_interface->ip_addr.u_addr.ip4.addr;
-        addr = &net_interface->ip_addr.u_addr.ip4;
-#else
-        ipv4_addr = net_interface->ip_addr.addr;
-        addr = &net_interface->ip_addr;
-#endif
-
+        res = cy_network_get_ip_address(nw_ap_if_ctx, &ipv4_addr);
+        if(res != CY_RSLT_SUCCESS)
+        {
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Failed to get the IP address\n");
+            return CY_RSLT_WCM_IP_ADDR_ERROR;
+        }
         ip_addr->version = CY_WCM_IP_VER_V4;
-        ip_addr->ip.v4 = ipv4_addr;
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "IP Address %s assigned \n", ip4addr_ntoa(addr));
+        ip_addr->ip.v4 = ipv4_addr.ip.v4;
+#ifdef ENABLE_WCM_LOGS
+        cy_nw_ntoa(&ipv4_addr, ip_str);
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "IP Address %s assigned \n", ip_str);
+#endif
         return CY_RSLT_SUCCESS;
     }
     else
@@ -1362,17 +1333,18 @@ cy_rslt_t cy_wcm_get_ip_addr(cy_wcm_interface_t interface_type, cy_wcm_ip_addres
             memset(ip_addr, 0, sizeof(cy_wcm_ip_address_t));
         }
 
-        net_interface  = cy_lwip_get_interface(CY_LWIP_STA_NW_INTERFACE);
-#if LWIP_IPV6
-        ipv4_addr = net_interface->ip_addr.u_addr.ip4.addr;
-        addr = &net_interface->ip_addr.u_addr.ip4;
-#else
-        ipv4_addr = net_interface->ip_addr.addr;
-        addr = &net_interface->ip_addr;
-#endif
+        res = cy_network_get_ip_address(nw_sta_if_ctx, &ipv4_addr);
+        if(res != CY_RSLT_SUCCESS)
+        {
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Failed to get the IP address\n");
+            return CY_RSLT_WCM_IP_ADDR_ERROR;
+        }
         ip_addr->version = CY_WCM_IP_VER_V4;
-        ip_addr->ip.v4 = ipv4_addr;
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "STA IP Address %s assigned \n", ip4addr_ntoa(addr));
+        ip_addr->ip.v4 = ipv4_addr.ip.v4;
+#ifdef ENABLE_WCM_LOGS
+        cy_nw_ntoa(&ipv4_addr, ip_str);
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "STA IP Address %s assigned \n", ip_str);
+#endif
 
         ip_addr++;
         if(is_soft_ap_up == false)
@@ -1381,29 +1353,30 @@ cy_rslt_t cy_wcm_get_ip_addr(cy_wcm_interface_t interface_type, cy_wcm_ip_addres
             /** Network is not up and hence mem setting the ip address to zero**/
             memset(ip_addr, 0, sizeof(cy_wcm_ip_address_t));
         }
-        net_interface  = cy_lwip_get_interface(CY_LWIP_AP_NW_INTERFACE);
-#if LWIP_IPV6
-        ipv4_addr = net_interface->ip_addr.u_addr.ip4.addr;
-        addr = &net_interface->ip_addr.u_addr.ip4;
-#else
-        ipv4_addr = net_interface->ip_addr.addr;
-        addr = &net_interface->ip_addr;
-#endif
-
+        res = cy_network_get_ip_address(nw_ap_if_ctx, &ipv4_addr);
+        if(res != CY_RSLT_SUCCESS)
+        {
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Failed to get the IP address\n");
+            return CY_RSLT_WCM_IP_ADDR_ERROR;
+        }
         ip_addr->version = CY_WCM_IP_VER_V4;
-        ip_addr->ip.v4 = ipv4_addr;
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Soft AP IP Address %s assigned \n", ip4addr_ntoa(addr));
+        ip_addr->ip.v4 = ipv4_addr.ip.v4;
+#ifdef ENABLE_WCM_LOGS
+        cy_nw_ntoa(&ipv4_addr, ip_str);
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Soft AP IP Address %s assigned \n", ip_str);
+#endif
     }
     return CY_RSLT_SUCCESS;
 }
-#endif
 
-#if LWIP_IPV6
-cy_rslt_t cy_wcm_get_ipv6_addr(cy_wcm_interface_t interface_type, cy_wcm_ipv6_type_t ipv6_addr_type, cy_wcm_ip_address_t *ip_addr, uint8_t addr_count)
+cy_rslt_t cy_wcm_get_ipv6_addr(cy_wcm_interface_t interface_type, cy_wcm_ipv6_type_t ipv6_addr_type, cy_wcm_ip_address_t *ip_addr)
 {
-    struct netif *net_interface  = NULL;
-    const ip6_addr_t* ipv6_addr  = NULL;
-
+    cy_rslt_t res = CY_RSLT_SUCCESS;
+    cy_nw_ip_address_t ipv6_addr;
+    cy_network_ipv6_type_t ipv6_type;
+#ifdef ENABLE_WCM_LOGS
+    char ip_str[39];
+#endif
     if(!is_wcm_initalized)
     {
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized \n");
@@ -1425,12 +1398,7 @@ cy_rslt_t cy_wcm_get_ipv6_addr(cy_wcm_interface_t interface_type, cy_wcm_ipv6_ty
         /*TODO : Need to add support for Global IPV6 address */
         return CY_RSLT_WCM_IPV6_GLOBAL_ADDRESS_NOT_SUPPORTED;
     }
-
-    if((interface_type == CY_WCM_INTERFACE_TYPE_AP_STA) && (addr_count < MAX_WHD_INTERFACE))
-    {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Error in size of IP address array \r\n");
-        return CY_RSLT_WCM_BAD_ARG;
-    }
+    ipv6_type = CY_NETWORK_IPV6_LINK_LOCAL;
 
     if(interface_type == CY_WCM_INTERFACE_TYPE_STA)
     {
@@ -1441,18 +1409,20 @@ cy_rslt_t cy_wcm_get_ipv6_addr(cy_wcm_interface_t interface_type, cy_wcm_ipv6_ty
             memset(ip_addr, 0, sizeof(cy_wcm_ip_address_t));
             return CY_RSLT_WCM_STA_NETWORK_DOWN;
         }
-        net_interface = cy_lwip_get_interface(CY_LWIP_STA_NW_INTERFACE);
-#ifdef LWIP_IPV6
-        ipv6_addr = netif_ip6_addr(net_interface, 0);
-        if(ipv6_addr != NULL)
+
+        res = cy_network_get_ipv6_address(nw_sta_if_ctx, ipv6_type, &ipv6_addr);
+        if(res == CY_RSLT_SUCCESS)
         {
             ip_addr->version = CY_WCM_IP_VER_V6;
-            ip_addr->ip.v6[0] = ipv6_addr->addr[0];
-            ip_addr->ip.v6[1] = ipv6_addr->addr[1];
-            ip_addr->ip.v6[2] = ipv6_addr->addr[2];
-            ip_addr->ip.v6[3] = ipv6_addr->addr[3];
+            ip_addr->ip.v6[0] = ipv6_addr.ip.v6[0];
+            ip_addr->ip.v6[1] = ipv6_addr.ip.v6[1];
+            ip_addr->ip.v6[2] = ipv6_addr.ip.v6[2];
+            ip_addr->ip.v6[3] = ipv6_addr.ip.v6[3];
 
-            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "IPV6 Address %s assigned \n", ip6addr_ntoa(netif_ip6_addr(net_interface, 0)));
+#ifdef ENABLE_WCM_LOGS
+            cy_nw_ntoa_ipv6(&ipv6_addr, ip_str);
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "IPV6 Address %s assigned \n", ip_str);
+#endif
         }
         else
         {
@@ -1460,10 +1430,6 @@ cy_rslt_t cy_wcm_get_ipv6_addr(cy_wcm_interface_t interface_type, cy_wcm_ipv6_ty
             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "IPV6 network not ready \n");
             return CY_RSLT_WCM_IPV6_INTERFACE_NOT_READY;
         }
-#else
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERROR, "LWIP_IPV6 flag is not enabled \r\n");
-        return CY_RSLT_WCM_BAD_ARG;
-#endif
     }
     else if(interface_type == CY_WCM_INTERFACE_TYPE_AP)
     {
@@ -1474,17 +1440,19 @@ cy_rslt_t cy_wcm_get_ipv6_addr(cy_wcm_interface_t interface_type, cy_wcm_ipv6_ty
             memset(ip_addr, 0, sizeof(cy_wcm_ip_address_t));
             return CY_RSLT_WCM_AP_NOT_UP;
         }
-        net_interface = cy_lwip_get_interface(CY_LWIP_AP_NW_INTERFACE);
-#ifdef LWIP_IPV6
-        ipv6_addr = netif_ip6_addr(net_interface, 0);
-        if(ipv6_addr != NULL)
+
+        res = cy_network_get_ipv6_address(nw_ap_if_ctx, ipv6_type, &ipv6_addr);
+        if(res == CY_RSLT_SUCCESS)
         {
             ip_addr->version = CY_WCM_IP_VER_V6;
-            ip_addr->ip.v6[0] = ipv6_addr->addr[0];
-            ip_addr->ip.v6[1] = ipv6_addr->addr[1];
-            ip_addr->ip.v6[2] = ipv6_addr->addr[2];
-            ip_addr->ip.v6[3] = ipv6_addr->addr[3];
-            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "IPV6 Address %s assigned \n", ip6addr_ntoa(netif_ip6_addr(net_interface, 0)));
+            ip_addr->ip.v6[0] = ipv6_addr.ip.v6[0];
+            ip_addr->ip.v6[1] = ipv6_addr.ip.v6[1];
+            ip_addr->ip.v6[2] = ipv6_addr.ip.v6[2];
+            ip_addr->ip.v6[3] = ipv6_addr.ip.v6[3];
+#ifdef ENABLE_WCM_LOGS
+            cy_nw_ntoa_ipv6(&ipv6_addr, ip_str);
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "IPV6 Address %s assigned \n", ip_str);
+#endif
         }
         else
         {
@@ -1492,10 +1460,6 @@ cy_rslt_t cy_wcm_get_ipv6_addr(cy_wcm_interface_t interface_type, cy_wcm_ipv6_ty
             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "IPV6 network not ready \n");
             return CY_RSLT_WCM_IPV6_INTERFACE_NOT_READY;
         }
-#else
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERROR, "LWIP_IPV6 flag is not enabled \r\n");
-        return CY_RSLT_WCM_BAD_ARG;
-#endif
     }
     else
     {
@@ -1506,27 +1470,27 @@ cy_rslt_t cy_wcm_get_ipv6_addr(cy_wcm_interface_t interface_type, cy_wcm_ipv6_ty
             /** Network is not up and hence mem setting the ip address to zero**/
             memset(ip_addr, 0, sizeof(cy_wcm_ip_address_t));
         }
-        net_interface = cy_lwip_get_interface(CY_LWIP_STA_NW_INTERFACE);
-#ifdef LWIP_IPV6
-        ipv6_addr = netif_ip6_addr(net_interface, 0);
-        if(ipv6_addr != NULL)
+
+        res = cy_network_get_ipv6_address(nw_sta_if_ctx, ipv6_type, &ipv6_addr);
+        if(res == CY_RSLT_SUCCESS)
         {
             ip_addr->version = CY_WCM_IP_VER_V6;
-            ip_addr->ip.v6[0] = ipv6_addr->addr[0];
-            ip_addr->ip.v6[1] = ipv6_addr->addr[1];
-            ip_addr->ip.v6[2] = ipv6_addr->addr[2];
-            ip_addr->ip.v6[3] = ipv6_addr->addr[3];
+            ip_addr->ip.v6[0] = ipv6_addr.ip.v6[0];
+            ip_addr->ip.v6[1] = ipv6_addr.ip.v6[1];
+            ip_addr->ip.v6[2] = ipv6_addr.ip.v6[2];
+            ip_addr->ip.v6[3] = ipv6_addr.ip.v6[3];
 
-            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "IPV6 Address %s assigned \n", ip6addr_ntoa(netif_ip6_addr(net_interface, 0)));
+#ifdef ENABLE_WCM_LOGS
+            cy_nw_ntoa_ipv6(&ipv6_addr, ip_str);
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "IPV6 Address %s assigned \n", ip_str);
+#endif
         }
         else
         {
             memset(ip_addr, 0, sizeof(cy_wcm_ip_address_t));
             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "IPV6 network not ready \n");
         }
-#else
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERROR, "LWIP_IPV6 flag is not enabled \r\n");
-#endif
+
         ip_addr++;
         if(is_soft_ap_up == false)
         {
@@ -1534,33 +1498,31 @@ cy_rslt_t cy_wcm_get_ipv6_addr(cy_wcm_interface_t interface_type, cy_wcm_ipv6_ty
             /** Network is not up and hence mem setting the ip address to zero**/
             memset(ip_addr, 0, sizeof(cy_wcm_ip_address_t));
         }
-        net_interface = cy_lwip_get_interface(CY_LWIP_AP_NW_INTERFACE);
-#ifdef LWIP_IPV6
-        ipv6_addr = netif_ip6_addr(net_interface, 0);
-        if(ipv6_addr != NULL)
+
+        res = cy_network_get_ipv6_address(nw_ap_if_ctx, ipv6_type, &ipv6_addr);
+        if(res == CY_RSLT_SUCCESS)
         {
             ip_addr->version = CY_WCM_IP_VER_V6;
-            ip_addr->ip.v6[0] = ipv6_addr->addr[0];
-            ip_addr->ip.v6[1] = ipv6_addr->addr[1];
-            ip_addr->ip.v6[2] = ipv6_addr->addr[2];
-            ip_addr->ip.v6[3] = ipv6_addr->addr[3];
-            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "IPV6 Address %s assigned \n", ip6addr_ntoa(netif_ip6_addr(net_interface, 0)));
+            ip_addr->ip.v6[0] = ipv6_addr.ip.v6[0];
+            ip_addr->ip.v6[1] = ipv6_addr.ip.v6[1];
+            ip_addr->ip.v6[2] = ipv6_addr.ip.v6[2];
+            ip_addr->ip.v6[3] = ipv6_addr.ip.v6[3];
+#ifdef ENABLE_WCM_LOGS
+            cy_nw_ntoa_ipv6(&ipv6_addr, ip_str);
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "IPV6 Address %s assigned \n", ip_str);
+#endif
         }
         else
         {
             memset(ip_addr, 0, sizeof(cy_wcm_ip_address_t));
             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "IPV6 network not ready \n");
         }
-#else
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERROR, "LWIP_IPV6 flag is not enabled \r\n");
-#endif
     }
 
     return CY_RSLT_SUCCESS;
 }
-#endif
 
-cy_rslt_t cy_wcm_get_mac_addr(cy_wcm_interface_t interface_type, cy_wcm_mac_t *mac_addr, uint8_t addr_count)
+cy_rslt_t cy_wcm_get_mac_addr(cy_wcm_interface_t interface_type, cy_wcm_mac_t *mac_addr)
 {
     cy_rslt_t res = CY_RSLT_SUCCESS;
     whd_mac_t mac;
@@ -1580,12 +1542,6 @@ cy_rslt_t cy_wcm_get_mac_addr(cy_wcm_interface_t interface_type, cy_wcm_mac_t *m
     if(mac_addr == NULL)
     {
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Bad argument \r\n");
-        return CY_RSLT_WCM_BAD_ARG;
-    }
-
-    if((interface_type == CY_WCM_INTERFACE_TYPE_AP_STA) && (addr_count < MAX_WHD_INTERFACE))
-    {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Error in size of mac address array \r\n");
         return CY_RSLT_WCM_BAD_ARG;
     }
 
@@ -1625,7 +1581,7 @@ cy_rslt_t cy_wcm_get_mac_addr(cy_wcm_interface_t interface_type, cy_wcm_mac_t *m
     }
     else
     {
-        memset(mac_addr, 0, (addr_count * sizeof(mac)));
+        memset(mac_addr, 0, (MAX_WHD_INTERFACE * sizeof(mac)));
         if((res = whd_wifi_get_mac_address(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], &mac)) != CY_RSLT_SUCCESS)
         {
             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Error in getting the mac address of STA interface \r\n");
@@ -1658,16 +1614,12 @@ cy_rslt_t cy_wcm_get_mac_addr(cy_wcm_interface_t interface_type, cy_wcm_mac_t *m
     return res;
 }
 
-#if LWIP_IPV4
-cy_rslt_t cy_wcm_get_gateway_ip_address(cy_wcm_interface_t interface_type, cy_wcm_ip_address_t *gateway_addr, uint8_t addr_count)
+cy_rslt_t cy_wcm_get_gateway_ip_address(cy_wcm_interface_t interface_type, cy_wcm_ip_address_t *gateway_addr)
 {
-    struct netif *net_interface  = NULL;
-    uint32_t ipv4_addr;
-    UNUSED_PARAMETER(addr_count);
-
-#if LWIP_IPV4
-    ip4_addr_t* addr = NULL;
-    UNUSED_VARIABLE(addr);
+    cy_nw_ip_address_t ipv4_addr;
+    cy_rslt_t res = CY_RSLT_SUCCESS;
+#ifdef ENABLE_WCM_LOGS
+    char ip_str[15];
 #endif
 
     if(!is_wcm_initalized)
@@ -1686,12 +1638,6 @@ cy_rslt_t cy_wcm_get_gateway_ip_address(cy_wcm_interface_t interface_type, cy_wc
         return CY_RSLT_WCM_BAD_ARG;
     }
 
-    if((interface_type == CY_WCM_INTERFACE_TYPE_AP_STA) && (addr_count < MAX_WHD_INTERFACE))
-    {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Error in size of IP address array \r\n");
-        return CY_RSLT_WCM_BAD_ARG;
-    }
-
     if(interface_type == CY_WCM_INTERFACE_TYPE_STA)
     {
         if(is_sta_network_up == false)
@@ -1702,18 +1648,18 @@ cy_rslt_t cy_wcm_get_gateway_ip_address(cy_wcm_interface_t interface_type, cy_wc
             return CY_RSLT_WCM_STA_NETWORK_DOWN;
         }
 
-        net_interface  = cy_lwip_get_interface(CY_LWIP_STA_NW_INTERFACE);
-#if LWIP_IPV6
-        ipv4_addr = net_interface->gw.u_addr.ip4.addr;
-        addr = &net_interface->gw.u_addr.ip4;
-#else
-        ipv4_addr = net_interface->gw.addr;
-        addr = &net_interface->gw;
-#endif
-
+        res = cy_network_get_gateway_ip_address(nw_sta_if_ctx, &ipv4_addr);
+        if(res != CY_RSLT_SUCCESS)
+        {
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Failed to get the gateway address\n");
+            return CY_RSLT_WCM_GATEWAY_ADDR_ERROR;
+        }
         gateway_addr->version = CY_WCM_IP_VER_V4;
-        gateway_addr->ip.v4 = ipv4_addr;
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Gateway IP Address %s assigned \n", ip4addr_ntoa(addr));
+        gateway_addr->ip.v4 = ipv4_addr.ip.v4;
+#ifdef ENABLE_WCM_LOGS
+        cy_nw_ntoa(&ipv4_addr, ip_str);
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Gateway IP Address %s assigned \n", ip_str);
+#endif
         return CY_RSLT_SUCCESS;
     }
     else if(interface_type == CY_WCM_INTERFACE_TYPE_AP)
@@ -1725,19 +1671,18 @@ cy_rslt_t cy_wcm_get_gateway_ip_address(cy_wcm_interface_t interface_type, cy_wc
             memset(gateway_addr, 0, sizeof(cy_wcm_ip_address_t));
             return CY_RSLT_WCM_STA_NETWORK_DOWN;
         }
-
-        net_interface  = cy_lwip_get_interface(CY_LWIP_AP_NW_INTERFACE);
-#if LWIP_IPV6
-        ipv4_addr = net_interface->gw.u_addr.ip4.addr;
-        addr = &net_interface->gw.u_addr.ip4;
-#else
-        ipv4_addr = net_interface->gw.addr;
-        addr = &net_interface->gw;
-#endif
-
+        res = cy_network_get_gateway_ip_address(nw_ap_if_ctx, &ipv4_addr);
+        if(res != CY_RSLT_SUCCESS)
+        {
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Failed to get the gateway address\n");
+            return CY_RSLT_WCM_GATEWAY_ADDR_ERROR;
+        }
         gateway_addr->version = CY_WCM_IP_VER_V4;
-        gateway_addr->ip.v4 = ipv4_addr;
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Gateway IP Address %s assigned \n", ip4addr_ntoa(addr));
+        gateway_addr->ip.v4 = ipv4_addr.ip.v4;
+#ifdef ENABLE_WCM_LOGS
+        cy_nw_ntoa(&ipv4_addr, ip_str);
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Gateway IP Address %s assigned \n", ip_str);
+#endif
         return CY_RSLT_SUCCESS;
     }
     else
@@ -1749,18 +1694,18 @@ cy_rslt_t cy_wcm_get_gateway_ip_address(cy_wcm_interface_t interface_type, cy_wc
             /** Network is not up and hence mem setting the ip address to zero**/
             memset(gateway_addr, 0, sizeof(cy_wcm_ip_address_t));
         }
-
-        net_interface  = cy_lwip_get_interface(CY_LWIP_STA_NW_INTERFACE);
-#if LWIP_IPV6
-        ipv4_addr = net_interface->gw.u_addr.ip4.addr;
-        addr = &net_interface->gw.u_addr.ip4;
-#else
-        ipv4_addr = net_interface->gw.addr;
-        addr = &net_interface->gw;
-#endif
+        res = cy_network_get_gateway_ip_address(nw_sta_if_ctx, &ipv4_addr);
+        if(res != CY_RSLT_SUCCESS)
+        {
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Failed to get the gateway address\n");
+            return CY_RSLT_WCM_GATEWAY_ADDR_ERROR;
+        }
         gateway_addr->version = CY_WCM_IP_VER_V4;
-        gateway_addr->ip.v4 = ipv4_addr;
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "STA Gateway IP Address %s assigned \n", ip4addr_ntoa(addr));
+        gateway_addr->ip.v4 = ipv4_addr.ip.v4;
+#ifdef ENABLE_WCM_LOGS
+        cy_nw_ntoa(&ipv4_addr, ip_str);
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "STA Gateway IP Address %s assigned \n", ip_str);
+#endif
 
         gateway_addr++;
         if(is_soft_ap_up == false)
@@ -1769,33 +1714,29 @@ cy_rslt_t cy_wcm_get_gateway_ip_address(cy_wcm_interface_t interface_type, cy_wc
             /** Network is not up and hence mem setting the ip address to zero**/
             memset(gateway_addr, 0, sizeof(cy_wcm_ip_address_t));
         }
-        net_interface  = cy_lwip_get_interface(CY_LWIP_AP_NW_INTERFACE);
-#if LWIP_IPV6
-        ipv4_addr = net_interface->gw.u_addr.ip4.addr;
-        addr = &net_interface->gw.u_addr.ip4;
-#else
-        ipv4_addr = net_interface->gw.addr;
-        addr = &net_interface->gw;
-#endif
-
+        res = cy_network_get_gateway_ip_address(nw_ap_if_ctx, &ipv4_addr);
+        if(res != CY_RSLT_SUCCESS)
+        {
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Failed to get the gateway address\n");
+            return CY_RSLT_WCM_GATEWAY_ADDR_ERROR;
+        }
         gateway_addr->version = CY_WCM_IP_VER_V4;
-        gateway_addr->ip.v4 = ipv4_addr;
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Soft AP IP Address %s assigned \n", ip4addr_ntoa(addr));
+        gateway_addr->ip.v4 = ipv4_addr.ip.v4;
+#ifdef ENABLE_WCM_LOGS
+        cy_nw_ntoa(&ipv4_addr, ip_str);
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Soft AP IP Address %s assigned \n", ip_str);
+#endif
     }
     return CY_RSLT_SUCCESS;
 }
 
-cy_rslt_t cy_wcm_get_ip_netmask(cy_wcm_interface_t interface_type, cy_wcm_ip_address_t *net_mask_addr, uint8_t addr_count)
+cy_rslt_t cy_wcm_get_ip_netmask(cy_wcm_interface_t interface_type, cy_wcm_ip_address_t *net_mask_addr)
 {
-    struct netif *net_interface  = NULL;
-    uint32_t ipv4_addr;
-    UNUSED_PARAMETER(addr_count);
-
-#if LWIP_IPV4
-    ip4_addr_t* addr = NULL;
-    UNUSED_VARIABLE(addr);
+    cy_rslt_t res = CY_RSLT_SUCCESS;
+    cy_nw_ip_address_t ipv4_addr;
+#ifdef ENABLE_WCM_LOGS
+    char ip_str[15];
 #endif
-
     if(!is_wcm_initalized)
     {
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized \n");
@@ -1812,12 +1753,6 @@ cy_rslt_t cy_wcm_get_ip_netmask(cy_wcm_interface_t interface_type, cy_wcm_ip_add
         return CY_RSLT_WCM_BAD_ARG;
     }
 
-    if((interface_type == CY_WCM_INTERFACE_TYPE_AP_STA) && (addr_count < MAX_WHD_INTERFACE))
-    {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Error in size of IP address array \r\n");
-        return CY_RSLT_WCM_BAD_ARG;
-    }
-
     if(interface_type == CY_WCM_INTERFACE_TYPE_STA)
     {
         if(is_sta_network_up == false)
@@ -1828,18 +1763,19 @@ cy_rslt_t cy_wcm_get_ip_netmask(cy_wcm_interface_t interface_type, cy_wcm_ip_add
             return CY_RSLT_WCM_STA_NETWORK_DOWN;
         }
 
-        net_interface  = cy_lwip_get_interface(CY_LWIP_STA_NW_INTERFACE);
-#if LWIP_IPV6
-        ipv4_addr = net_interface->netmask.u_addr.ip4.addr;
-        addr = &net_interface->netmask.u_addr.ip4;
-#else
-        ipv4_addr = net_interface->netmask.addr;
-        addr = &net_interface->netmask;
-#endif
+        res = cy_network_get_netmask_address(nw_sta_if_ctx, &ipv4_addr);
+        if(res != CY_RSLT_SUCCESS)
+        {
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Failed to get the netmask address\n");
+            return CY_RSLT_WCM_NETMASK_ADDR_ERROR;
+        }
 
         net_mask_addr->version = CY_WCM_IP_VER_V4;
-        net_mask_addr->ip.v4 = ipv4_addr;
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "net mask IP Address %s assigned \n", ip4addr_ntoa(addr));
+        net_mask_addr->ip.v4 = ipv4_addr.ip.v4;
+#ifdef ENABLE_WCM_LOGS
+        cy_nw_ntoa(&ipv4_addr, ip_str);
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "net mask IP Address %s assigned \n", ip_str);
+#endif
         return CY_RSLT_SUCCESS;
     }
     else if(interface_type == CY_WCM_INTERFACE_TYPE_AP)
@@ -1852,18 +1788,18 @@ cy_rslt_t cy_wcm_get_ip_netmask(cy_wcm_interface_t interface_type, cy_wcm_ip_add
             return CY_RSLT_WCM_STA_NETWORK_DOWN;
         }
 
-        net_interface  = cy_lwip_get_interface(CY_LWIP_AP_NW_INTERFACE);
-#if LWIP_IPV6
-        ipv4_addr = net_interface->netmask.u_addr.ip4.addr;
-        addr = &net_interface->netmask.u_addr.ip4;
-#else
-        ipv4_addr = net_interface->netmask.addr;
-        addr = &net_interface->netmask;
-#endif
-
+        res = cy_network_get_netmask_address(nw_ap_if_ctx, &ipv4_addr);
+        if(res != CY_RSLT_SUCCESS)
+        {
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Failed to get the IP address\n");
+            return CY_RSLT_WCM_IP_ADDR_ERROR;
+        }
         net_mask_addr->version = CY_WCM_IP_VER_V4;
-        net_mask_addr->ip.v4 = ipv4_addr;
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "net mask Address %s assigned \n", ip4addr_ntoa(addr));
+        net_mask_addr->ip.v4 = ipv4_addr.ip.v4;
+#ifdef ENABLE_WCM_LOGS
+        cy_nw_ntoa(&ipv4_addr, ip_str);
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "net mask Address %s assigned \n", ip_str);
+#endif
         return CY_RSLT_SUCCESS;
     }
     else
@@ -1876,17 +1812,18 @@ cy_rslt_t cy_wcm_get_ip_netmask(cy_wcm_interface_t interface_type, cy_wcm_ip_add
             memset(net_mask_addr, 0, sizeof(cy_wcm_ip_address_t));
         }
 
-        net_interface  = cy_lwip_get_interface(CY_LWIP_STA_NW_INTERFACE);
-#if LWIP_IPV6
-        ipv4_addr = net_interface->netmask.u_addr.ip4.addr;
-        addr = &net_interface->netmask.u_addr.ip4;
-#else
-        ipv4_addr = net_interface->netmask.addr;
-        addr = &net_interface->netmask;
-#endif
+        res = cy_network_get_netmask_address(nw_sta_if_ctx, &ipv4_addr);
+        if(res != CY_RSLT_SUCCESS)
+        {
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Failed to get the IP address\n");
+            return CY_RSLT_WCM_IP_ADDR_ERROR;
+        }
         net_mask_addr->version = CY_WCM_IP_VER_V4;
-        net_mask_addr->ip.v4 = ipv4_addr;
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "STA Gateway IP Address %s assigned \n", ip4addr_ntoa(addr));
+        net_mask_addr->ip.v4 = ipv4_addr.ip.v4;
+#ifdef ENABLE_WCM_LOGS
+        cy_nw_ntoa(&ipv4_addr, ip_str);
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "STA Gateway IP Address %s assigned \n", ip_str);
+#endif
 
         net_mask_addr++;
         if(is_soft_ap_up == false)
@@ -1895,22 +1832,21 @@ cy_rslt_t cy_wcm_get_ip_netmask(cy_wcm_interface_t interface_type, cy_wcm_ip_add
             /** Network is not up and hence mem setting the ip address to zero**/
             memset(net_mask_addr, 0, sizeof(cy_wcm_ip_address_t));
         }
-        net_interface  = cy_lwip_get_interface(CY_LWIP_AP_NW_INTERFACE);
-#if LWIP_IPV6
-        ipv4_addr = net_interface->netmask.u_addr.ip4.addr;
-        addr = &net_interface->netmask.u_addr.ip4;
-#else
-        ipv4_addr = net_interface->netmask.addr;
-        addr = &net_interface->netmask;
-#endif
-
+        res = cy_network_get_netmask_address(nw_ap_if_ctx, &ipv4_addr);
+        if(res != CY_RSLT_SUCCESS)
+        {
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Failed to get the IP address\n");
+            return CY_RSLT_WCM_IP_ADDR_ERROR;
+        }
         net_mask_addr->version = CY_WCM_IP_VER_V4;
-        net_mask_addr->ip.v4 = ipv4_addr;
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Soft AP net mask Address %s assigned \n", ip4addr_ntoa(addr));
+        net_mask_addr->ip.v4 = ipv4_addr.ip.v4;
+#ifdef ENABLE_WCM_LOGS
+        cy_nw_ntoa(&ipv4_addr, ip_str);
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Soft AP net mask Address %s assigned \n", ip_str);
+#endif
     }
     return CY_RSLT_SUCCESS;
 }
-#endif
 
 uint8_t cy_wcm_is_connected_to_ap(void)
 {
@@ -2067,7 +2003,7 @@ static void unpack_xtlv_buf(const uint8_t *tlv_buf, uint16_t buflen,cy_wcm_wlan_
         if (type == 0x100)
         {
             if(wl_counters(data, stat) == CY_RSLT_SUCCESS)
-            {    
+            {
                 break;
             }
         }
@@ -2123,7 +2059,7 @@ cy_rslt_t cy_wcm_get_wlan_statistics(cy_wcm_interface_t interface, cy_wcm_wlan_s
         /* 43012 board - Process xtlv buffer data to get statistics */
         uint8_t *cntdata;
         cntdata = (uint8_t *)malloc(wl_cnt_info->datalen);
-        
+
         CHK_CNTBUF_DATALEN(wl_cnt_info, WLC_IOCTL_MEDLEN);
         if (cntdata == NULL) {
             return CY_RSLT_TYPE_ERROR;
@@ -2135,7 +2071,7 @@ cy_rslt_t cy_wcm_get_wlan_statistics(cy_wcm_interface_t interface, cy_wcm_wlan_s
     else if (wl_cnt_info->version == WL_CNT_VER_10)
     {
         received_counters =(wl_cnt_ver_ten_t*)  wl_cnt_info;
-        
+
         /* Copy the required statistics */
         stat->rx_bytes   = received_counters->rxbyte;
         stat->tx_bytes   = received_counters->txbyte;
@@ -2144,7 +2080,7 @@ cy_rslt_t cy_wcm_get_wlan_statistics(cy_wcm_interface_t interface, cy_wcm_wlan_s
         stat->tx_failed  = received_counters->txfail;
         stat->tx_retries = received_counters->txretry;
     }
-    
+
     whd_buffer_release(whd_ifs[CY_WCM_INTERFACE_TYPE_STA]->whd_driver, response, WHD_NETWORK_RX);
 
     /* get data rate */
@@ -2154,17 +2090,10 @@ cy_rslt_t cy_wcm_get_wlan_statistics(cy_wcm_interface_t interface, cy_wcm_wlan_s
     return CY_RSLT_SUCCESS;
 }
 
-#if LWIP_IPV4
 cy_rslt_t cy_wcm_get_gateway_mac_address(cy_wcm_mac_t *mac_addr)
 {
-    err_t err;
-    cy_wcm_ip_address_t gateway_ip_addr;
-    struct eth_addr *eth_ret = NULL;
-    const ip4_addr_t *ip_ret = NULL;
-    int32_t arp_waittime = ARP_WAIT_TIME_IN_MSEC;
-    ssize_t arp_index = -1;
-    ip4_addr_t ipv4addr;
-    struct netif *net_interface  = NULL;
+    cy_rslt_t res = CY_RSLT_SUCCESS;
+    cy_nw_ip_mac_t nw_mac_addr;
 
     if(!is_wcm_initalized)
     {
@@ -2183,64 +2112,30 @@ cy_rslt_t cy_wcm_get_gateway_mac_address(cy_wcm_mac_t *mac_addr)
         return CY_RSLT_WCM_INTERFACE_NOT_SUPPORTED;
     }
 
-    net_interface = cy_lwip_get_interface(CY_LWIP_STA_NW_INTERFACE);
-    if(net_interface == NULL)
+    if(!nw_sta_if_ctx->is_initialized)
     {
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "network interface is NULL \r\n");
         return CY_RSLT_WCM_NETIF_DOES_NOT_EXIST;
     }
 
-    cy_wcm_get_gateway_ip_address(CY_WCM_INTERFACE_TYPE_STA, &gateway_ip_addr, 1);
-
-    ipv4addr.addr = gateway_ip_addr.ip.v4;
-
-    /* Check if entry of the gateway address is already present in the ARP cache. */
-    arp_index = etharp_find_addr(net_interface, (const ip4_addr_t *) &ipv4addr, &eth_ret, (const ip4_addr_t **) &ip_ret);
-
-    if(arp_index == -1)
+    memset(mac_addr , 0, sizeof(*mac_addr));
+    res = cy_network_get_gateway_mac_address(nw_sta_if_ctx, &nw_mac_addr);
+    if(res != CY_RSLT_SUCCESS)
     {
-        /* Entry for the address is not present in the ARP cache. Sent ARP request.*/
-        err = etharp_request(net_interface, (const ip4_addr_t *) &ipv4addr);
-        if(err != ERR_OK)
-        {
-            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "etharp_request failed with error %d\n", err);
-            return  CY_RSLT_WCM_ARP_REQUEST_FAILURE;
-        }
-
-        do
-        {
-            arp_index = etharp_find_addr(net_interface, (const ip4_addr_t *) &ipv4addr, &eth_ret, (const ip4_addr_t **) &ip_ret);
-            if(arp_index != -1)
-            {
-                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "arp entry found \r\n");
-                break;
-            }
-            cy_rtos_delay_milliseconds(ARP_CACHE_CHECK_INTERVAL_IN_MSEC);
-            arp_waittime -= ARP_CACHE_CHECK_INTERVAL_IN_MSEC;
-            if(arp_waittime <= 0)
-            {
-                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Could not resolve MAC address for the given destination address \r\n");
-                return CY_RSLT_WCM_WAIT_TIMEOUT;
-            }
-        } while(1);
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Failed to get the Gateway MAC address\n");
+        res = CY_RSLT_WCM_GATEWAY_MAC_ADDR_ERROR;
     }
-    memcpy(mac_addr, eth_ret->addr, CY_WCM_MAC_ADDR_LEN);
-    return CY_RSLT_SUCCESS;
+    (*mac_addr)[0] = nw_mac_addr.mac[0];
+    (*mac_addr)[1] = nw_mac_addr.mac[1];
+    (*mac_addr)[2] = nw_mac_addr.mac[2];
+    (*mac_addr)[3] = nw_mac_addr.mac[3];
+    (*mac_addr)[4] = nw_mac_addr.mac[4];
+    (*mac_addr)[5] = nw_mac_addr.mac[5];
+    return res;
 }
 
 cy_rslt_t cy_wcm_ping(cy_wcm_interface_t interface, cy_wcm_ip_address_t* address, uint32_t timeout_ms, uint32_t* elapsed_time_ms)
 {
-    cy_time_t send_time;
-    cy_time_t recvd_time;
-    err_t err;
-    struct timeval timeout_val;
-    struct icmp_packet ping_packet;
-    uint16_t ping_seq_num = 0;
-    int socket_for_ping = -1;
-    struct netif *net_interface;
-    char if_name[PING_IF_NAME_LEN];
-    struct ifreq iface;
-    cy_lwip_nw_interface_role_t role;
     cy_rslt_t res = CY_RSLT_SUCCESS;
 
     if(!is_wcm_initalized)
@@ -2280,69 +2175,14 @@ cy_rslt_t cy_wcm_ping(cy_wcm_interface_t interface, cy_wcm_ip_address_t* address
         return CY_RSLT_WCM_WAIT_TIMEOUT;
     }
 
-    /* Open a local socket for pinging */
-    socket_for_ping = lwip_socket(AF_INET, SOCK_RAW, IP_PROTO_ICMP);
-    if (socket_for_ping < 0)
+    /* Call cy_network_ping() */
+    if(interface == CY_WCM_INTERFACE_TYPE_AP)
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Unable to create a socket for Ping \n");
-        res = CY_RSLT_WCM_PING_FAILURE;
-        goto exit;
+        res = cy_network_ping((void *)nw_ap_if_ctx, (cy_nw_ip_address_t *) address, timeout_ms, elapsed_time_ms);
     }
-
-    /* convert the timeout into struct timeval */
-    timeout_val.tv_sec  = (long)(timeout_ms / 1000);
-    timeout_val.tv_usec = (long)((timeout_ms % 1000) * 1000);
-    /* Set the receive timeout on local socket so ping will time out. */
-    if(lwip_setsockopt(socket_for_ping, SOL_SOCKET, SO_RCVTIMEO, &timeout_val, sizeof(struct timeval)) != ERR_OK)
+    else
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Error while setting socket for Ping \n");
-        res = CY_RSLT_WCM_PING_FAILURE;
-        goto exit;
-    }
-
-    role = ((interface == CY_WCM_INTERFACE_TYPE_STA) ? CY_LWIP_STA_NW_INTERFACE : CY_LWIP_AP_NW_INTERFACE);
-    /* Bind interface to device. */
-    net_interface = cy_lwip_get_interface(role);
-    memset(&iface, 0, sizeof(iface));
-    memcpy(if_name, net_interface->name, sizeof(net_interface->name));
-    snprintf(&if_name[2], (PING_IF_NAME_LEN - 2), "%u", (uint8_t)(net_interface->num));
-    memcpy(iface.ifr_name, if_name, PING_IF_NAME_LEN);
-    if(lwip_setsockopt(socket_for_ping, SOL_SOCKET, SO_BINDTODEVICE, &iface, sizeof(iface)) != ERR_OK)
-    {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Error while binding socket to interface \n");
-        res = CY_RSLT_WCM_PING_FAILURE;
-        goto exit;
-    }
-
-    /* Send a ping */
-    err = ping_send(socket_for_ping, address, &ping_packet, &ping_seq_num);
-    if (err != ERR_OK)
-    {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Error while sending Ping request \n");
-        res = CY_RSLT_WCM_PING_FAILURE;
-        goto exit;
-    }
-    /* Record time ping was sent */
-    cy_rtos_get_time(&send_time);
-
-    /* Wait for ping reply */
-    err = ping_recv(socket_for_ping, address, &ping_seq_num);
-    if (err != ERR_OK)
-    {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Ping response timed out \n");
-        res = CY_RSLT_WCM_PING_REQUEST_TIMEOUT;
-        goto exit;
-    }
-
-    /* compute the elapsed time since a ping request was initiated */
-    cy_rtos_get_time(&recvd_time);
-    *elapsed_time_ms = (uint32_t)(recvd_time - send_time);
-
-exit :
-    /* close the socket */
-    if(socket_for_ping >= 0)
-    {
-        lwip_close(socket_for_ping);
+        res = cy_network_ping((void *)nw_sta_if_ctx, (cy_nw_ip_address_t *) address, timeout_ms, elapsed_time_ms);
     }
 
     if(cy_rtos_set_mutex(&wcm_mutex) != CY_RSLT_SUCCESS)
@@ -2362,7 +2202,7 @@ cy_rslt_t cy_wcm_start_ap(const cy_wcm_ap_config_t *ap_config)
     uint8_t *key;
     uint8_t keylen;
     whd_security_t security;
-    ip_static_addr_t static_ip;
+    cy_network_static_ip_addr_t static_ip;
 
     if(!is_wcm_initalized)
     {
@@ -2375,7 +2215,7 @@ cy_rslt_t cy_wcm_start_ap(const cy_wcm_ap_config_t *ap_config)
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Bad soft ap config \n");
         return res;
     }
-    
+
     cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "wcm mutex locked %s %d\r\n", __FILE__, __LINE__);
     if(cy_rtos_get_mutex(&wcm_mutex, CY_WCM_MAX_MUTEX_WAIT_TIME_MS) != CY_RSLT_SUCCESS)
     {
@@ -2406,7 +2246,7 @@ cy_rslt_t cy_wcm_start_ap(const cy_wcm_ap_config_t *ap_config)
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "ERROR initializing AP = %d \n", res);
         goto exit;
     }
-    
+
     if (ap_config->ie_info)
     {
         res = whd_wifi_manage_custom_ie(whd_ifs[CY_WCM_INTERFACE_TYPE_AP], WHD_ADD_CUSTOM_IE, (const uint8_t *)ap_config->ie_info->oui,
@@ -2425,7 +2265,7 @@ cy_rslt_t cy_wcm_start_ap(const cy_wcm_ap_config_t *ap_config)
         goto exit;
     }
 
-    if((res = network_up(whd_ifs[CY_WCM_INTERFACE_TYPE_AP], CY_LWIP_AP_NW_INTERFACE, &static_ip)) != CY_RSLT_SUCCESS)
+    if((res = network_up(whd_ifs[CY_WCM_INTERFACE_TYPE_AP], CY_NETWORK_WIFI_AP_INTERFACE, &static_ip)) != CY_RSLT_SUCCESS)
     {
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Failed to bring up the network stack\n");
         res = CY_RSLT_WCM_STA_NETWORK_DOWN;
@@ -2438,7 +2278,7 @@ cy_rslt_t cy_wcm_start_ap(const cy_wcm_ap_config_t *ap_config)
     if((res = whd_management_set_event_handler(whd_ifs[CY_WCM_INTERFACE_TYPE_AP], ap_link_events, ap_link_events_handler, NULL, &ap_event_handler_index)) != CY_RSLT_SUCCESS)
     {
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Failed to set the Event handler \n");
-        network_down(whd_ifs[CY_WCM_INTERFACE_TYPE_AP], CY_LWIP_AP_NW_INTERFACE);
+        network_down(whd_ifs[CY_WCM_INTERFACE_TYPE_AP], CY_NETWORK_WIFI_AP_INTERFACE);
         whd_wifi_stop_ap(whd_ifs[CY_WCM_INTERFACE_TYPE_AP]);
         goto exit;
     }
@@ -2474,7 +2314,7 @@ cy_rslt_t cy_wcm_stop_ap(void)
 
     if(is_soft_ap_up)
     {
-        network_down(whd_ifs[CY_WCM_INTERFACE_TYPE_AP], CY_LWIP_AP_NW_INTERFACE);
+        network_down(whd_ifs[CY_WCM_INTERFACE_TYPE_AP], CY_NETWORK_WIFI_AP_INTERFACE);
         /* De-register of AP link event handler */
         whd_wifi_deregister_event_handler(whd_ifs[CY_WCM_INTERFACE_TYPE_AP], ap_event_handler_index);
         res = whd_wifi_stop_ap(whd_ifs[CY_WCM_INTERFACE_TYPE_AP]);
@@ -2495,70 +2335,6 @@ exit:
     return res;
 }
 
-static void ping_prepare_echo(struct icmp_packet *iecho, uint16_t len, uint16_t *ping_seq_num)
-{
-    int i;
-    ICMPH_TYPE_SET(&iecho->hdr, ICMP_ECHO);
-    ICMPH_CODE_SET(&iecho->hdr, 0);
-    iecho->hdr.chksum = 0;
-    iecho->hdr.id = PING_ID;
-    iecho->hdr.seqno = htons(++(*ping_seq_num));
-
-    /* fill the additional data buffer with some data */
-    for ( i = 0; i < (int)sizeof(iecho->data); i++ )
-    {
-        iecho->data[i] = (uint8_t)i;
-    }
-
-    iecho->hdr.chksum = inet_chksum(iecho, len);
-}
-
-static err_t ping_send(int socket_hnd, const cy_wcm_ip_address_t* address, struct icmp_packet *iecho, uint16_t *sequence_number)
-{
-    int                err;
-    struct sockaddr_in to;
-
-    /* Construct ping request */
-    ping_prepare_echo(iecho, sizeof(struct icmp_packet), sequence_number);
-
-    /* Send the ping request */
-    to.sin_len         = sizeof( to );
-    to.sin_family      = AF_INET;
-    to.sin_addr.s_addr = address->ip.v4;
-
-    err = lwip_sendto(socket_hnd, iecho, sizeof(struct icmp_packet), 0, (struct sockaddr*) &to, sizeof(to));
-
-    return (err ? ERR_OK : ERR_VAL);
-}
-
-static err_t ping_recv(int socket_hnd, cy_wcm_ip_address_t* address, uint16_t *ping_seq_num)
-{
-    char                  buf[PING_RESPONSE_LEN];
-    int                   fromlen;
-    int                   len;
-    struct sockaddr_in    from;
-    struct ip_hdr*        iphdr;
-    struct icmp_echo_hdr* iecho;
-    do
-    {
-        len = lwip_recvfrom(socket_hnd, buf, sizeof(buf), 0, (struct sockaddr*) &from, (socklen_t*) &fromlen);
-        if (len >= (int) (sizeof(struct ip_hdr) + sizeof(struct icmp_echo_hdr)))
-        {
-            iphdr = (struct ip_hdr *) buf;
-            iecho = (struct icmp_echo_hdr *) (buf + (IPH_HL(iphdr) * 4));
-
-            if ((iecho->id == PING_ID) &&
-                 (iecho->seqno == htons(*ping_seq_num)) &&
-                 (ICMPH_TYPE(iecho) == ICMP_ER))
-            {
-                return ERR_OK; /* Echo reply received - return success */
-            }
-        }
-    } while (len > 0);
-
-    return ERR_TIMEOUT; /* No valid echo reply received before timeout */
-}
-#endif
 
 cy_rslt_t cy_wcm_get_associated_client_list(cy_wcm_mac_t *client_list, uint8_t num_clients)
 {
@@ -2708,7 +2484,7 @@ static cy_rslt_t check_ap_credentials(const cy_wcm_connect_params_t *connect_par
 }
 
 static cy_rslt_t convert_connect_params(const cy_wcm_connect_params_t *connect_params, whd_ssid_t *ssid, whd_mac_t *bssid,
-                                          uint8_t **key, uint8_t *keylen, whd_security_t *security, ip_static_addr_t *static_ip_addr)
+                                          uint8_t **key, uint8_t *keylen, whd_security_t *security, cy_network_static_ip_addr_t *static_ip_addr)
 {
     ssid->length = (uint8_t)strlen((char*)connect_params->ap_credentials.SSID);
     memcpy(&ssid->value, connect_params->ap_credentials.SSID, ssid->length + 1);
@@ -2726,24 +2502,17 @@ static cy_rslt_t convert_connect_params(const cy_wcm_connect_params_t *connect_p
     *security = wcm_to_whd_security(connect_params->ap_credentials.security);
     if(connect_params->static_ip_settings == NULL)
     {
-        memset(static_ip_addr, 0, sizeof(ip_static_addr_t));
+        memset(static_ip_addr, 0, sizeof(cy_network_static_ip_addr_t));
     }
     else
     {
-        memset(static_ip_addr, 0, sizeof(ip_static_addr_t));
+        memset(static_ip_addr, 0, sizeof(cy_network_static_ip_addr_t));
         if(connect_params->static_ip_settings->gateway.version == CY_WCM_IP_VER_V4)
         {
-#if LWIP_IPV4 && LWIP_IPV6
-             static_ip_addr->gateway.u_addr.ip4.addr = connect_params->static_ip_settings->gateway.ip.v4;
-             static_ip_addr->addr.u_addr.ip4.addr    = connect_params->static_ip_settings->ip_address.ip.v4;
-             static_ip_addr->netmask.u_addr.ip4.addr = connect_params->static_ip_settings->netmask.ip.v4;
-#elif LWIP_IPV4
-             static_ip_addr->gateway.addr = connect_params->static_ip_settings->gateway.ip.v4;
-             static_ip_addr->addr.addr    = connect_params->static_ip_settings->ip_address.ip.v4;
-             static_ip_addr->netmask.addr = connect_params->static_ip_settings->netmask.ip.v4;
-#elif LWIP_IPV6
-             return CY_RSLT_WCM_BAD_ARG;
-#endif
+             static_ip_addr->gateway.ip.v4 = connect_params->static_ip_settings->gateway.ip.v4;
+             static_ip_addr->addr.ip.v4    = connect_params->static_ip_settings->ip_address.ip.v4;
+             static_ip_addr->netmask.ip.v4 = connect_params->static_ip_settings->netmask.ip.v4;
+
         }
         else
         {
@@ -2752,10 +2521,6 @@ static cy_rslt_t convert_connect_params(const cy_wcm_connect_params_t *connect_p
         }
     }
     return CY_RSLT_SUCCESS;
-}
-
-static void donothing(void *arg)
-{
 }
 
 static bool is_connected_to_same_ap(const cy_wcm_connect_params_t *connect_params)
@@ -3009,7 +2774,6 @@ static void invoke_app_callbacks(cy_wcm_event_t event_type, cy_wcm_event_data_t*
     }
 }
 
-
 static void ap_callback_handler(void* arg)
 {
     cy_wcm_event_data_t link_event_data;
@@ -3045,7 +2809,7 @@ static void* ap_link_events_handler(whd_interface_t ifp, const whd_event_header_
          * For all other security types wait for WLC_E_AUTHORIZED event to set ap_event_data->event to CY_WCM_EVENT_STA_JOINED_SOFTAP.
          */
         if(ap_security == CY_WCM_SECURITY_OPEN || ap_security == CY_WCM_SECURITY_WEP_PSK || ap_security == CY_WCM_SECURITY_WEP_SHARED)
-        { 
+        {
             ap_event_data->event = CY_WCM_EVENT_STA_JOINED_SOFTAP;
         }
         else
@@ -3057,7 +2821,7 @@ static void* ap_link_events_handler(whd_interface_t ifp, const whd_event_header_
     }
     else if(event_header->event_type == WLC_E_AUTHORIZED)
     {
-        /* If the security type of AP is other than CY_WCM_SECURITY_OPEN, CY_WCM_SECURITY_WEP_PSK, CY_WCM_SECURITY_WEP_SHARED and 
+        /* If the security type of AP is other than CY_WCM_SECURITY_OPEN, CY_WCM_SECURITY_WEP_PSK, CY_WCM_SECURITY_WEP_SHARED and
          * WLC_E_AUTHORIZED event is received, then set ap_event_data->event to CY_WCM_EVENT_STA_JOINED_SOFTAP.
          */
         if(ap_security != CY_WCM_SECURITY_OPEN && ap_security != CY_WCM_SECURITY_WEP_PSK && ap_security != CY_WCM_SECURITY_WEP_SHARED)
@@ -3090,7 +2854,7 @@ static void* ap_link_events_handler(whd_interface_t ifp, const whd_event_header_
 
 static void* link_events_handler(whd_interface_t ifp, const whd_event_header_t *event_header, const uint8_t *event_data, void *handler_user_data)
 {
-    uint8_t connection_status;
+    uint32_t connection_status;
     cy_rslt_t res = CY_RSLT_SUCCESS;
     UNUSED_PARAMETER(res);
     cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Link event (type, status, reason, flags) %u %u %u %u\n", (unsigned int)event_header->event_type, (unsigned int)event_header->status,
@@ -3146,7 +2910,7 @@ static void* link_events_handler(whd_interface_t ifp, const whd_event_header_t *
                 }
                 /* Notify application connecting */
                 connection_status = CY_WCM_EVENT_CONNECTING;
-                if((res = cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, &connection_status)) != CY_RSLT_SUCCESS)
+                if((res = cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, (void *)connection_status)) != CY_RSLT_SUCCESS)
                 {
                     cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "L%d : %s() : ERROR : Failed to send connection status. Err = [%lu]\r\n", __LINE__, __FUNCTION__, res);
                 }
@@ -3167,10 +2931,10 @@ static void* link_events_handler(whd_interface_t ifp, const whd_event_header_t *
                 /* Check if the beacon is lost */
                 else if (event_header->reason == WLC_E_LINK_BCN_LOSS)
                 {
-                    link_down();
+                    link_down(event_header->reason);
                     cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Beacon Lost notify application that WCM will retry to connect to the AP!\n");
                     invoke_app_callbacks(CY_WCM_EVENT_INITIATED_RETRY, NULL);
-     
+
                     /* Try to join the AP again */
                     handshake_timeout_handler(0);
                 }
@@ -3185,14 +2949,14 @@ static void* link_events_handler(whd_interface_t ifp, const whd_event_header_t *
                     cy_rtos_stop_timer(&sta_retry_timer);
                     retry_backoff_timeout = DEFAULT_RETRY_BACKOFF_TIMEOUT_IN_MS;
 
-                    link_down();
+                    link_down(event_header->reason);
                 }
             }
             break;
 
         case WLC_E_DEAUTH_IND:
         case WLC_E_DISASSOC_IND:
-            link_down();
+            link_down(event_header->reason);
             break;
 
         case WLC_E_PSK_SUP:
@@ -3392,11 +3156,7 @@ static void link_up( void )
     else
     {
         /* Do not renew DHCP if the link was connected through static IP */
-#if LWIP_IPV4 && LWIP_IPV6
-        if(connected_ap_details.static_ip.addr.u_addr.ip4.addr != 0)
-#elif LWIP_IPV4
-        if(connected_ap_details.static_ip.addr.addr != 0)
-#endif
+        if(connected_ap_details.static_ip.addr.ip.v4 != 0)
         {
             return;
         }
@@ -3413,18 +3173,19 @@ static void link_up( void )
 static void sta_link_up_handler(void* arg)
 {
     UNUSED_PARAMETER(arg);
-    cy_lwip_nw_interface_t nw_interface;
-    nw_interface.whd_iface = whd_ifs[CY_WCM_INTERFACE_TYPE_STA];
-    nw_interface.role = CY_LWIP_STA_NW_INTERFACE;
-    cy_lwip_network_up(&nw_interface);
-    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Notify application that network is connected again!\n");
-    invoke_app_callbacks(CY_WCM_EVENT_RECONNECTED, NULL);
+    cy_rslt_t res = CY_RSLT_SUCCESS;
+    res = cy_network_ip_up(nw_sta_if_ctx);
+    if(res == CY_RSLT_SUCCESS)
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Notify application that network is connected again!\n");
+        invoke_app_callbacks(CY_WCM_EVENT_RECONNECTED, NULL);
+    }
 }
 
 static void notify_connection_status(void* arg)
 {
-    uint8_t *val = (uint8_t*)arg;
-    cy_wcm_event_t connect_status = (cy_wcm_event_t) *val;
+    uint32_t val = (uint32_t)arg;
+    cy_wcm_event_t connect_status = (cy_wcm_event_t)val;
     cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Notify connection status = %d!\n", connect_status);
     invoke_app_callbacks(connect_status, NULL);
 }
@@ -3432,21 +3193,17 @@ static void notify_connection_status(void* arg)
 static void sta_link_up_renew_handler(void* arg)
 {
     UNUSED_PARAMETER(arg);
-#if LWIP_IPV4
-    cy_lwip_nw_interface_t nw_interface;
-    nw_interface.role = CY_LWIP_STA_NW_INTERFACE;
-    nw_interface.whd_iface = whd_ifs[CY_WCM_INTERFACE_TYPE_STA];
-    cy_lwip_dhcp_renew(&nw_interface);
-#endif
+    cy_network_dhcp_renew(nw_sta_if_ctx);
+
 }
 
-static void link_down(void)
+static void link_down(uint32_t reason)
 {
     cy_rslt_t res = CY_RSLT_SUCCESS;
     UNUSED_PARAMETER(res);
     if (wcm_sta_link_up)
     {
-        if((res = cy_worker_thread_enqueue(&cy_wcm_worker_thread, sta_link_down_handler, NULL)) != CY_RSLT_SUCCESS)
+        if((res = cy_worker_thread_enqueue(&cy_wcm_worker_thread, sta_link_down_handler, (void *)reason)) != CY_RSLT_SUCCESS)
         {
             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "L%d : %s() : ERROR : Failed to handle link down event. Err = [%lu]\r\n", __LINE__, __FUNCTION__, res);
         }
@@ -3456,14 +3213,17 @@ static void link_down(void)
 
 static void sta_link_down_handler(void* arg)
 {
-    cy_lwip_nw_interface_t nw_interface;
-    UNUSED_PARAMETER(arg);
+    cy_rslt_t res = CY_RSLT_SUCCESS;
+    cy_wcm_event_data_t event_data;
 
-    nw_interface.whd_iface = whd_ifs[CY_WCM_INTERFACE_TYPE_STA];
-    nw_interface.role = CY_LWIP_STA_NW_INTERFACE;
-    cy_lwip_network_down(&nw_interface);
-    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Notify application that network is down!\n");
-    invoke_app_callbacks(CY_WCM_EVENT_DISCONNECTED, NULL);
+    res = cy_network_ip_down(nw_sta_if_ctx);
+    if(res == CY_RSLT_SUCCESS)
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Notify application that network is down!\n");
+        /* Store the reason for disconnection as received from WHD */
+        event_data.reason = (cy_wcm_reason_code)arg;
+        invoke_app_callbacks(CY_WCM_EVENT_DISCONNECTED, &event_data);
+    }
 }
 static void hanshake_retry_timer(cy_timer_callback_arg_t arg)
 {
@@ -3491,11 +3251,11 @@ static void handshake_timeout_handler(cy_timer_callback_arg_t arg)
 
 static void handshake_error_callback(void *arg)
 {
-    cy_rslt_t res;
-    uint8_t   retries;
-    uint32_t  ext_sae_support = 0;
-    uint8_t   connection_status;
-    
+    cy_rslt_t  res;
+    uint8_t    retries;
+    uint32_t   ext_sae_support = 0;
+    uint32_t   connection_status;
+
     UNUSED_PARAMETER(arg);
 
     /* stop the retry timer */
@@ -3507,7 +3267,7 @@ static void handshake_error_callback(void *arg)
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Unable to acquire WCM mutex \n");
         return;
     }
-    if (is_disconnect_triggered == true || cy_wcm_is_connected_to_ap())
+    if (is_disconnect_triggered == true || is_connect_triggered == true || cy_wcm_is_connected_to_ap())
     {
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO,
         "is_disconnect_triggered(%d),cy_wcm_is_connected_to_ap()(%d) exit handshake_error_callback\n",
@@ -3525,7 +3285,7 @@ static void handshake_error_callback(void *arg)
         return;
     }
     cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "wcm mutex unlocked %s %d\r\n", __FILE__, __LINE__);
-    
+
     cy_rtos_delay_milliseconds(100);
 
     for(retries = 0; retries < JOIN_RETRY_ATTEMPTS; retries++)
@@ -3539,7 +3299,7 @@ static void handshake_error_callback(void *arg)
         }
 
         whd_wifi_get_fwcap(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], &ext_sae_support);
-        if (( ext_sae_support & (1 << WHD_FWCAP_SAE_EXT)) && 
+        if (( ext_sae_support & (1 << WHD_FWCAP_SAE_EXT)) &&
            ((connected_ap_details.security == WHD_SECURITY_WPA3_SAE) || (connected_ap_details.security == WHD_SECURITY_WPA3_WPA2_PSK)))
         {
              cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "calling wpa3_supplicant_sae_start\n");
@@ -3553,9 +3313,9 @@ static void handshake_error_callback(void *arg)
              cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "wpa3_supplicant_sae_start returned res=%d\n", res);
         }
 
-        if (is_disconnect_triggered == true || cy_wcm_is_connected_to_ap())
+        if (is_disconnect_triggered == true || is_connect_triggered == true || cy_wcm_is_connected_to_ap())
         {
-            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, 
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO,
             "is_disconnect_triggered(%d),cy_wcm_is_connected_to_ap()(%d) exit handshake_error_callback\n",
             is_disconnect_triggered, cy_wcm_is_connected_to_ap());
             goto exit;
@@ -3614,12 +3374,12 @@ static void handshake_error_callback(void *arg)
         {
             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "whd_wifi_join failed : %ld \n", res);
             connection_status = CY_WCM_EVENT_CONNECT_FAILED;
-            if((cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, &connection_status)) != CY_RSLT_SUCCESS)
+            if((cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, (void *)connection_status)) != CY_RSLT_SUCCESS)
             {
                 cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Failed to send connection status. Err = [%lu]\r\n", res);
             }
         }
-        
+
         if (cy_rtos_set_mutex(&wcm_mutex) != CY_RSLT_SUCCESS)
         {
             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Mutex release error \n");
@@ -3629,7 +3389,7 @@ static void handshake_error_callback(void *arg)
     }
 
     /* Register retry with network worker thread */
-    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "L%d : %s() : Retrying to join with back-off [%ld secs]\r\n", __LINE__, __FUNCTION__, retry_backoff_timeout);
+    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "L%d : %s() : Retrying to join with back-off [%ld milliseconds]\r\n", __LINE__, __FUNCTION__, retry_backoff_timeout);
     res = cy_rtos_start_timer(&sta_retry_timer, retry_backoff_timeout);
     if (res != CY_RSLT_SUCCESS)
     {
@@ -3638,7 +3398,7 @@ static void handshake_error_callback(void *arg)
     /* Update backoff timeout */
     retry_backoff_timeout = (retry_backoff_timeout < MAX_RETRY_BACKOFF_TIMEOUT_IN_MS)? (uint32_t)(retry_backoff_timeout * 2) : MAX_RETRY_BACKOFF_TIMEOUT_IN_MS;
     return;
-    
+
 exit:
     if (cy_rtos_set_mutex(&wcm_mutex) != CY_RSLT_SUCCESS)
     {
@@ -3648,7 +3408,7 @@ exit:
     cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "wcm mutex unlocked %s %d\r\n", __FILE__, __LINE__);
 }
 
-static void lwip_ip_change_callback(void *arg)
+static void lwip_ip_change_callback(cy_network_interface_context *iface_context, void *arg)
 {
     UNUSED_PARAMETER(arg);
     cy_rslt_t result;
@@ -3664,34 +3424,21 @@ static void lwip_ip_change_callback(void *arg)
 }
 void notify_ip_change(void *arg)
 {
-#if LWIP_IPV4
     cy_wcm_event_data_t link_event_data;
-    ip4_addr_t* addr = NULL;
-    struct netif *net_interface = NULL;
-    UNUSED_VARIABLE(addr);
-
-    uint32_t ipv4_addr;
+    cy_rslt_t res = CY_RSLT_SUCCESS;
+    cy_nw_ip_address_t ipv4_addr;
     UNUSED_PARAMETER(arg);
 
     cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Notify application that ip has changed!\n");
     memset(&link_event_data, 0, sizeof(cy_wcm_event_data_t));
-    net_interface = cy_lwip_get_interface(CY_LWIP_STA_NW_INTERFACE);
-#if LWIP_IPV6
-    ipv4_addr = net_interface->ip_addr.u_addr.ip4.addr;
-    addr = &net_interface->ip_addr.u_addr.ip4;
-#else
-    ipv4_addr = net_interface->ip_addr.addr;
-    addr = &net_interface->ip_addr;
-#endif
+    res = cy_network_get_ip_address(nw_sta_if_ctx, &ipv4_addr);
 
-    if (ipv4_addr != 0)
+    if (res == CY_RSLT_SUCCESS)
     {
         link_event_data.ip_addr.version = CY_WCM_IP_VER_V4;
-        link_event_data.ip_addr.ip.v4   = ipv4_addr;
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "IP Address %s assigned \n", ip4addr_ntoa(addr));
+        link_event_data.ip_addr.ip.v4   = ipv4_addr.ip.v4;
         invoke_app_callbacks(CY_WCM_EVENT_IP_CHANGED, &link_event_data);
     }
-#endif
 }
 
 
@@ -3699,14 +3446,14 @@ static bool check_if_platform_supports_band(whd_interface_t interface, cy_wcm_wi
 {
     whd_band_list_t band_list;
     uint32_t res;
-    
+
     res = whd_wifi_get_ioctl_buffer(interface, WLC_GET_BANDLIST, (uint8_t*)&band_list, sizeof(whd_band_list_t));
     if(res != CY_RSLT_SUCCESS)
     {
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Function whd_wifi_get_ioctl_buffer failed at line %d with result %u \n ", __LINE__, res);
         return false;
     }
-    
+
     cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "band_list.current_band = %ld, band_list.number_of_bands = %ld , requested band = %d \n ", band_list.current_band, band_list.number_of_bands, requested_band);
 
      /*
@@ -3727,37 +3474,66 @@ static bool check_if_platform_supports_band(whd_interface_t interface, cy_wcm_wi
     return true;
 }
 
-static cy_rslt_t network_up(whd_interface_t interface, cy_lwip_nw_interface_role_t role, ip_static_addr_t *static_ip_ptr)
+static cy_rslt_t network_up(whd_interface_t interface, cy_network_hw_interface_type_t iface_type, cy_network_static_ip_addr_t *static_ip_ptr)
 {
     cy_rslt_t res = CY_RSLT_SUCCESS;
-    cy_lwip_nw_interface_t nw_interface;
-
-    nw_interface.role = role;
-    nw_interface.whd_iface = interface;
-    if ((res = cy_lwip_add_interface(&nw_interface, static_ip_ptr)) != CY_RSLT_SUCCESS)
+    if(iface_type == CY_NETWORK_WIFI_STA_INTERFACE)
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "failed to add the network interface \n");
-        return res;
+        res = cy_network_add_nw_interface(CY_NETWORK_WIFI_STA_INTERFACE, 0, whd_ifs[CY_WCM_INTERFACE_TYPE_STA], NULL, static_ip_ptr, &nw_sta_if_ctx);
+        if (res != CY_RSLT_SUCCESS)
+        {
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "failed to add the network interface \n");
+            return res;
+        }
+        if((res = cy_network_ip_up(nw_sta_if_ctx)) != CY_RSLT_SUCCESS)
+        {
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "failed to bring up the network stack \n");
+            res = cy_network_remove_nw_interface(nw_sta_if_ctx);
+            if(res != CY_RSLT_SUCCESS)
+            {
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "failed to remove the network interface \n");
+            }
+            return res;
+        }
+        is_sta_network_up = true;
     }
-
-    if((res = cy_lwip_network_up(&nw_interface)) != CY_RSLT_SUCCESS)
+    else if(iface_type == CY_NETWORK_WIFI_AP_INTERFACE)
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "failed to bring up the network stack \n");
-        return res;
+        res = cy_network_add_nw_interface(CY_NETWORK_WIFI_AP_INTERFACE, 0, whd_ifs[CY_WCM_INTERFACE_TYPE_AP], NULL, static_ip_ptr, &nw_ap_if_ctx);
+        if (res != CY_RSLT_SUCCESS)
+        {
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "failed to add the network interface \n");
+            return res;
+        }
+        if((res = cy_network_ip_up(nw_ap_if_ctx)) != CY_RSLT_SUCCESS)
+        {
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "failed to bring up the network stack \n");
+            res = cy_network_remove_nw_interface(nw_ap_if_ctx);
+            if(res != CY_RSLT_SUCCESS)
+            {
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "failed to remove the network interface \n");
+            }
+            return res;
+        }
+        is_ap_network_up = true;
     }
-    (role == CY_LWIP_STA_NW_INTERFACE) ? (is_sta_network_up = true) : (is_ap_network_up = true);
     return res;
 }
 
-static void network_down(whd_interface_t interface, cy_lwip_nw_interface_role_t role)
+static void network_down(whd_interface_t interface, cy_network_hw_interface_type_t iface_type)
 {
-    cy_lwip_nw_interface_t nw_interface;
-
-    nw_interface.role = role;
-    nw_interface.whd_iface = interface;
-    cy_lwip_network_down(&nw_interface);
-    cy_lwip_remove_interface(&nw_interface);
-    (role == CY_LWIP_STA_NW_INTERFACE) ? (is_sta_network_up = false) : (is_ap_network_up = false);
+    if(iface_type == CY_NETWORK_WIFI_STA_INTERFACE)
+    {
+        cy_network_ip_down(nw_sta_if_ctx);
+        cy_network_remove_nw_interface(nw_sta_if_ctx);
+        is_sta_network_up = false;
+    }
+    else
+    {
+        cy_network_ip_down(nw_ap_if_ctx);
+        cy_network_remove_nw_interface(nw_ap_if_ctx);
+        is_ap_network_up = false;
+    }
 }
 
 static whd_security_t wcm_to_whd_security(cy_wcm_security_t sec)
@@ -3943,7 +3719,7 @@ static cy_wcm_bss_type_t whd_to_wcm_bss_type(whd_bss_type_t bss_type)
 }
 
 static void read_ap_config(const cy_wcm_ap_config_t *ap_config, whd_ssid_t *ssid,
-                              uint8_t **key, uint8_t *keylen, whd_security_t *security, ip_static_addr_t *static_ip_addr)
+                              uint8_t **key, uint8_t *keylen, whd_security_t *security, cy_network_static_ip_addr_t *static_ip_addr)
 {
     ssid->length = (uint8_t)strlen((char*)ap_config->ap_credentials.SSID);
     memcpy(&ssid->value, ap_config->ap_credentials.SSID, ssid->length + 1);
@@ -3952,18 +3728,12 @@ static void read_ap_config(const cy_wcm_ap_config_t *ap_config, whd_ssid_t *ssid
     *key = (uint8_t*)ap_config->ap_credentials.password;
     *security = wcm_to_whd_security(ap_config->ap_credentials.security);
 
-    memset(static_ip_addr, 0, sizeof(ip_static_addr_t));
+    memset(static_ip_addr, 0, sizeof(cy_network_static_ip_addr_t));
     if(ap_config->ip_settings.gateway.version == CY_WCM_IP_VER_V4)
     {
-#if LWIP_IPV4 && LWIP_IPV6
-        static_ip_addr->gateway.u_addr.ip4.addr = ap_config->ip_settings.gateway.ip.v4;
-        static_ip_addr->addr.u_addr.ip4.addr    = ap_config->ip_settings.ip_address.ip.v4;
-        static_ip_addr->netmask.u_addr.ip4.addr = ap_config->ip_settings.netmask.ip.v4;
-#elif LWIP_IPV4
-        static_ip_addr->gateway.addr = ap_config->ip_settings.gateway.ip.v4;
-        static_ip_addr->addr.addr    = ap_config->ip_settings.ip_address.ip.v4;
-        static_ip_addr->netmask.addr = ap_config->ip_settings.netmask.ip.v4;
-#endif
+        static_ip_addr->gateway.ip.v4 = ap_config->ip_settings.gateway.ip.v4;
+        static_ip_addr->addr.ip.v4    = ap_config->ip_settings.ip_address.ip.v4;
+        static_ip_addr->netmask.ip.v4 = ap_config->ip_settings.netmask.ip.v4;
     }
 }
 
@@ -4162,19 +3932,19 @@ cy_rslt_t cy_wcm_set_ap_ip_setting(cy_wcm_ip_setting_t *ap_ip, const char *ip_ad
 {
     cy_rslt_t          res = CY_RSLT_SUCCESS;
     cy_nw_ip_address_t temp;
-    
+
     if(ap_ip == NULL || ip_addr == NULL || netmask == NULL || gateway_addr == NULL)
     {
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Null value passed to cy_wcm_ap_ip_setting \n");
         return CY_RSLT_WCM_BAD_ARG;
     }
-    
+
     if((ver != CY_WCM_IP_VER_V4) && (ver != CY_WCM_IP_VER_V6))
     {
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Invalid version passed to cy_wcm_set_ap_ip_setting \n");
-        return CY_RSLT_WCM_BAD_ARG;    
+        return CY_RSLT_WCM_BAD_ARG;
     }
-    
+
     cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "wcm mutex locked %s %d\r\n", __FILE__, __LINE__);
     if((res = cy_rtos_get_mutex(&wcm_mutex, CY_WCM_MAX_MUTEX_WAIT_TIME_MS)) != CY_RSLT_SUCCESS)
     {
@@ -4184,10 +3954,10 @@ cy_rslt_t cy_wcm_set_ap_ip_setting(cy_wcm_ip_setting_t *ap_ip, const char *ip_ad
 
     cy_nw_aton(ip_addr,&temp);
     ap_ip->ip_address.ip.v4 =  temp.ip.v4;
-    
+
     cy_nw_aton(netmask,&temp);
     ap_ip->netmask.ip.v4 =  temp.ip.v4;
-    
+
     cy_nw_aton(gateway_addr,&temp);
     ap_ip->gateway.ip.v4 =  temp.ip.v4;
 

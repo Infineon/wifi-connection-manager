@@ -159,7 +159,11 @@ void cy_sha2_hmac_finish(cy_sha2_hmac_context * ctx, unsigned char output[32])
      * it is safe to initialize is224 with 0.
      */
     is224 = 0;
-    hlen = (is224 == 0) ? 32 : 28;
+    /* CID 465080: Deadcode. Since is224 is initialized with 0, 
+       hlen = (is224 == 0) ? 32 : 28 will never evaluate to 28.
+       Hence initializing hlen to 32 directly.
+    */
+    hlen = 32;
 
     mbedtls_sha256_finish_ret(&ctx->ctx, tmpbuf);
     mbedtls_sha256_starts_ret(&ctx->ctx, is224);

@@ -40,7 +40,6 @@
 #include "whd_types.h"
 #include "whd.h"
 #include "whd_buffer_api.h"
-#include "cy_lwip.h"
 
 #ifdef __cplusplus
 extern "C" {

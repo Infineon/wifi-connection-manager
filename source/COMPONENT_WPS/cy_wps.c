@@ -58,7 +58,6 @@
 #include "whd_buffer_api.h"
 #include "whd_int.h"
 #include "whd_debug.h"
-#include "cy_lwip.h"
 #include "cy_wifimwcore_eapol.h"
 
 /******************************************************

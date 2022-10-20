@@ -42,7 +42,6 @@
 #include "cy_wcm_error.h"
 #include "cybsp_wifi.h"
 #include "cyabs_rtos.h"
-#include "cy_lwip.h"
 #include "whd.h"
 #include "whd_wifi_api.h"
 #include "whd_network_types.h"

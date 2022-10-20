@@ -1,5 +1,5 @@
 # Wi-Fi Connection Manager (WCM)
-WCM is a library which helps application developers to manage Wi-Fi Connectivity. The library provides a set of APIs that can be used to establish and monitor Wi-Fi connections on Cypress platforms that support Wi-Fi connectivity .
+WCM is a library which helps application developers to manage Wi-Fi Connectivity. The library provides a set of APIs that can be used to establish and monitor Wi-Fi connections on Cypress platforms that support Wi-Fi connectivity.
 
 The library APIs are thread-safe. The library monitors the Wi-Fi connection and can notifies connection state changes through an event notification mechanism. The library also provides APIs to connect to a Wi-Fi network using Wi-Fi Protected Setup (WPS) methods.
 
@@ -31,20 +31,26 @@ This library and its features are supported on the following Infineon platforms:
 
 ## Dependent Libraries
 This library depends on the following:
-* [Wi-Fi Middleware Core](https://github.com/Infineon/wifi-mw-core)
+* [wifi-core-freertos-lwip-mbedtls](https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls)
 * [Wi-Fi Host Driver](https://github.com/Infineon/wifi-host-driver)
 
 ## Quick Start
-* A set of pre-defined configuration files have been bundled with the wifi-mw-core library for FreeRTOS, lwIP, and mbed TLS. The developer is expected to review the configuration and make adjustments. See the "Quick Start" section in [README.md](https://github.com/Infineon/wifi-mw-core/blob/master/README.md).
+* To use wifi-connection-manager library for FreeRTOS, lwIP, and mbed TLS, the application should pull [wifi-core-freertos-lwip-mbedtls](https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls) library which will internally pull wifi-connection-manager, FreeRTOS, lwIP, mbed TLS and other dependent modules.
+To pull wifi-core-freertos-lwip-mbedtls create the following *.mtb* file
+   - *wifi-core-freertos-lwip-mbedtls.mtb:* https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls#latest-v1.X#$$ASSET_REPO$$/wifi-core-freertos-lwip-mbedtls/latest-v1.X
 
-* A set of COMPONENTS must be defined in the code example project's Makefile for this library. See the "Quick Start" section in [README.md](https://github.com/Infineon/wifi-mw-core/blob/master/README.md).
+* For existing Wi-Fi Connection Manager version 2.X users a [porting guide](https://Infineon.github.io/wifi-connection-manager/porting_guide.md) is available to migrate to Wi-Fi Connection Manager version 3.0
+
+* A set of pre-defined configuration files have been bundled with the wifi-core-freertos-lwip-mbedtls library for FreeRTOS, lwIP, and mbed TLS. The developer is expected to review the configuration and make adjustments. See the "Quick Start" section in [README.md](https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls/blob/master/README.md).
+
+* A set of COMPONENTS must be defined in the code example project's Makefile for this library. See the "Quick Start" section in [README.md](https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls/blob/master/README.md).
 
 * The WCM library disables all the debug log messages by default. To enable log messages, the application must perform the following:
 
  - Add the `ENABLE_WCM_LOGS` macro to the *DEFINES* in the code example's Makefile. The Makefile entry would look like as follows:
-  ```
-  DEFINES+=ENABLE_WCM_LOGS
-  ```
+   ```
+   DEFINES+=ENABLE_WCM_LOGS
+   ```
  
  - Call the `cy_log_init()` function provided by the *cy-log* module. cy-log is part of the *connectivity-utilities* library. 
  
@@ -59,6 +65,8 @@ This library depends on the following:
 * [Wi-Fi Connection Manager RELEASE.md](./RELEASE.md)
 
 * [Wi-Fi Connection Manager API Documentation](https://Infineon.github.io/wifi-connection-manager/api_reference_manual/html/index.html)
+
+* [Porting guide for Wi-Fi Connection Manager version 3.0](https://Infineon.github.io/wifi-connection-manager/porting_guide.md)
 
 * [Connectivity Utilities API documentation - for cy-log details](https://Infineon.github.io/connectivity-utilities/api_reference_manual/html/group__logging__utils.html)
 
