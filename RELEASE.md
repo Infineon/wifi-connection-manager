@@ -12,6 +12,9 @@ See the [README.md](./README.md) for a complete description of the Wi-Fi Connect
 
 ## Changelog
 
+### v3.0.1
+* General bug fixes.
+
 ### v3.0.0
 * Wifi-connection-manager is updated to be network stack agnostic.
 * Added support for CM0P core.
