@@ -16,6 +16,7 @@ var group__group__wcm__enums =
       [ "CY_WCM_SECURITY_WPA_AES_PSK", "group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a8abfafcfce522370ec60f90e60c289ca", null ],
       [ "CY_WCM_SECURITY_WPA_MIXED_PSK", "group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521adaed424cb449a2621e13a8360f9b2831", null ],
       [ "CY_WCM_SECURITY_WPA2_AES_PSK", "group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a772f5ab0cd577a4d8f9426be3123cefe", null ],
+      [ "CY_WCM_SECURITY_WPA2_AES_PSK_SHA256", "group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a3f854d6bab443e6278a815c66dc10bd4", null ],
       [ "CY_WCM_SECURITY_WPA2_TKIP_PSK", "group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a3b4bbec176138de64c97b85f3063f0eb", null ],
       [ "CY_WCM_SECURITY_WPA2_MIXED_PSK", "group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a076d68a0103ce4d2571bb00521ba8251", null ],
       [ "CY_WCM_SECURITY_WPA2_FBT_PSK", "group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a25100570908755c4f3fcf216a625b3e8", null ],
@@ -49,6 +50,11 @@ var group__group__wcm__enums =
       [ "CY_WCM_INTERFACE_TYPE_STA", "group__group__wcm__enums.html#ggac4c4ca6db8db6efdc3013b789a4c9cf8ae93c4aa9ce482c333a23bdc535df3208", null ],
       [ "CY_WCM_INTERFACE_TYPE_AP", "group__group__wcm__enums.html#ggac4c4ca6db8db6efdc3013b789a4c9cf8a0a2745fb6696e54ad284f17dbad8755f", null ],
       [ "CY_WCM_INTERFACE_TYPE_AP_STA", "group__group__wcm__enums.html#ggac4c4ca6db8db6efdc3013b789a4c9cf8a864e150cea33f5d4cae3e6834bf56f2e", null ]
+    ] ],
+    [ "cy_wcm_powersave_mode_t", "group__group__wcm__enums.html#ga1040bc30ffebcafe61bcb5ea677cd418", [
+      [ "CY_WCM_NO_POWERSAVE_MODE", "group__group__wcm__enums.html#gga1040bc30ffebcafe61bcb5ea677cd418ad22e3e589949227781fdac738127ab09", null ],
+      [ "CY_WCM_PM1_POWERSAVE_MODE", "group__group__wcm__enums.html#gga1040bc30ffebcafe61bcb5ea677cd418a6e8b00b1b5b85b3e33d72f5e5a84fa67", null ],
+      [ "CY_WCM_PM2_POWERSAVE_MODE", "group__group__wcm__enums.html#gga1040bc30ffebcafe61bcb5ea677cd418ade7a6071691b0bf90118296ea09d2dee", null ]
     ] ],
     [ "cy_wcm_scan_status_t", "group__group__wcm__enums.html#ga24a4ed65a9261c45abc8aa697eb2b8a2", [
       [ "CY_WCM_SCAN_INCOMPLETE", "group__group__wcm__enums.html#gga24a4ed65a9261c45abc8aa697eb2b8a2a01103577816da05a7b2b9521576c3c6e", null ],

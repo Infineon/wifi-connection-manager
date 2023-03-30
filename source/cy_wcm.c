@@ -1,5 +1,5 @@
 /*
- * Copyright 2022, Cypress Semiconductor Corporation (an Infineon company) or
+ * Copyright 2023, Cypress Semiconductor Corporation (an Infineon company) or
  * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
  *
  * This software, including source code, documentation and related
@@ -44,14 +44,387 @@
 #include "cy_wcm.h"
 #include "cy_wcm_log.h"
 #include "cy_wcm_error.h"
-#include "cybsp_wifi.h"
+#include "whd.h"
 #include "cyabs_rtos.h"
+#include "whd_chip_constants.h"
+
+/* Chip identifiers for WLAN CPUs */
+#define CY_WCM_WLAN_CHIP_ID_43907        (43907u)    /**< Chip Identifier for 43907 */
+#define CY_WCM_WLAN_CHIP_ID_43909        (43909u)    /**< Chip Identifier for 43909 */
+#define CY_WCM_WLAN_CHIP_ID_54907        (54907u)    /**< Chip Identifier for 54907 */
+
+
+/* Deepsleep time for WLAN CPU */
+#ifndef DEFAULT_PM2_SLEEP_RET_TIME
+#define DEFAULT_PM2_SLEEP_RET_TIME       (200)
+#endif
+
+#if defined(ENABLE_MULTICORE_CONN_MW) && defined(USE_VIRTUAL_API)
+
+#include <stdbool.h>
+#include "cy_wcm_internal.h"
+#include "cy_vcm_internal.h"
+
+/* This section is virtual-only implementation.
+ * The below APIs send the API request to the other core via IPC using the Virtual Connectivity Manager (VCM) library.
+ */
+
+static bool                      is_wcm_initialized = false;
+static cy_wcm_event_callback_t   virtual_wcm_event_handler[CY_WCM_MAXIMUM_CALLBACKS_COUNT];
+static bool                      is_virtual_event_handler_registered = false;
+static cy_mutex_t                event_handler_mutex;
+
+static void virtual_event_handler(void *arg)
+{
+    cy_rslt_t                       res;
+    uint8_t                         i;
+    cy_wcm_event_callback_t         event_cb;
+    cy_wcm_event_callback_params_t  *wcm_event;
+
+    wcm_event = (cy_wcm_event_callback_params_t *)arg;
+
+    cy_wcm_log_msg( CYLF_MIDDLEWARE, CY_LOG_DEBUG, "\n virtual_event_handler - Acquiring Mutex %p ", event_handler_mutex );
+    res = cy_rtos_get_mutex( &event_handler_mutex, CY_RTOS_NEVER_TIMEOUT );
+    if( res != CY_RSLT_SUCCESS )
+    {
+        cy_wcm_log_msg( CYLF_MIDDLEWARE, CY_LOG_ERR, "\ncy_rtos_get_mutex for Mutex %p failed with Error : [0x%X] ", event_handler_mutex, (unsigned int)res );
+        return;
+    }
+
+    /* Call the WCM callbacks registered by the application */
+    for ( i = 0; i < CY_WCM_MAXIMUM_CALLBACKS_COUNT; i++ )
+    {
+        if ( virtual_wcm_event_handler[i] != NULL )
+        {
+            event_cb = virtual_wcm_event_handler[i];
+            event_cb(wcm_event->event, wcm_event->event_data);
+        }
+    }
+
+    res = cy_rtos_set_mutex( &event_handler_mutex );
+    if( res != CY_RSLT_SUCCESS )
+    {
+        cy_wcm_log_msg( CYLF_MIDDLEWARE, CY_LOG_ERR, "\ncy_rtos_set_mutex for Mutex %p failed with Error : [0x%X] ", event_handler_mutex, (unsigned int)res );
+    }
+    cy_wcm_log_msg( CYLF_MIDDLEWARE, CY_LOG_DEBUG, "\n virtual_event_handler - Releasing Mutex %p ", event_handler_mutex );
+}
+
+static cy_rslt_t register_virtual_wcm_event_handler()
+{
+    CY_SECTION_SHAREDMEM
+    static cy_wcm_register_event_callback_params_t params;
+    cy_rslt_t result = CY_RSLT_SUCCESS;
+    cy_vcm_request_t   api_request;
+    cy_vcm_response_t  api_response;
+
+    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "First event callback registration from the secondary core \n");
+
+    params.event_callback = virtual_event_handler;
+    memset(&api_request, 0, sizeof(cy_vcm_request_t));
+    api_request.api_id = CY_VCM_API_WCM_REG_EVENT_CB;
+    api_request.params = &params;
+
+    result = cy_vcm_send_api_request(&api_request, &api_response);
+    if( result != CY_RSLT_SUCCESS )
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "cy_vcm_send_api_request failed for cy_wcm_register_event_callback \n");
+        return CY_RSLT_WCM_VCM_ERROR;
+    }
+    if(api_response.result == NULL)
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "api_response.result is NULL\n");
+        return CY_RSLT_WCM_VCM_ERROR;
+    }
+
+    is_virtual_event_handler_registered = true;
+
+    return (*((cy_rslt_t *)api_response.result));
+}
+
+static cy_rslt_t deregister_virtual_wcm_event_handler()
+{
+    CY_SECTION_SHAREDMEM
+    static cy_wcm_deregister_event_callback_params_t params;
+    cy_rslt_t result = CY_RSLT_SUCCESS;
+    cy_vcm_request_t   api_request;
+    cy_vcm_response_t  api_response;
+
+    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "De-register the callback with the secondary core as all WCM callbacks are removed \r\n");
+
+    params.event_callback = virtual_event_handler;
+    memset(&api_request, 0, sizeof(cy_vcm_request_t));
+    api_request.api_id = CY_VCM_API_WCM_DEREG_EVENT_CB;
+    api_request.params = &params;
+
+    result = cy_vcm_send_api_request(&api_request, &api_response);
+    if( result != CY_RSLT_SUCCESS )
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "cy_vcm_send_api_request failed for cy_wcm_deregister_event_callback \n");
+        return CY_RSLT_WCM_VCM_ERROR;
+    }
+    if(api_response.result == NULL)
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "api_response.result is NULL\n");
+        return CY_RSLT_WCM_VCM_ERROR;
+    }
+    is_virtual_event_handler_registered = false;
+
+    return (*((cy_rslt_t *)api_response.result));
+}
+
+cy_rslt_t cy_wcm_init(cy_wcm_config_t *config)
+{
+    cy_rslt_t res = CY_RSLT_SUCCESS;
+    int i;
+
+    UNUSED_PARAMETER(config);
+
+    if ( is_wcm_initialized == true )
+    {
+        cy_wcm_log_msg( CYLF_MIDDLEWARE, CY_LOG_INFO, "\n WCM library is already initialized. \n" );
+        return res;
+    }
+
+    res = cy_rtos_init_mutex2(&event_handler_mutex, false);
+    if ( res != CY_RSLT_SUCCESS )
+    {
+        cy_wcm_log_msg( CYLF_MIDDLEWARE, CY_LOG_ERR, "\n Failed to initialize mutex. Res: 0x%x\n", res );
+        return CY_RSLT_WCM_MUTEX_ERROR;
+    }
+
+    for ( i = 0; i < CY_WCM_MAXIMUM_CALLBACKS_COUNT; i++ )
+    {
+        virtual_wcm_event_handler[i] = NULL;
+    }
+
+    is_wcm_initialized = true;
+
+    return res;
+}
+
+uint8_t cy_wcm_is_connected_to_ap(void)
+{
+    cy_vcm_request_t   api_request;
+    cy_vcm_response_t  api_response;
+    cy_rslt_t          res = CY_RSLT_SUCCESS;
+    uint8_t            is_connected = 0;
+
+    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "cy_wcm_is_connected_to_ap starts in secondary core\n");
+
+    if( !is_wcm_initialized )
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init() \n");
+        return is_connected;
+    }
+
+    /* Set API request */
+    memset(&api_request, 0, sizeof(cy_vcm_request_t));
+    api_request.api_id = CY_VCM_API_WCM_IS_CONNECTED_AP;
+    api_request.params = NULL;
+
+    /* Send API request */
+    res = cy_vcm_send_api_request(&api_request, &api_response);
+    if( res != CY_RSLT_SUCCESS )
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "cy_vcm_send_api_request failed for cy_wcm_is_connected_to_ap\n");
+        return is_connected;
+    }
+    if( api_response.result == NULL )
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "api_response.result is NULL\n");
+        return is_connected;
+    }
+    is_connected = (*(uint8_t*)(api_response.result));
+    return is_connected;
+}
+
+cy_rslt_t cy_wcm_register_event_callback(cy_wcm_event_callback_t event_callback)
+{
+    cy_rslt_t         result;
+    uint8_t           i;
+
+    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "cy_wcm_register_event_callback starts in secondary core\n");
+
+    if( !is_wcm_initialized )
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init(). \n");
+        return CY_RSLT_WCM_NOT_INITIALIZED;
+    }
+
+    if( event_callback == NULL )
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Bad arguments to cy_wcm_register_event_callback(). \n");
+        return CY_RSLT_WCM_BAD_ARG;
+    }
+
+    cy_wcm_log_msg( CYLF_MIDDLEWARE, CY_LOG_DEBUG, "\n virtual_event_handler - Acquiring Mutex %p ", event_handler_mutex );
+    result = cy_rtos_get_mutex( &event_handler_mutex, CY_RTOS_NEVER_TIMEOUT );
+    if( result != CY_RSLT_SUCCESS )
+    {
+        cy_wcm_log_msg( CYLF_MIDDLEWARE, CY_LOG_ERR, "\ncy_rtos_get_mutex for Mutex %p failed with Error : [0x%X] ", event_handler_mutex, (unsigned int)result );
+        return CY_RSLT_WCM_MUTEX_ERROR;
+    }
+
+    if( is_virtual_event_handler_registered == false )
+    {
+        /* First register event api_request */
+        virtual_wcm_event_handler[0] = event_callback;
+
+        result = register_virtual_wcm_event_handler();
+        if( result != CY_RSLT_SUCCESS)
+        {
+            goto exit;
+        }
+    }
+    else
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Event callback registration from the secondary core \n");
+        for ( i = 0; i < CY_WCM_MAXIMUM_CALLBACKS_COUNT; i++ )
+        {
+            if ( virtual_wcm_event_handler[i] == NULL )
+            {
+                virtual_wcm_event_handler[i] = event_callback;
+                result = CY_RSLT_SUCCESS;
+                break;
+            }
+        }
+        if(i == CY_WCM_MAXIMUM_CALLBACKS_COUNT)
+        {
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Out of CY_WCM_MAXIMUM_CALLBACKS_COUNT \r\n");
+            result = CY_RSLT_WCM_OUT_OF_MEMORY;
+            goto exit;
+        }
+    }
+
+exit:
+    if( cy_rtos_set_mutex( &event_handler_mutex ) != CY_RSLT_SUCCESS )
+    {
+        cy_wcm_log_msg( CYLF_MIDDLEWARE, CY_LOG_ERR, "\ncy_rtos_set_mutex for Mutex %p failed with Error : [0x%X] ", event_handler_mutex, (unsigned int)result );
+    }
+    cy_wcm_log_msg( CYLF_MIDDLEWARE, CY_LOG_DEBUG, "\n virtual_event_handler - Releasing Mutex %p ", event_handler_mutex );
+
+    return result;
+}
+
+cy_rslt_t cy_wcm_deregister_event_callback(cy_wcm_event_callback_t event_callback)
+{
+    cy_rslt_t         result;
+    uint8_t           i;
+
+    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "cy_wcm_deregister_event_callback starts in secondary core\n");
+
+    if( !is_wcm_initialized )
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init(). \n");
+        return CY_RSLT_WCM_NOT_INITIALIZED;
+    }
+
+    if( event_callback == NULL )
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Bad arguments to cy_wcm_deregister_event_callback(). \n");
+        return CY_RSLT_WCM_BAD_ARG;
+    }
+
+    cy_wcm_log_msg( CYLF_MIDDLEWARE, CY_LOG_DEBUG, "\n virtual_event_handler - Acquiring Mutex %p ", event_handler_mutex );
+    result = cy_rtos_get_mutex( &event_handler_mutex, CY_RTOS_NEVER_TIMEOUT );
+    if( result != CY_RSLT_SUCCESS )
+    {
+        cy_wcm_log_msg( CYLF_MIDDLEWARE, CY_LOG_ERR, "\ncy_rtos_get_mutex for Mutex %p failed with Error : [0x%X] ", event_handler_mutex, (unsigned int)result );
+        return CY_RSLT_WCM_MUTEX_ERROR;
+    }
+
+    if(is_virtual_event_handler_registered == false)
+    {
+        /* No callbacks to remove */
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Unable to find callback to deregister \r\n");
+        result = CY_RSLT_WCM_BAD_ARG;
+        goto exit;
+    }
+    else
+    {
+        /* Remove the callback from the list if it exists */
+        for ( i = 0; i < CY_WCM_MAXIMUM_CALLBACKS_COUNT; i++ )
+        {
+            if ( virtual_wcm_event_handler[i] == event_callback )
+            {
+                virtual_wcm_event_handler[i] = NULL;
+                result = CY_RSLT_SUCCESS;
+                break;
+            }
+        }
+
+        if(i == CY_WCM_MAXIMUM_CALLBACKS_COUNT)
+        {
+            /* If i == CY_WCM_MAXIMUM_CALLBACKS_COUNT then the callback pointer does not exist in the list */
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Unable to find callback to deregister \r\n");
+            result = CY_RSLT_WCM_BAD_ARG;
+            goto exit;
+        }
+        else
+        {
+            /* Check if the list is empty after removing the callback */
+            for ( i = 0; i < CY_WCM_MAXIMUM_CALLBACKS_COUNT; i++ )
+            {
+                if ( virtual_wcm_event_handler[i] != NULL )
+                {
+                    break;
+                }
+            }
+            /* If i == CY_WCM_MAXIMUM_CALLBACKS_COUNT then the list is empty. So de-register the callback */
+            if(i == CY_WCM_MAXIMUM_CALLBACKS_COUNT)
+            {
+                result = deregister_virtual_wcm_event_handler();
+            }
+        }
+    }
+
+exit:
+    if( cy_rtos_set_mutex( &event_handler_mutex ) != CY_RSLT_SUCCESS )
+    {
+        cy_wcm_log_msg( CYLF_MIDDLEWARE, CY_LOG_ERR, "\ncy_rtos_set_mutex for Mutex %p failed with Error : [0x%X] ", event_handler_mutex, (unsigned int)result );
+    }
+    cy_wcm_log_msg( CYLF_MIDDLEWARE, CY_LOG_DEBUG, "\n virtual_event_handler - Releasing Mutex %p ", event_handler_mutex );
+
+    return result;
+}
+
+cy_rslt_t cy_wcm_deinit( void )
+{
+    cy_rslt_t res = CY_RSLT_SUCCESS;
+
+    if ( is_wcm_initialized == false )
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init(). \n");
+        return CY_RSLT_WCM_NOT_INITIALIZED;
+    }
+
+    res = cy_rtos_deinit_mutex( &event_handler_mutex );
+    if( res != CY_RSLT_SUCCESS )
+    {
+        cy_wcm_log_msg( CYLF_MIDDLEWARE, CY_LOG_ERR, "\ncy_rtos_deinit_mutex failed with Error : [0x%X] ", (unsigned int)res );
+        return CY_RSLT_WCM_MUTEX_ERROR;
+    }
+
+    is_wcm_initialized = false;
+
+    return res;
+}
+
+cy_rslt_t cy_wcm_get_whd_interface(cy_wcm_interface_t interface_type, whd_interface_t *whd_iface)
+{
+    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "cy_wcm_get_whd_interface is not supported on secondary core \n");
+    return CY_RSLT_WCM_UNSUPPORTED_API;
+}
+
+#elif (!defined(ENABLE_MULTICORE_CONN_MW)) || (defined(ENABLE_MULTICORE_CONN_MW) && !defined(USE_VIRTUAL_API))
+/* This section is full-stack implementation. */
+
+#include "cybsp_wifi.h"
 #include "cy_worker_thread.h"
 #include "cy_network_mw_core.h"
 #include "cy_chip_constants.h"
 
 /* Wi-Fi Host driver includes. */
-#include "whd.h"
 #include "whd_wifi_api.h"
 #include "whd_network_types.h"
 #include "whd_buffer_api.h"
@@ -105,7 +478,7 @@ extern cy_rslt_t wpa3_supplicant_sae_start (uint8_t *ssid, uint8_t ssid_len, uin
 #define PING_IF_NAME_LEN                            (6)
 #define PING_RESPONSE_LEN                           (64)
 #define SCAN_BSSID_ARR_LENGTH                       (50)
-#define MAX_SCAN_RETRY                              (5)
+#define MAX_SCAN_RETRY                              (20)
 
 /* Macro for 43012 statistics */
 #define WL_CNT_VER_30                               (30)
@@ -187,6 +560,7 @@ static bool wcm_sta_link_up            = false;
 static bool is_soft_ap_up              = false;
 static bool is_sta_network_up          = false;
 static bool is_ap_network_up           = false;
+static bool is_sta_interface_created   = false;
 static whd_security_t                    sta_security_type;
 static cy_worker_thread_info_t           cy_wcm_worker_thread;
 static bool is_olm_initialized         = false;
@@ -434,7 +808,7 @@ cy_rslt_t cy_wcm_deinit()
 
     if(!is_wcm_initalized)
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized \n");
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init(). \n");
         return CY_RSLT_WCM_NOT_INITIALIZED;
     }
 
@@ -514,7 +888,7 @@ cy_rslt_t cy_wcm_start_scan(cy_wcm_scan_result_callback_t callback, void *user_d
 
     if(!is_wcm_initalized)
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM STA interface is not initialized \n");
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init(). \n");
         return CY_RSLT_WCM_NOT_INITIALIZED;
     }
 
@@ -657,7 +1031,7 @@ cy_rslt_t cy_wcm_stop_scan()
 
     if(!is_wcm_initalized)
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized to initialize call cy_wcm_init() \n");
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init(). \n");
         return CY_RSLT_WCM_NOT_INITIALIZED;
     }
 
@@ -713,16 +1087,26 @@ exit:
 cy_rslt_t cy_wcm_register_event_callback(cy_wcm_event_callback_t event_callback)
 {
     uint8_t i;
+    cy_rslt_t result = CY_RSLT_SUCCESS;
 
     if( !is_wcm_initalized )
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized, to initialize call cy_wcm_init() \n");
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init(). \n");
         return CY_RSLT_WCM_NOT_INITIALIZED;
     }
 
     if( event_callback == NULL )
     {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Bad arguments to cy_wcm_register_event_callback(). \n");
         return CY_RSLT_WCM_BAD_ARG;
+    }
+
+    cy_wcm_log_msg( CYLF_MIDDLEWARE, CY_LOG_DEBUG, "\n wcm_mutex - Acquiring Mutex %p ", wcm_mutex );
+    result = cy_rtos_get_mutex( &wcm_mutex, CY_RTOS_NEVER_TIMEOUT );
+    if( result != CY_RSLT_SUCCESS )
+    {
+        cy_wcm_log_msg( CYLF_MIDDLEWARE, CY_LOG_ERR, "\ncy_rtos_get_mutex for Mutex %p failed with Error : [0x%X] ", wcm_mutex, (unsigned int)result );
+        return CY_RSLT_WCM_MUTEX_ERROR;
     }
 
     for ( i = 0; i < CY_WCM_MAXIMUM_CALLBACKS_COUNT; i++ )
@@ -730,27 +1114,50 @@ cy_rslt_t cy_wcm_register_event_callback(cy_wcm_event_callback_t event_callback)
         if ( wcm_event_handler[i] == NULL )
         {
             wcm_event_handler[i] = event_callback;
-            return CY_RSLT_SUCCESS;
+            break;
         }
     }
 
-    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Out of CY_WCM_MAXIMUM_CALLBACKS_COUNT \r\n");
-    return CY_RSLT_WCM_OUT_OF_MEMORY;
+    if( i == CY_WCM_MAXIMUM_CALLBACKS_COUNT )
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Out of CY_WCM_MAXIMUM_CALLBACKS_COUNT \r\n");
+        result = CY_RSLT_WCM_OUT_OF_MEMORY;
+        goto exit;
+    }
+
+exit:
+    if( cy_rtos_set_mutex( &wcm_mutex ) != CY_RSLT_SUCCESS )
+    {
+        cy_wcm_log_msg( CYLF_MIDDLEWARE, CY_LOG_ERR, "\ncy_rtos_set_mutex for Mutex %p failed with Error : [0x%X] ", wcm_mutex, (unsigned int)result );
+    }
+    cy_wcm_log_msg( CYLF_MIDDLEWARE, CY_LOG_DEBUG, "\n wcm_mutex - Releasing Mutex %p ", wcm_mutex );
+
+    return result;
 }
 
 cy_rslt_t cy_wcm_deregister_event_callback(cy_wcm_event_callback_t event_callback)
 {
     uint8_t i;
+    cy_rslt_t result = CY_RSLT_SUCCESS;
 
     if( !is_wcm_initalized )
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized, to initialize call cy_wcm_init() \n");
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init(). \n");
         return CY_RSLT_WCM_NOT_INITIALIZED;
     }
 
     if( event_callback == NULL )
     {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Bad arguments to cy_wcm_register_event_callback(). \n");
         return CY_RSLT_WCM_BAD_ARG;
+    }
+
+    cy_wcm_log_msg( CYLF_MIDDLEWARE, CY_LOG_DEBUG, "\n wcm_mutex - Acquiring Mutex %p ", wcm_mutex );
+    result = cy_rtos_get_mutex( &wcm_mutex, CY_RTOS_NEVER_TIMEOUT );
+    if( result != CY_RSLT_SUCCESS )
+    {
+        cy_wcm_log_msg( CYLF_MIDDLEWARE, CY_LOG_ERR, "\ncy_rtos_get_mutex for Mutex %p failed with Error : [0x%X] ", wcm_mutex, (unsigned int)result );
+        return CY_RSLT_WCM_MUTEX_ERROR;
     }
 
     for ( i = 0; i < CY_WCM_MAXIMUM_CALLBACKS_COUNT; i++ )
@@ -758,12 +1165,25 @@ cy_rslt_t cy_wcm_deregister_event_callback(cy_wcm_event_callback_t event_callbac
         if ( wcm_event_handler[i] == event_callback )
         {
             memset( &wcm_event_handler[i], 0, sizeof( cy_wcm_event_callback_t ) );
-            return CY_RSLT_SUCCESS;
+            break;
         }
     }
 
-    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Unable to find callback to deregister \r\n");
-    return CY_RSLT_WCM_BAD_ARG;
+    if( i == CY_WCM_MAXIMUM_CALLBACKS_COUNT )
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Unable to find callback to deregister \r\n");
+        result = CY_RSLT_WCM_BAD_ARG;
+        goto exit;
+    }
+
+exit:
+    if( cy_rtos_set_mutex( &wcm_mutex ) != CY_RSLT_SUCCESS )
+    {
+        cy_wcm_log_msg( CYLF_MIDDLEWARE, CY_LOG_ERR, "\ncy_rtos_set_mutex for Mutex %p failed with Error : [0x%X] ", wcm_mutex, (unsigned int)result );
+    }
+    cy_wcm_log_msg( CYLF_MIDDLEWARE, CY_LOG_DEBUG, "\n wcm_mutex - Releasing Mutex %p ", wcm_mutex );
+
+    return result;
 }
 
 /* whd scan callback to find the security type when user has not
@@ -833,10 +1253,12 @@ exit:
 cy_rslt_t cy_wcm_scan_security_type(void *user_data)
 {
     cy_rslt_t res = CY_RSLT_SUCCESS;
+    cy_wcm_connect_params_t *connect_params = (cy_wcm_connect_params_t*)user_data;
+    whd_ssid_t optional_ssid;
 
     if(!is_wcm_initalized)
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM STA interface is not initialized \n");
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init(). \n");
         return CY_RSLT_WCM_NOT_INITIALIZED;
     }
 
@@ -853,8 +1275,11 @@ cy_rslt_t cy_wcm_scan_security_type(void *user_data)
         goto exit;
     }
 
+    optional_ssid.length = (uint8_t)strlen((char*)connect_params->ap_credentials.SSID);
+    memcpy(optional_ssid.value, connect_params->ap_credentials.SSID, optional_ssid.length + 1);
+
     res = whd_wifi_scan(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], WHD_SCAN_TYPE_ACTIVE, WHD_BSS_TYPE_ANY,
-                                 NULL, NULL, NULL, NULL, internal_scan_cb_get_security_type, &scan_result, user_data);
+                        &optional_ssid , NULL, NULL, NULL, internal_scan_cb_get_security_type, &scan_result, user_data);
     if(res != CY_RSLT_SUCCESS)
     {
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "whd_wifi_scan error. Result = %d \n", res);
@@ -895,7 +1320,7 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
 
     if(!is_wcm_initalized)
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM STA interface is not initialized \n");
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init(). \n");
         return CY_RSLT_WCM_NOT_INITIALIZED;
     }
 
@@ -1210,7 +1635,7 @@ cy_rslt_t cy_wcm_disconnect_ap()
 
     if(!is_wcm_initalized)
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized \n");
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init(). \n");
         return CY_RSLT_WCM_NOT_INITIALIZED;
     }
 
@@ -1261,7 +1686,7 @@ cy_rslt_t cy_wcm_get_ip_addr(cy_wcm_interface_t interface_type, cy_wcm_ip_addres
 #endif
     if(!is_wcm_initalized)
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized \n");
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init(). \n");
         return CY_RSLT_WCM_NOT_INITIALIZED;
     }
 
@@ -1379,7 +1804,7 @@ cy_rslt_t cy_wcm_get_ipv6_addr(cy_wcm_interface_t interface_type, cy_wcm_ipv6_ty
 #endif
     if(!is_wcm_initalized)
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized \n");
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init(). \n");
         return CY_RSLT_WCM_NOT_INITIALIZED;
     }
 
@@ -1529,7 +1954,7 @@ cy_rslt_t cy_wcm_get_mac_addr(cy_wcm_interface_t interface_type, cy_wcm_mac_t *m
 
     if(!is_wcm_initalized)
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized, call cy_wcm_init() \n");
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init(). \n");
         return CY_RSLT_WCM_NOT_INITIALIZED;
     }
 
@@ -1624,7 +2049,7 @@ cy_rslt_t cy_wcm_get_gateway_ip_address(cy_wcm_interface_t interface_type, cy_wc
 
     if(!is_wcm_initalized)
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized \n");
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init(). \n");
         return CY_RSLT_WCM_NOT_INITIALIZED;
     }
 
@@ -1739,7 +2164,7 @@ cy_rslt_t cy_wcm_get_ip_netmask(cy_wcm_interface_t interface_type, cy_wcm_ip_add
 #endif
     if(!is_wcm_initalized)
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized \n");
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init(). \n");
         return CY_RSLT_WCM_NOT_INITIALIZED;
     }
 
@@ -1866,7 +2291,7 @@ cy_rslt_t cy_wcm_get_associated_ap_info(cy_wcm_associated_ap_info_t *ap_info)
 
     if(!is_wcm_initalized)
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized \n");
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init(). \n");
         return CY_RSLT_WCM_NOT_INITIALIZED;
     }
 
@@ -2026,14 +2451,14 @@ static cy_rslt_t wl_counters(const uint8_t *data, cy_wcm_wlan_statistics_t *stat
 
 cy_rslt_t cy_wcm_get_wlan_statistics(cy_wcm_interface_t interface, cy_wcm_wlan_statistics_t *stat)
 {
-    whd_buffer_t buffer;
-    whd_buffer_t response;
     uint32_t data_rate;
     wl_cnt_ver_ten_t* received_counters;
+    uint8_t buffer[WLC_IOCTL_MEDLEN];
+    wl_cnt_info_t* wl_cnt_info ;
 
     if(!is_wcm_initalized)
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized, to initialize call cy_wcm_init()\r\n");
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init(). \n");
         return CY_RSLT_WCM_NOT_INITIALIZED;
     }
 
@@ -2047,12 +2472,8 @@ cy_rslt_t cy_wcm_get_wlan_statistics(cy_wcm_interface_t interface, cy_wcm_wlan_s
         return CY_RSLT_WCM_BAD_ARG;
     }
 
-    CHECK_IOCTL_BUFFER(whd_cdc_get_iovar_buffer(whd_ifs[CY_WCM_INTERFACE_TYPE_STA]->whd_driver, &buffer, WLC_IOCTL_MEDLEN, IOVAR_STR_COUNTERS));
-
-    CHECK_RETURN(whd_cdc_send_iovar(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], CDC_GET, buffer, &response));
-
-    wl_cnt_info_t * wl_cnt_info ;
-    wl_cnt_info = (wl_cnt_info_t*) whd_buffer_get_current_piece_data_pointer(whd_ifs[CY_WCM_INTERFACE_TYPE_STA]->whd_driver, response);
+    CHECK_RETURN(whd_wifi_get_iovar_buffer(whd_ifs[ CY_WCM_INTERFACE_TYPE_STA], IOVAR_STR_COUNTERS, buffer, WLC_IOCTL_MEDLEN));
+    wl_cnt_info = (wl_cnt_info_t * )buffer;
 
     if (wl_cnt_info->version == WL_CNT_VER_30)
     {
@@ -2081,8 +2502,6 @@ cy_rslt_t cy_wcm_get_wlan_statistics(cy_wcm_interface_t interface, cy_wcm_wlan_s
         stat->tx_retries = received_counters->txretry;
     }
 
-    whd_buffer_release(whd_ifs[CY_WCM_INTERFACE_TYPE_STA]->whd_driver, response, WHD_NETWORK_RX);
-
     /* get data rate */
     CHECK_RETURN (whd_wifi_get_ioctl_value(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], WLC_GET_RATE, &data_rate));
     /* The data rate received is in units of 500Kbits per sec, convert to Kbits per sec*/
@@ -2097,7 +2516,7 @@ cy_rslt_t cy_wcm_get_gateway_mac_address(cy_wcm_mac_t *mac_addr)
 
     if(!is_wcm_initalized)
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized, to initialize call cy_wcm_init()\r\n");
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init(). \n");
         return CY_RSLT_WCM_NOT_INITIALIZED;
     }
 
@@ -2140,7 +2559,7 @@ cy_rslt_t cy_wcm_ping(cy_wcm_interface_t interface, cy_wcm_ip_address_t* address
 
     if(!is_wcm_initalized)
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized \n");
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init(). \n");
         return CY_RSLT_WCM_NOT_INITIALIZED;
     }
 
@@ -2206,7 +2625,7 @@ cy_rslt_t cy_wcm_start_ap(const cy_wcm_ap_config_t *ap_config)
 
     if(!is_wcm_initalized)
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM not initialized, call cy_wcm_init() \n");
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init(). \n");
         return CY_RSLT_WCM_NOT_INITIALIZED;
     }
 
@@ -2301,7 +2720,7 @@ cy_rslt_t cy_wcm_stop_ap(void)
 
     if(!is_wcm_initalized)
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM not initialized, call cy_wcm_init() \n");
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init(). \n");
         return CY_RSLT_WCM_NOT_INITIALIZED;
     }
 
@@ -2345,7 +2764,7 @@ cy_rslt_t cy_wcm_get_associated_client_list(cy_wcm_mac_t *client_list, uint8_t n
 
     if(!is_wcm_initalized)
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM not initialized, call cy_wcm_init() \n");
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init(). \n");
         return CY_RSLT_WCM_NOT_INITIALIZED;
     }
 
@@ -2548,6 +2967,7 @@ static bool check_wcm_security(cy_wcm_security_t sec)
         case CY_WCM_SECURITY_WPA_AES_PSK:
         case CY_WCM_SECURITY_WPA_MIXED_PSK:
         case CY_WCM_SECURITY_WPA2_AES_PSK:
+        case CY_WCM_SECURITY_WPA2_AES_PSK_SHA256:
         case CY_WCM_SECURITY_WPA2_TKIP_PSK:
         case CY_WCM_SECURITY_WPA2_MIXED_PSK:
         case CY_WCM_SECURITY_WPA2_FBT_PSK:
@@ -2880,6 +3300,7 @@ static void* link_events_handler(whd_interface_t ifp, const whd_event_header_t *
                     case WHD_SECURITY_WPA_AES_PSK:
                     case WHD_SECURITY_WPA_MIXED_PSK:
                     case WHD_SECURITY_WPA2_AES_PSK:
+                    case WHD_SECURITY_WPA2_AES_PSK_SHA256:
                     case WHD_SECURITY_WPA2_TKIP_PSK:
                     case WHD_SECURITY_WPA2_MIXED_PSK:
                     case WHD_SECURITY_WPA2_WPA_AES_PSK:
@@ -3177,6 +3598,7 @@ static void sta_link_up_handler(void* arg)
     res = cy_network_ip_up(nw_sta_if_ctx);
     if(res == CY_RSLT_SUCCESS)
     {
+        is_sta_network_up = true;
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Notify application that network is connected again!\n");
         invoke_app_callbacks(CY_WCM_EVENT_RECONNECTED, NULL);
     }
@@ -3224,6 +3646,7 @@ static void sta_link_down_handler(void* arg)
         event_data.reason = (cy_wcm_reason_code)arg;
         invoke_app_callbacks(CY_WCM_EVENT_DISCONNECTED, &event_data);
     }
+    is_sta_network_up = false;
 }
 static void hanshake_retry_timer(cy_timer_callback_arg_t arg)
 {
@@ -3372,9 +3795,10 @@ static void handshake_error_callback(void *arg)
         }
         else
         {
-            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "whd_wifi_join failed : %ld \n", res);
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "whd_wifi_join failed : %ld \n", join_result);
             connection_status = CY_WCM_EVENT_CONNECT_FAILED;
-            if((cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, (void *)connection_status)) != CY_RSLT_SUCCESS)
+            res = cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, (void *)connection_status);
+            if(res != CY_RSLT_SUCCESS)
             {
                 cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Failed to send connection status. Err = [%lu]\r\n", res);
             }
@@ -3479,11 +3903,15 @@ static cy_rslt_t network_up(whd_interface_t interface, cy_network_hw_interface_t
     cy_rslt_t res = CY_RSLT_SUCCESS;
     if(iface_type == CY_NETWORK_WIFI_STA_INTERFACE)
     {
-        res = cy_network_add_nw_interface(CY_NETWORK_WIFI_STA_INTERFACE, 0, whd_ifs[CY_WCM_INTERFACE_TYPE_STA], NULL, static_ip_ptr, &nw_sta_if_ctx);
-        if (res != CY_RSLT_SUCCESS)
+        if(is_sta_interface_created == false)
         {
-            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "failed to add the network interface \n");
-            return res;
+            res = cy_network_add_nw_interface(CY_NETWORK_WIFI_STA_INTERFACE, 0, whd_ifs[CY_WCM_INTERFACE_TYPE_STA], NULL, static_ip_ptr, &nw_sta_if_ctx);
+            if (res != CY_RSLT_SUCCESS)
+            {
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "failed to add the network interface \n");
+                return res;
+            }
+            is_sta_interface_created = true;
         }
         if((res = cy_network_ip_up(nw_sta_if_ctx)) != CY_RSLT_SUCCESS)
         {
@@ -3493,6 +3921,7 @@ static cy_rslt_t network_up(whd_interface_t interface, cy_network_hw_interface_t
             {
                 cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "failed to remove the network interface \n");
             }
+            is_sta_interface_created = false;
             return res;
         }
         is_sta_network_up = true;
@@ -3525,8 +3954,9 @@ static void network_down(whd_interface_t interface, cy_network_hw_interface_type
     if(iface_type == CY_NETWORK_WIFI_STA_INTERFACE)
     {
         cy_network_ip_down(nw_sta_if_ctx);
-        cy_network_remove_nw_interface(nw_sta_if_ctx);
         is_sta_network_up = false;
+        cy_network_remove_nw_interface(nw_sta_if_ctx);
+        is_sta_interface_created = false;
     }
     else
     {
@@ -3560,6 +3990,9 @@ static whd_security_t wcm_to_whd_security(cy_wcm_security_t sec)
 
         case CY_WCM_SECURITY_WPA2_AES_PSK:
             return WHD_SECURITY_WPA2_AES_PSK;
+
+        case CY_WCM_SECURITY_WPA2_AES_PSK_SHA256:
+            return WHD_SECURITY_WPA2_AES_PSK_SHA256;
 
         case CY_WCM_SECURITY_WPA2_TKIP_PSK:
             return WHD_SECURITY_WPA2_TKIP_PSK;
@@ -3635,6 +4068,9 @@ static cy_wcm_security_t whd_to_wcm_security(whd_security_t sec)
 
         case WHD_SECURITY_WPA_MIXED_PSK:
             return CY_WCM_SECURITY_WPA_MIXED_PSK;
+
+        case WHD_SECURITY_WPA2_AES_PSK_SHA256:
+            return CY_WCM_SECURITY_WPA2_AES_PSK_SHA256;
 
         case WHD_SECURITY_WPA2_AES_PSK:
             return CY_WCM_SECURITY_WPA2_AES_PSK;
@@ -3971,3 +4407,62 @@ cy_rslt_t cy_wcm_set_ap_ip_setting(cy_wcm_ip_setting_t *ap_ip, const char *ip_ad
     }
     return res;
 }
+
+cy_rslt_t cy_wcm_allow_low_power_mode(cy_wcm_powersave_mode_t mode)
+{
+    cy_rslt_t       rslt = CY_RSLT_SUCCESS;
+    whd_interface_t ifp = NULL;
+    uint16_t        wlan_chip_id = 0;
+
+    if (cy_wcm_get_whd_interface(CY_WCM_INTERFACE_TYPE_STA, &ifp) != CY_RSLT_SUCCESS)
+    {
+        return CY_RSLT_WCM_NOT_INITIALIZED;
+    }
+
+    /* get chip ID */
+    wlan_chip_id = whd_chip_get_chip_id(ifp->whd_driver);
+
+    /* Disable WLAN PM/mpc for 43907 low power issue */
+    if ( (wlan_chip_id == CY_WCM_WLAN_CHIP_ID_43909) || (wlan_chip_id == CY_WCM_WLAN_CHIP_ID_43907) || (wlan_chip_id == CY_WCM_WLAN_CHIP_ID_54907) )
+    {
+        switch (mode)
+        {
+            case CY_WCM_NO_POWERSAVE_MODE:
+                rslt = whd_wifi_disable_powersave(ifp);
+                if (rslt == WHD_SUCCESS)
+                {
+                    rslt = whd_wifi_set_iovar_value(ifp, IOVAR_STR_MPC, 0);
+                }
+                break;
+            case CY_WCM_PM1_POWERSAVE_MODE:    /*  Powersave mode on specified interface without regard for throughput reduction */
+                rslt = whd_wifi_enable_powersave(ifp);
+                if (rslt == WHD_SUCCESS)
+                {
+                    rslt = whd_wifi_set_iovar_value(ifp, IOVAR_STR_MPC, 1);
+                }
+                break;
+            case CY_WCM_PM2_POWERSAVE_MODE:    /* Powersave mode on specified interface with High throughput */
+                rslt = whd_wifi_enable_powersave_with_throughput(ifp, DEFAULT_PM2_SLEEP_RET_TIME);
+                if (rslt == WHD_SUCCESS)
+                {
+                    rslt = whd_wifi_set_iovar_value(ifp, IOVAR_STR_MPC, 1);
+                }
+                break;
+            default:
+                rslt = CY_RSLT_WCM_BAD_ARG;
+                break;
+        }
+
+        if (rslt != WHD_SUCCESS)
+        {
+            WPRINT_WHD_ERROR( ("Failed to change powersave mode.\n") );
+        }
+    }
+    else
+    {
+        rslt = CY_RSLT_WCM_POWERSAVE_MODE_NOT_SUPPORTED;
+    }
+    return rslt;
+}
+
+#endif
