@@ -10,7 +10,7 @@ The library supports multi-core architecture by making a subset of APIs availabl
 
 The virtual APIs pipe the API requests over IPC to the primary core where the API is actually executed and the result is passed back to the secondary core. This virtualization abstracts out the implementation details and complexity of IPC, thus making multi-core connectivity application development simple.
 
-For more information on virtualization, see the [Virtual Connectivity Manager](https://github.com/Infineon/virtual-connectivity-manager) library.
+For more information on virtualization, see the [Virtual Connectivity Manager]( https://github.com/Infineon/virtual-connectivity-manager ) library.
 
 
 ## Features and functionality
@@ -34,19 +34,19 @@ The current implementation has the following features and functionality:
 
 This library and its features are supported on the following Infineon platforms:
 
-- [PSoC&trade; 6 Wi-Fi BT prototyping kit (CY8CPROTO-062-4343W)](https://www.infineon.com/cms/en/product/evaluation-boards/cy8cproto-062-4343w/)
+- [PSoC&trade; 6 Wi-Fi BT prototyping kit (CY8CPROTO-062-4343W)]( https://www.infineon.com/cms/en/product/evaluation-boards/cy8cproto-062-4343w/ )
 
-- [PSoC&trade; 62S2 Wi-Fi BT pioneer kit (CY8CKIT-062S2-43012)](https://www.infineon.com/cms/en/product/evaluation-boards/cy8ckit-062s2-43012/)
+- [PSoC&trade; 62S2 Wi-Fi BT pioneer kit (CY8CKIT-062S2-43012)]( https://www.infineon.com/cms/en/product/evaluation-boards/cy8ckit-062s2-43012/ )
 
-- [PSoC&trade; 6 WiFi-BT pioneer kit (CY8CKIT-062-WiFi-BT)](https://www.infineon.com/cms/en/product/evaluation-boards/cy8ckit-062-wifi-bt/)
+- [PSoC&trade; 6 WiFi-BT pioneer kit (CY8CKIT-062-WiFi-BT)]( https://www.infineon.com/cms/en/product/evaluation-boards/cy8ckit-062-wifi-bt/ )
 
-- [PSoC&trade; 62S2 evaluation kit (CY8CEVAL-062S2-LAI-4373M2)](https://www.infineon.com/cms/en/product/evaluation-boards/cy8ceval-062s2/)
+- [PSoC&trade; 62S2 evaluation kit (CY8CEVAL-062S2-LAI-4373M2)]( https://www.infineon.com/cms/en/product/evaluation-boards/cy8ceval-062s2/ )
 
-- [CYW954907AEVAL1F evaluation kit (CYW954907AEVAL1F)](https://www.infineon.com/cms/en/product/evaluation-boards/cyw954907aeval1f/)
+- [CYW954907AEVAL1F evaluation kit (CYW954907AEVAL1F)]( https://www.infineon.com/cms/en/product/evaluation-boards/cyw954907aeval1f/ )
 
-- [CYW943907AEVAL1F evaluation kit (CYW943907AEVAL1F)](https://www.infineon.com/cms/en/product/evaluation-boards/cyw943907aeval1f/)
+- [CYW943907AEVAL1F evaluation kit (CYW943907AEVAL1F)]( https://www.infineon.com/cms/en/product/evaluation-boards/cyw943907aeval1f/ )
 
-- [PSoC&trade; 62S2 evaluation kit (CY8CEVAL-062S2-MUR-43439M2)](https://www.infineon.com/cms/en/product/evaluation-boards/cy8ceval-062s2/)
+- [PSoC&trade; 62S2 evaluation kit (CY8CEVAL-062S2-MUR-43439M2)]( https://www.infineon.com/cms/en/product/evaluation-boards/cy8ceval-062s2/ )
 
 **Note**: Virtual APIs are supported on all PSoC 62 devices, but they have only been tested on the CY8CEVAL-062S2-MUR-43439M2 kit.
 
@@ -54,23 +54,23 @@ This library and its features are supported on the following Infineon platforms:
 
 This library depends on the following:
 
-- [wifi-core-freertos-lwip-mbedtls](https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls)
+- [wifi-core-freertos-lwip-mbedtls]( https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls )
 
-- [Wi-Fi Host Driver](https://github.com/Infineon/wifi-host-driver)
+- [Wi-Fi Host Driver]( https://github.com/Infineon/wifi-host-driver )
 
-If virtual APIs are to be used, it additionally depends on the [Virtual Connectivity Manager](https://github.com/Infineon/virtual-connectivity-manager).
+If virtual APIs are to be used, it additionally depends on the [Virtual Connectivity Manager]( https://github.com/Infineon/virtual-connectivity-manager ).
 
 ## Quick start
 
-1. To use wifi-connection-manager library for FreeRTOS, lwIP, and mbed TLS, the application should pull the [wifi-core-freertos-lwip-mbedtls](https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls) library which will internally pull wifi-connection-manager, FreeRTOS, lwIP, mbed TLS, and other dependent modules.
+1. To use wifi-connection-manager library for FreeRTOS, lwIP, and mbed TLS, the application should pull the [wifi-core-freertos-lwip-mbedtls]( https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls ) library which will internally pull wifi-connection-manager, FreeRTOS, lwIP, mbed TLS, and other dependent modules.
 
-2. To pull [wifi-core-freertos-lwip-mbedtls](https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls#latest-v1.X#$$ASSET_REPO$$/wifi-core-freertos-lwip-mbedtls/latest-v1.X), create the *wifi-core-freertos-lwip-mbedtls.mtb* file.
+2. To pull [wifi-core-freertos-lwip-mbedtls]( https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls#latest-v1.X#$$ASSET_REPO$$/wifi-core-freertos-lwip-mbedtls/latest-v1.X ), create the *wifi-core-freertos-lwip-mbedtls.mtb* file.
 
-3. For existing Wi-Fi Connection Manager version 2.x users, a [porting guide](https://Infineon.github.io/wifi-connection-manager/porting_guide.md) is available to migrate to Wi-Fi Connection Manager version 3.0.
+3. For existing Wi-Fi Connection Manager version 2.x users, a [porting guide]( https://github.com/Infineon/wifi-connection-manager/blob/master/porting_guide.md ) is available to migrate to Wi-Fi Connection Manager version 3.0.
 
-4. Review the pre-defined configuration files bundled with the wifi-core-freertos-lwip-mbedtls library for FreeRTOS, lwIP, and mbed TLS and make adjustments. See the "Quick start" section in [README.md](https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls/blob/master/README.md).
+4. Review the pre-defined configuration files bundled with the wifi-core-freertos-lwip-mbedtls library for FreeRTOS, lwIP, and mbed TLS and make adjustments. See the "Quick start" section in [README.md]( https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls/blob/master/README.md ).
 
-5. Define a set of COMPONENTS in the code example project's Makefile for this library. See the "Quick start" section in [README.md](https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls/blob/master/README.md).
+5. Define a set of COMPONENTS in the code example project's Makefile for this library. See the "Quick start" section in [README.md]( https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls/blob/master/README.md ).
 
 6. WPS is disabled by default. WPS uses Mbed TLS security stack. Enable the following components for WPS:
    ```
@@ -82,16 +82,16 @@ If virtual APIs are to be used, it additionally depends on the [Virtual Connecti
       ```
       DEFINES+=ENABLE_WCM_LOGS
       ```
-   2. Call the `cy_log_init()` function provided by the *cy-log* module. cy-log is part of the *connectivity-utilities* library. 
-      See [connectivity-utilities library API documentation](https://Infineon.github.io/connectivity-utilities/api_reference_manual/html/group__logging__utils.html).
+   2. Call the `cy_log_init()` function provided by the *cy-log* module. cy-log is part of the *connectivity-utilities* library.
+      See [connectivity-utilities library API documentation]( https://Infineon.github.io/connectivity-utilities/api_reference_manual/html/group__logging__utils.html ).
 
-      - To enable logs in a dual core application please refer to [Enable logs in dual core application](https://github.com/Infineon/virtual-connectivity-manager/-/blob/main/README.md#enable-logs-in-dual-core-application) section in Virtual Connectivity Manager.
+      - To enable logs in a dual core application please refer to [Enable logs in dual core application]( https://github.com/Infineon/virtual-connectivity-manager/blob/main/README.md#enable-logs-in-dual-core-application ) section in Virtual Connectivity Manager.
 
 ### Virtual API usage
 
-* To use virtual WCM APIs pull [Virtual Connectivity Manager](https://github.com/Infineon/virtual-connectivity-manager) library.
+* To use virtual WCM APIs pull [Virtual Connectivity Manager]( https://github.com/Infineon/virtual-connectivity-manager ) library.
   Create the following *.mtb* file to pull the library
-  - *virtual-connectivity-manager.mtb:* https://github.com/Infineon/virtual-connectivity-manager#latest-v1.X#$$ASSET_REPO$$/virtual-connectivity-manager/latest-v1.X
+  - *virtual-connectivity-manager.mtb:* `https://github.com/Infineon/virtual-connectivity-manager#latest-v1.X#$$ASSET_REPO$$/virtual-connectivity-manager/latest-v1.X`
 
 **Note:** To use WCM APIs in a multi-core environment, applications on both the cores should include WCM and VCM libraries.
 
@@ -105,7 +105,7 @@ If virtual APIs are to be used, it additionally depends on the [Virtual Connecti
    ```
 * Call the `cy_vcm_init()` function provided by the VCM library from the application on both cores, before invoking the virtual WCM APIs.
 
-   See [Virtual Connectivity Manager library API documentation](https://Infineon.github.io/virtual-connectivity-manager/api_reference_manual/html/group__logging__utils.html).
+   See [Virtual Connectivity Manager library API documentation]( https://infineon.github.io/virtual-connectivity-manager/api_reference_manual/html/index.html ).
 
 **Notes:**
   - To ensure that the VCM initialization is synchronized, the project which boots first(i.e CM0+ project in case of psoc62) must call `cy_vcm_init` before bringing up the second project(i.e CM4 project in case of psoc62).
@@ -113,16 +113,16 @@ If virtual APIs are to be used, it additionally depends on the [Virtual Connecti
 
 ## Additional information
 
-- [Wi-Fi Connection Manager RELEASE.md](./RELEASE.md)
+- [Wi-Fi Connection Manager RELEASE.md]( ./RELEASE.md )
 
-- [Wi-Fi Connection Manager API documentation](https://Infineon.github.io/wifi-connection-manager/api_reference_manual/html/index.html)
+- [Wi-Fi Connection Manager API documentation]( https://Infineon.github.io/wifi-connection-manager/api_reference_manual/html/index.html )
 
-- [Porting guide for Wi-Fi Connection Manager version 3.0](https://Infineon.github.io/wifi-connection-manager/porting_guide.md)
+- [Porting guide for Wi-Fi Connection Manager version 3.0]( https://github.com/Infineon/wifi-connection-manager/blob/master/porting_guide.md )
 
-- [Connectivity Utilities API documentation - for cy-log details](https://Infineon.github.io/connectivity-utilities/api_reference_manual/html/group__logging__utils.html)
+- [Connectivity Utilities API documentation - for cy-log details]( https://Infineon.github.io/connectivity-utilities/api_reference_manual/html/group__logging__utils.html )
 
-- [ModusToolbox&trade; software environment, quick start guide, documentation, and videos](https://www.infineon.com/modustoolbox)
+- [ModusToolbox&trade; software environment, quick start guide, documentation, and videos]( https://www.infineon.com/modustoolbox )
 
-- [Wi-Fi Connection Manager version](./version.xml)
+- [Wi-Fi Connection Manager version]( ./version.xml )
 
-- [ModusToolbox&trade; any cloud code examples](https://github.com/Infineon?q=mtb-example-anycloud%20NOT%20Deprecated)
+- [ModusToolbox&trade; any cloud code examples]( https://github.com/Infineon?q=mtb-example-anycloud%20NOT%20Deprecated )

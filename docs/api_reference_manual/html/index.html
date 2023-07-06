@@ -132,7 +132,7 @@ Quick start</h1>
 <li>wifi-core-freertos-lwip-mbedtls.mtb: <a href="https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls#latest-v1.X#$$ASSET_REPO$$/wifi-core-freertos-lwip-mbedtls/latest-v1.X">https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls#latest-v1.X#$$ASSET_REPO$$/wifi-core-freertos-lwip-mbedtls/latest-v1.X</a></li>
 </ul>
 </li>
-<li>For existing Wi-Fi Connection Manager version 2.x users, a <a href="https://Infineon.github.io/wifi-connection-manager/porting_guide.md">porting guide</a> is available to migrate to Wi-Fi Connection Manager version 3.0.</li>
+<li>For existing Wi-Fi Connection Manager version 2.x users, a <a href="https://github.com/Infineon/wifi-connection-manager/blob/master/porting_guide.md">porting guide</a> is available to migrate to Wi-Fi Connection Manager version 3.0.</li>
 <li>Review the pre-defined configuration files bundled with the wifi-core-freertos-lwip-mbedtls library for FreeRTOS, lwIP, and mbed TLS, and make adjustments. See the quick start section in <a href="https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls/blob/master/README.md">README.md</a>.</li>
 <li>Define a set of COMPONENTS in the code example project's Makefile for this library. See the quick start section in <a href="https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls/blob/master/README.md">README.md</a>.</li>
 <li>WPS is disabled by default. WPS uses Mbed TLS security stack. Enable the following components for WPS: <div class="fragment"><div class="line">COMPONENTS+=WPS MBEDTLS</div>
@@ -140,8 +140,8 @@ Quick start</h1>
 <li>The WCM library disables all the debug log messages by default. To enable log messages, the application must perform the following:<ol type="1">
 <li>Add the <em>ENABLE_WCM_LOGS</em> macro to the <em>DEFINES</em> in the code example's Makefile. The Makefile entry would look like as follows: <div class="fragment"><div class="line">DEFINES+=ENABLE_WCM_LOGS</div>
 </div><!-- fragment --></li>
-<li>Call the <em>cy_log_init()</em> function provided by the <em>cy-log</em> module. cy-log is part of the <em>connectivity-utilities</em> library. See *<a href="* https://Infineon.github.io/connectivity-utilities/api_reference_manual/html/group__logging__utils.html">connectivity-utilities library API documentation</a>.<ul>
-<li>To enable logs in a dual core application please refer to <a href="https://github.com/Infineon/virtual-connectivity-manager/-/blob/main/README.md#enable-logs-in-dual-core-application">Enable logs in dual core application</a> section in Virtual Connectivity Manager.</li>
+<li>Call the <em>cy_log_init()</em> function provided by the <em>cy-log</em> module. cy-log is part of the <em>connectivity-utilities</em> library. See *<a href="https://Infineon.github.io/connectivity-utilities/api_reference_manual/html/group__logging__utils.html">connectivity-utilities library API documentation</a>.<ul>
+<li>To enable logs in a dual core application please refer to <a href="https://github.com/Infineon/virtual-connectivity-manager/blob/main/README.md#enable-logs-in-dual-core-application">Enable logs in dual core application</a> section in Virtual Connectivity Manager.</li>
 </ul>
 </li>
 </ol>
@@ -160,7 +160,7 @@ use virtual APIs</h2>
 </div><!-- fragment --></li>
 <li>Define the following compile-time macros in the secondary core application's Makefile: <div class="fragment"><div class="line">DEFINES+=ENABLE_MULTICORE_CONN_MW USE_VIRTUAL_API</div>
 </div><!-- fragment --></li>
-<li>Call the <em>cy_vcm_init()</em> function provided by the VCM library from the application on both cores, before invoking the virtual WCM APIs. See <a href="https://github.com/Infineon/virtual-connectivity-manager">Virtual Connectivity Manager</a> library documentation. <dl class="section note"><dt>Note</dt><dd>- To ensure that the VCM initialization is synchronized, the project which boots first(i.e CM0+ project in case of psoc62) must call <em>cy_vcm_init</em> before bringing up the second project(i.e CM4 project in case of psoc62). </dd>
+<li>Call the <em>cy_vcm_init()</em> function provided by the VCM library from the application on both cores, before invoking the virtual WCM APIs. See <a href="https://infineon.github.io/virtual-connectivity-manager/api_reference_manual/html/index.html">Virtual Connectivity Manager API documentation</a>. <dl class="section note"><dt>Note</dt><dd>- To ensure that the VCM initialization is synchronized, the project which boots first(i.e CM0+ project in case of psoc62) must call <em>cy_vcm_init</em> before bringing up the second project(i.e CM4 project in case of psoc62). </dd>
 <dd>
 - The first project must initialize VCM, by passing <em>config.hal_resource_opt</em> as <em>CY_VCM_CREATE_HAL_RESOURCE</em> in <em>cy_vcm_init</em>. The second project must pass <em>config.hal_resource_opt</em> as <em>CY_VCM_USE_HAL_RESOURCE</em>.</dd></dl>
 </li>
@@ -193,13 +193,13 @@ Snippet 1: Scan for all APs</h2>
 <div class="line"> </div>
 <div class="line">    <span class="comment">/* Initialize the Wi-Fi device, Wi-Fi transport, and lwIP network stack.*/</span></div>
 <div class="line">    result = <a class="code hl_function" href="group__group__wcm__functions.html#ga888428a2325f131528f7447e894002eb">cy_wcm_init</a>(&amp;config);</div>
-<div class="line">    <span class="keywordflow">if</span>(result == CY_RSLT_SUCCESS)</div>
+<div class="line">    <span class="keywordflow">if</span>(result != CY_RSLT_SUCCESS)</div>
 <div class="line">    {</div>
 <div class="line">        printf(<span class="stringliteral">&quot;\ncy_wcm_init failed....!\n&quot;</span>);</div>
 <div class="line">    }</div>
 <div class="line">    <span class="comment">/* Filter is set to NULL.*/</span></div>
 <div class="line">    result = <a class="code hl_function" href="group__group__wcm__functions.html#gae0f0b5f3e6138bfdae943e9f7b16aa07">cy_wcm_start_scan</a>(scan_callback, NULL, NULL);</div>
-<div class="line">    <span class="keywordflow">if</span>(result == CY_RSLT_SUCCESS)</div>
+<div class="line">    <span class="keywordflow">if</span>(result != CY_RSLT_SUCCESS)</div>
 <div class="line">    {</div>
 <div class="line">        printf(<span class="stringliteral">&quot;\ncy_wcm_start_scan failed....!\n&quot;</span>);</div>
 <div class="line">    }</div>
@@ -234,7 +234,7 @@ Snippet 2: Scan for a specific AP</h2>
 <div class="line">           <span class="stringliteral">&quot;                  SSID                  RSSI   Channel      \n&quot;</span></div>
 <div class="line">           <span class="stringliteral">&quot;---------------------------------------------------------------------------------\n&quot;</span>);</div>
 <div class="line">    result = <a class="code hl_function" href="group__group__wcm__functions.html#gae0f0b5f3e6138bfdae943e9f7b16aa07">cy_wcm_start_scan</a>(scan_callback, NULL, &amp;scan_filter);</div>
-<div class="line">    <span class="keywordflow">if</span>(result == CY_RSLT_SUCCESS)</div>
+<div class="line">    <span class="keywordflow">if</span>(result != CY_RSLT_SUCCESS)</div>
 <div class="line">    {</div>
 <div class="line">        printf(<span class="stringliteral">&quot;\ncy_wcm_start_scan failed....!\n&quot;</span>);</div>
 <div class="line">    }</div>
@@ -534,7 +534,7 @@ Snippet 6: Pinging the gateway IP address</h2>
 <div class="line"> </div>
 <div class="line">    <span class="comment">/* Initialize the Wi-Fi device, Wi-Fi transport, and lwIP network stack.*/</span></div>
 <div class="line">    result = <a class="code hl_function" href="group__group__wcm__functions.html#ga888428a2325f131528f7447e894002eb">cy_wcm_init</a>(&amp;config);</div>
-<div class="line">    <span class="keywordflow">if</span> (result == CY_RSLT_SUCCESS)</div>
+<div class="line">    <span class="keywordflow">if</span> (result != CY_RSLT_SUCCESS)</div>
 <div class="line">    {</div>
 <div class="line">        printf(<span class="stringliteral">&quot;\ncy_wcm_init failed...!\n&quot;</span>);</div>
 <div class="line">        <span class="keywordflow">return</span>;</div>
@@ -867,7 +867,7 @@ Snippet 8: Clients connected to the SoftAP</h2>
 <div class="line">    <span class="comment">/* Initialize the Wi-Fi device, Wi-Fi transport, and lwIP network stack.*/</span></div>
 <div class="line">    config.<a class="code hl_variable" href="structcy__wcm__config__t.html#ab516902a377cf7b51d1965183c0bfc2f">interface</a> = <a class="code hl_enumvalue" href="group__group__wcm__enums.html#ggac4c4ca6db8db6efdc3013b789a4c9cf8a0a2745fb6696e54ad284f17dbad8755f">CY_WCM_INTERFACE_TYPE_AP</a>;</div>
 <div class="line">    result = <a class="code hl_function" href="group__group__wcm__functions.html#ga888428a2325f131528f7447e894002eb">cy_wcm_init</a>(&amp;config);</div>
-<div class="line">    <span class="keywordflow">if</span>(result == CY_RSLT_SUCCESS)</div>
+<div class="line">    <span class="keywordflow">if</span>(result != CY_RSLT_SUCCESS)</div>
 <div class="line">    {</div>
 <div class="line">        printf(<span class="stringliteral">&quot;\ncy_wcm_init failed...!\n&quot;</span>);</div>
 <div class="line">        <span class="keywordflow">return</span>;</div>
@@ -1094,7 +1094,7 @@ Snippet 9: AP+STA concurrent mode</h2>
 <div class="line"> </div>
 <div class="line">    <span class="comment">/* Initialize the Wi-Fi device, Wi-Fi transport, and lwIP network stack.*/</span></div>
 <div class="line">    result = <a class="code hl_function" href="group__group__wcm__functions.html#ga888428a2325f131528f7447e894002eb">cy_wcm_init</a>(&amp;config);</div>
-<div class="line">    <span class="keywordflow">if</span>(result == CY_RSLT_SUCCESS)</div>
+<div class="line">    <span class="keywordflow">if</span>(result != CY_RSLT_SUCCESS)</div>
 <div class="line">    {</div>
 <div class="line">        printf(<span class="stringliteral">&quot;\ncy_wcm_init failed...!\n&quot;</span>);</div>
 <div class="line">        <span class="keywordflow">return</span>;</div>
@@ -1148,7 +1148,7 @@ Snippet 9: AP+STA concurrent mode</h2>
 <div class="line">    printf(<span class="stringliteral">&quot;IPV4 address: %s\n&quot;</span>, ip4_str);</div>
 <div class="line">    <a class="code hl_function" href="group__group__wcm__functions.html#ga02f205b4d522c99d6c0b48f15683b0b6">cy_wcm_register_event_callback</a>(&amp;ap_event_callback);</div>
 <div class="line">    result = <a class="code hl_function" href="group__group__wcm__functions.html#ga4b6c66ca0e28ef817bdab02c56d180e6">cy_wcm_start_ap</a>(&amp;ap_conf);</div>
-<div class="line">    <span class="keywordflow">if</span> (result == CY_RSLT_SUCCESS)</div>
+<div class="line">    <span class="keywordflow">if</span> (result != CY_RSLT_SUCCESS)</div>
 <div class="line">    {</div>
 <div class="line">        printf(<span class="stringliteral">&quot;\ncy_wcm_start_ap failed...! \n&quot;</span>);</div>
 <div class="line">        <span class="keywordflow">return</span>;</div>
@@ -1157,7 +1157,7 @@ Snippet 9: AP+STA concurrent mode</h2>
 <div class="line"> </div>
 <div class="line">    <span class="comment">/* Get IPV4 address for AP */</span></div>
 <div class="line">    result = <a class="code hl_function" href="group__group__wcm__functions.html#gad15fb09ca84b85997b967c3a22f9676c">cy_wcm_get_ip_addr</a>(<a class="code hl_enumvalue" href="group__group__wcm__enums.html#ggac4c4ca6db8db6efdc3013b789a4c9cf8a0a2745fb6696e54ad284f17dbad8755f">CY_WCM_INTERFACE_TYPE_AP</a>, &amp;ipv4_addr);</div>
-<div class="line">    <span class="keywordflow">if</span> (result == CY_RSLT_SUCCESS)</div>
+<div class="line">    <span class="keywordflow">if</span> (result != CY_RSLT_SUCCESS)</div>
 <div class="line">    {</div>
 <div class="line">        printf(<span class="stringliteral">&quot;\ncy_wcm_get_ip_addr failed...! \n&quot;</span>);</div>
 <div class="line">        <span class="keywordflow">return</span>;</div>
@@ -1170,7 +1170,7 @@ Snippet 9: AP+STA concurrent mode</h2>
 <div class="line">    <span class="comment">/* Get IPV6 address for AP */</span></div>
 <div class="line">    printf(<span class="stringliteral">&quot;Link Local IPV6 AP address \n&quot;</span>);</div>
 <div class="line">    result = <a class="code hl_function" href="group__group__wcm__functions.html#ga88dbfc2742725a2c54223740cb27b518">cy_wcm_get_ipv6_addr</a>(<a class="code hl_enumvalue" href="group__group__wcm__enums.html#ggac4c4ca6db8db6efdc3013b789a4c9cf8a0a2745fb6696e54ad284f17dbad8755f">CY_WCM_INTERFACE_TYPE_AP</a>, <a class="code hl_enumvalue" href="group__group__wcm__enums.html#gga04051d082e24439e436a17db75fadfefa635adc564bdb3dbdd71685cef4f470ac">CY_WCM_IPV6_LINK_LOCAL</a>, &amp;ipv6_addr);</div>
-<div class="line">    <span class="keywordflow">if</span> (result == CY_RSLT_SUCCESS)</div>
+<div class="line">    <span class="keywordflow">if</span> (result != CY_RSLT_SUCCESS)</div>
 <div class="line">    {</div>
 <div class="line">        printf(<span class="stringliteral">&quot;\ncy_wcm_get_ipv6_addr failed...! \n&quot;</span>);</div>
 <div class="line">        <span class="keywordflow">return</span>;</div>
@@ -1185,7 +1185,7 @@ Snippet 9: AP+STA concurrent mode</h2>
 <div class="line"> </div>
 <div class="line">    <span class="comment">/* Get Link Local IPV6 STA address */</span></div>
 <div class="line">    result = <a class="code hl_function" href="group__group__wcm__functions.html#ga88dbfc2742725a2c54223740cb27b518">cy_wcm_get_ipv6_addr</a>(<a class="code hl_enumvalue" href="group__group__wcm__enums.html#ggac4c4ca6db8db6efdc3013b789a4c9cf8ae93c4aa9ce482c333a23bdc535df3208">CY_WCM_INTERFACE_TYPE_STA</a>, <a class="code hl_enumvalue" href="group__group__wcm__enums.html#gga04051d082e24439e436a17db75fadfefa635adc564bdb3dbdd71685cef4f470ac">CY_WCM_IPV6_LINK_LOCAL</a>, &amp;ipv6_addr);</div>
-<div class="line">    <span class="keywordflow">if</span> (result == CY_RSLT_SUCCESS)</div>
+<div class="line">    <span class="keywordflow">if</span> (result != CY_RSLT_SUCCESS)</div>
 <div class="line">    {</div>
 <div class="line">        printf(<span class="stringliteral">&quot;\ncy_wcm_get_ipv6_addr failed...! \n&quot;</span>);</div>
 <div class="line">        <span class="keywordflow">return</span>;</div>
@@ -1206,8 +1206,7 @@ Snippet 9: AP+STA concurrent mode</h2>
 <div class="line">    memcpy(&amp;sta_mac, mac_addr_ptr, <span class="keyword">sizeof</span>(sta_mac));</div>
 <div class="line">    printf(<span class="stringliteral">&quot;mac address of STA = %02X : %02X : %02X : %02X : %02X : %02X \n&quot;</span>,</div>
 <div class="line">            sta_mac[0], sta_mac[1], sta_mac[2],sta_mac[3], sta_mac[4], sta_mac[5]);</div>
-<div class="line">    mac_addr_ptr++;</div>
-<div class="line">    memcpy(&amp;ap_mac, mac_addr_ptr, <span class="keyword">sizeof</span>(ap_mac));</div>
+<div class="line">    memcpy(&amp;ap_mac, &amp;mac_addr_ptr[1], <span class="keyword">sizeof</span>(ap_mac));</div>
 <div class="line">    printf(<span class="stringliteral">&quot;mac address AP = %02X : %02X : %02X : %02X : %02X : %02X \n&quot;</span>,</div>
 <div class="line">            ap_mac[0], ap_mac[1], ap_mac[2],ap_mac[3], ap_mac[4], ap_mac[5]);</div>
 <div class="line">    free(mac_addr_ptr);</div>
@@ -1549,7 +1548,7 @@ Snippet 11: Virtual API usage to register for WCM events from the secondary core
 <div class="line">    result = cy_vcm_deinit();</div>
 <div class="line">    <span class="keywordflow">if</span>( result != CY_RSLT_SUCCESS )</div>
 <div class="line">    {</div>
-<div class="line">        printf(<span class="stringliteral">&quot;\n cy_vcm_deinit failed on econdary core! \n&quot;</span>);</div>
+<div class="line">        printf(<span class="stringliteral">&quot;\n cy_vcm_deinit failed on secondary core! \n&quot;</span>);</div>
 <div class="line">        <span class="keywordflow">return</span>;</div>
 <div class="line">    }</div>
 <div class="line">}</div>

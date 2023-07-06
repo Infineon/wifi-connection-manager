@@ -14,6 +14,10 @@ See the [README.md](./README.md) for a complete description of the Wi-Fi Connect
 
 ## Changelog
 
+### v3.1.1
+
+- Updated documentation
+
 ### v3.1.0
 
 - Enabled multi-core, virtual API support for the following WCM APIs:
@@ -106,12 +110,10 @@ See the [README.md](./README.md) for a complete description of the Wi-Fi Connect
 
 This version of the library was validated for compatibility with the following software and tools:
 
-| Software and tools                                         | Version |
-| :---                                                       | :----:  |
-| ModusToolbox&trade; software environment                   | 3.0     |
-| ModusToolbox&trade; Device Configurator                  | 4.0     |
-| ModusToolbox&trade; CAPSENSE&trade; Configurator / Tuner tools  | 5.0     |
-| PSoC&trade; 6 Peripheral Driver Library (PDL)                     | 3.0.0   |
-| GCC Compiler                                               | 10.3.1  |
-| IAR Compiler (only for any cloud)                           | 9.30    |
+| Software and tools                                              | Version |
+| :---                                                            | :----:  |
+| ModusToolbox&trade; software environment                        | 3.1     |
+| ModusToolbox&trade; Device Configurator                         | 4.10    |
+| GCC Compiler                                                    | 11.3.1  |
+| IAR Compiler                                                    | 9.30    |
 | Arm&reg; Compiler 6                                             | 6.16    |

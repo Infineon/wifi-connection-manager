@@ -3916,8 +3916,7 @@ static cy_rslt_t network_up(whd_interface_t interface, cy_network_hw_interface_t
         if((res = cy_network_ip_up(nw_sta_if_ctx)) != CY_RSLT_SUCCESS)
         {
             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "failed to bring up the network stack \n");
-            res = cy_network_remove_nw_interface(nw_sta_if_ctx);
-            if(res != CY_RSLT_SUCCESS)
+            if(cy_network_remove_nw_interface(nw_sta_if_ctx) != CY_RSLT_SUCCESS)
             {
                 cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "failed to remove the network interface \n");
             }
@@ -3937,8 +3936,7 @@ static cy_rslt_t network_up(whd_interface_t interface, cy_network_hw_interface_t
         if((res = cy_network_ip_up(nw_ap_if_ctx)) != CY_RSLT_SUCCESS)
         {
             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "failed to bring up the network stack \n");
-            res = cy_network_remove_nw_interface(nw_ap_if_ctx);
-            if(res != CY_RSLT_SUCCESS)
+            if(cy_network_remove_nw_interface(nw_ap_if_ctx) != CY_RSLT_SUCCESS)
             {
                 cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "failed to remove the network interface \n");
             }
