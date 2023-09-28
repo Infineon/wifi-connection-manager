@@ -494,7 +494,7 @@ printf("%s: IOVAR buffer short!\n", __FUNCTION__); \
 #define XTLV_OPTION_ALIGN32                        0x0001 /* 32bit alignment of type.len.data */
 #define XTLV_OPTION_IDU8                           0x0002 /* shorter id */
 #define XTLV_OPTION_LENU8                          0x0004 /* shorted length */
-#define ALIGN_SIZE(size, boundary) (((size) + (boundary) - 1) \
+#define WCM_ALIGN_SIZE(size, boundary) (((size) + (boundary) - 1) \
                                              & ~((boundary) - 1))
 #define OFFSETOF(type, member)  ( (uintptr_t)&( (type *)0 )->member )
 #define _LTOH16_UA(cp) ((cp)[0] | ((cp)[1] << 8))
@@ -2334,7 +2334,7 @@ static int xtlv_size_for_data(int dlen, xtlv_opts_t opts, const uint8_t **data)
 {
     int hsz;
     hsz = xtlv_hdr_size(opts, data);
-    return ((opts & XTLV_OPTION_ALIGN32) ? ALIGN_SIZE(dlen + hsz, 4) : (dlen + hsz));
+    return ((opts & XTLV_OPTION_ALIGN32) ? WCM_ALIGN_SIZE(dlen + hsz, 4) : (dlen + hsz));
 }
 
 static int xtlv_len(const xtlv_t *elt, xtlv_opts_t opts)
@@ -3135,7 +3135,7 @@ static void process_scan_data(void *arg)
     {
          int16_t requested_range = scan_handler.scan_filter.param.rssi_range;
          int16_t signal_strength = whd_scan_res->signal_strength;
-         if(signal_strength < requested_range)
+         if(signal_strength <= requested_range)
          {
              goto exit;
          }
