@@ -155,7 +155,9 @@ static uint8_t*     cy_wps_write_nonce                 ( cy_wps_agent_t* workspa
 static uint8_t*     cy_wps_write_hashes                ( cy_wps_agent_t* workspace, uint8_t* iter );
 static uint8_t*     cy_wps_write_secret1               ( cy_wps_agent_t* workspace, uint8_t* iter );
 static uint8_t*     cy_wps_write_secret2               ( cy_wps_agent_t* workspace, uint8_t* iter );
+#ifdef WCM_ENABLE_WPS_REGISTRAR
 static uint8_t*     cy_wps_write_credentials           ( cy_wps_agent_t* workspace, uint8_t* iter );
+#endif
 static uint8_t*     cy_wps_write_common_header         ( cy_wps_agent_t* workspace, uint8_t* start_of_packet, uint8_t message_type );
 static uint8_t*     cy_wps_write_vendor_extension      ( uint8_t* iter, cy_wps_agent_t* workspace );
 static uint8_t*     cy_wps_start_encrypted_tlv         ( uint8_t* iter);
@@ -265,6 +267,7 @@ const cy_wps_state_machine_state_t wps_states[2][4] =
         },
     },
 
+#ifdef WCM_ENABLE_WPS_REGISTRAR
     [CY_WPS_REGISTRAR_AGENT] =
     {
         // Receiving M1, Sending M2
@@ -304,6 +307,7 @@ const cy_wps_state_machine_state_t wps_states[2][4] =
             .packet_generator      = (cy_wps_packet_generator_t)cy_wps_write_credentials,
         },
     },
+#endif
 };
 
 /******************************************************
@@ -1581,6 +1585,7 @@ uint8_t* cy_wps_write_secret2(cy_wps_agent_t* workspace, uint8_t* iter)
     return iter;
 }
 
+#ifdef WCM_ENABLE_WPS_REGISTRAR
 /*
  * Function to create M8
  */
@@ -1647,6 +1652,7 @@ static uint8_t* cy_wps_write_credentials(cy_wps_agent_t* workspace, uint8_t* ite
 
     return iter;
 }
+#endif
 
 static uint8_t* cy_wps_start_encrypted_tlv(uint8_t* iter)
 {

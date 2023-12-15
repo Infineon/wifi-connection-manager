@@ -14,6 +14,11 @@ See the [README.md](./README.md) for a complete description of the Wi-Fi Connect
 
 ## Changelog
 
+### v3.3.0
+
+- WPS changes to support MBEDTLS version 3.4.0
+- Added support for CY8CEVAL-062S2-CYW43022CUB kit
+
 ### v3.2.0
 
 - Added support for KIT_XMC72_EVK_MUR_43439M2 kit

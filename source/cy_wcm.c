@@ -47,6 +47,7 @@
 #include "whd.h"
 #include "cyabs_rtos.h"
 #include "whd_chip_constants.h"
+#include "whd_wlioctl.h"
 
 /* Chip identifiers for WLAN CPUs */
 #define CY_WCM_WLAN_CHIP_ID_43907        (43907u)    /**< Chip Identifier for 43907 */
@@ -429,6 +430,7 @@ cy_rslt_t cy_wcm_get_whd_interface(cy_wcm_interface_t interface_type, whd_interf
 #include "whd_network_types.h"
 #include "whd_buffer_api.h"
 #include "whd_wlioctl.h"
+#include "whd_types.h"
 
 #include "whd_debug.h"
 #include "cy_nw_helper.h"
@@ -460,7 +462,9 @@ extern cy_rslt_t wpa3_supplicant_sae_start (uint8_t *ssid, uint8_t ssid_len, uin
 #define CY_WCM_INTERFACE_TYPE_UNKNOWN               (4)
 #define CY_WCM_DEFAULT_STA_CHANNEL                  (0)
 #define WCM_WORKER_THREAD_PRIORITY                  (CY_RTOS_PRIORITY_ABOVENORMAL)
+#ifndef WCM_WORKER_THREAD_STACK_SIZE
 #define WCM_WORKER_THREAD_STACK_SIZE                (10 * 1024)
+#endif
 #define WCM_HANDSHAKE_TIMEOUT_MS                    (3000)
 #define WLC_EVENT_MSG_LINK                          (0x01)
 #define JOIN_RETRY_ATTEMPTS                         (3)
@@ -542,6 +546,16 @@ typedef struct xtlv
     uint16_t    len;
     uint8_t     data[1];
 } xtlv_t;
+
+/******************************************************
+ *               Enumerations
+ ******************************************************/
+/* Chanspec values. */
+typedef enum
+{
+    WCM_WIFI_CHANSPEC_5GHZ   = 0xC0,    /**< 5-GHz radio band.   */
+    WCM_WIFI_CHANSPEC_2_4GHZ = 0x00,    /**< 2.4-GHz radio band. */
+} wcm_wifi_band_chanspec_t;
 
 /******************************************************
  *               Variable Definitions
@@ -1484,6 +1498,11 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
             if((cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, (void *)connection_status)) != CY_RSLT_SUCCESS)
             {
                 cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "L%d : %s() : ERROR : Failed to send connection status. Err = [%lu]\r\n", __LINE__, __FUNCTION__, res);
+            }
+            if(res == WHD_UNSUPPORTED)
+            {
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Security type not supported, result = %d \n", res);
+                res = CY_RSLT_WCM_SECURITY_NOT_SUPPORTED;
             }
             goto exit;
         }
@@ -2620,6 +2639,7 @@ cy_rslt_t cy_wcm_start_ap(const cy_wcm_ap_config_t *ap_config)
     whd_ssid_t ssid;
     uint8_t *key;
     uint8_t keylen;
+    uint16_t chanspec = 0;
     whd_security_t security;
     cy_network_static_ip_addr_t static_ip;
 
@@ -2652,9 +2672,31 @@ cy_rslt_t cy_wcm_start_ap(const cy_wcm_ap_config_t *ap_config)
     read_ap_config(ap_config, &ssid, &key, &keylen, &security, &static_ip);
     /* Store the SoftAP security type */
     ap_security = whd_to_wcm_security(security);
+
+    /* Construct chanspec from channel number */
+    if((ap_config->channel > 35) && (ap_config->channel < 166))
+    {
+        chanspec = WCM_WIFI_CHANSPEC_5GHZ;
+    }
+    else if((ap_config->channel > 0) && (ap_config->channel < 12))
+    {
+        /* 2.4 GHz band */
+        chanspec = WCM_WIFI_CHANSPEC_2_4GHZ;
+    }
+    else
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Unsupported channel or band!!\n");
+        res = CY_RSLT_WCM_BAND_NOT_SUPPORTED;
+        goto exit;
+    }
+
+    /* Add channel info */
+    chanspec = ((chanspec << 8) | ap_config->channel);
+
     /* set up the AP info */
     res = whd_wifi_init_ap(whd_ifs[CY_WCM_INTERFACE_TYPE_AP], &ssid, security, (const uint8_t *)key,
-                           keylen, ap_config->channel);
+                           keylen, chanspec);
+
     if (res != CY_RSLT_SUCCESS)
     {
         if(res == WHD_UNSUPPORTED || res == WHD_WEP_NOT_ALLOWED)
@@ -3851,7 +3893,11 @@ void notify_ip_change(void *arg)
     cy_wcm_event_data_t link_event_data;
     cy_rslt_t res = CY_RSLT_SUCCESS;
     cy_nw_ip_address_t ipv4_addr;
+    cy_nw_ip_address_t ipv6_addr;
+    uint32_t offld_cfg_support = 0;
     UNUSED_PARAMETER(arg);
+
+    whd_wifi_get_fwcap(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], &offld_cfg_support);
 
     cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Notify application that ip has changed!\n");
     memset(&link_event_data, 0, sizeof(cy_wcm_event_data_t));
@@ -3862,8 +3908,30 @@ void notify_ip_change(void *arg)
         link_event_data.ip_addr.version = CY_WCM_IP_VER_V4;
         link_event_data.ip_addr.ip.v4   = ipv4_addr.ip.v4;
         invoke_app_callbacks(CY_WCM_EVENT_IP_CHANGED, &link_event_data);
+
+	if (offld_cfg_support & (1 << WHD_FWCAP_OFFLOADS) )
+	{
+	   res = whd_wifi_offload_ipv4_update(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], OFFLOAD_FEATURE, ipv4_addr.ip.v4, WHD_TRUE);
+	   if (res != CY_RSLT_SUCCESS )
+	   {
+	      cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Unable to update ipv4 address\n");
+	   }
+	}
     }
-}
+
+    res = cy_network_get_ipv6_address(nw_sta_if_ctx, CY_NETWORK_IPV6_LINK_LOCAL, &ipv6_addr);
+    if (res == CY_RSLT_SUCCESS)
+    {
+       if (offld_cfg_support & (1 << WHD_FWCAP_OFFLOADS) )
+       {
+          res = whd_wifi_offload_ipv6_update(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], OFFLOAD_FEATURE, ipv6_addr.ip.v6, 0, WHD_TRUE);
+          if (res != CY_RSLT_SUCCESS )
+          {
+	     cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Unable to update ipv6 address\n");
+          }
+       }
+    }
+} 
 
 
 static bool check_if_platform_supports_band(whd_interface_t interface, cy_wcm_wifi_band_t requested_band)
@@ -3886,16 +3954,28 @@ static bool check_if_platform_supports_band(whd_interface_t interface, cy_wcm_wi
       */
     if(band_list.number_of_bands == 1)
     {
-        if(requested_band == CY_WCM_WIFI_BAND_5GHZ)
-        {
-            return false;
-        }
-        else
+        if(requested_band == CY_WCM_WIFI_BAND_2_4GHZ || requested_band == CY_WCM_WIFI_BAND_ANY)
         {
             return true;
         }
+        else
+        {
+            return false;
+        }
     }
-    return true;
+    else if(band_list.number_of_bands == 2)
+    {
+//        FW still have some issue for band_list so skip check first
+//        if((requested_band == band_list.other_band[0]) || (requested_band == band_list.other_band[1]))
+//        {
+            return true;
+//        }
+    }
+    else
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Unexpected value in band_list.number_of_bands !! \n ");
+        return false;
+    }
 }
 
 static cy_rslt_t network_up(whd_interface_t interface, cy_network_hw_interface_type_t iface_type, cy_network_static_ip_addr_t *static_ip_ptr)
