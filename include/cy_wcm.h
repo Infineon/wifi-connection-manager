@@ -1,5 +1,5 @@
 /*
- * Copyright 2023, Cypress Semiconductor Corporation (an Infineon company) or
+ * Copyright 2024, Cypress Semiconductor Corporation (an Infineon company) or
  * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
  *
  * This software, including source code, documentation and related
@@ -114,23 +114,29 @@ extern "C" {
 /******************************************************
  *                    Constants
  ******************************************************/
-#define CY_WCM_MAX_SSID_LEN                (32)        /**< Max SSID length.                       */
-#define CY_WCM_MAX_PASSPHRASE_LEN          (63)        /**< Max passphrase length.                 */
-#define CY_WCM_MIN_PASSPHRASE_LEN          (8)         /**< Min passphrase length.                 */
-#define CY_WCM_MAC_ADDR_LEN                (6)         /**< MAC address length.                    */
-#define CY_WCM_MAX_IE_LENGTH               (3)         /**< Maximum Length of Information Element  */
-#define WEP_ENABLED                        0x0001      /**< Flag to enable WEP security.           */
-#define TKIP_ENABLED                       0x0002      /**< Flag to enable TKIP encryption.        */
-#define AES_ENABLED                        0x0004      /**< Flag to enable AES encryption.         */
-#define SHARED_ENABLED                     0x00008000  /**< Flag to enable shared key security.    */
-#define WPA_SECURITY                       0x00200000  /**< Flag to enable WPA security.           */
-#define WPA2_SECURITY                      0x00400000  /**< Flag to enable WPA2 security.          */
-#define WPA2_SHA256_SECURITY               0x00800000  /**< Flag to enable WPA2 SHA256 Security    */
-#define WPA3_SECURITY                      0x01000000  /**< Flag to enable WPA3 PSK security.      */
-#define ENTERPRISE_ENABLED                 0x02000000  /**< Flag to enable enterprise security.    */
-#define WPS_ENABLED                        0x10000000  /**< Flag to enable WPS security.           */
-#define IBSS_ENABLED                       0x20000000  /**< Flag to enable IBSS mode.              */
-#define FBT_ENABLED                        0x40000000  /**< Flag to enable FBT.                    */
+#define CY_WCM_MAX_SSID_LEN                (32)        /**< Max SSID length.                            */
+#define CY_WCM_MAX_PASSPHRASE_LEN          (63)        /**< Max passphrase length.                      */
+#define CY_WCM_MIN_PASSPHRASE_LEN          (8)         /**< Min passphrase length.                      */
+#define CY_WCM_MAC_ADDR_LEN                (6)         /**< MAC address length.                         */
+#define CY_WCM_MAX_IE_LENGTH               (3)         /**< Maximum Length of Information Element       */
+#define WEP_ENABLED                        0x0001      /**< Flag to enable WEP security.                */
+#define TKIP_ENABLED                       0x0002      /**< Flag to enable TKIP encryption.             */
+#define AES_ENABLED                        0x0004      /**< Flag to enable AES encryption.              */
+#define SHARED_ENABLED                     0x00008000  /**< Flag to enable shared key security.         */
+#define WPA_SECURITY                       0x00200000  /**< Flag to enable WPA security.                */
+#define WPA2_SECURITY                      0x00400000  /**< Flag to enable WPA2 security.               */
+#ifndef COMPONENT_CAT5
+#define WPA2_SHA256_SECURITY               0x00800000  /**< Flag to enable WPA2 SHA256 Security         */
+#endif
+#define WPA3_SECURITY                      0x01000000  /**< Flag to enable WPA3 PSK security.           */
+#define ENTERPRISE_ENABLED                 0x02000000  /**< Flag to enable enterprise security.         */
+#ifdef COMPONENT_CAT5
+#define SHA256_1X                          0x04000000  /**< Flag 1X with SHA256 key derivation          */
+#define SUITE_B_SHA384                     0x08000000  /**< Flag to enable Suite B-192 SHA384 Security  */
+#endif
+#define WPS_ENABLED                        0x10000000  /**< Flag to enable WPS security.                */
+#define IBSS_ENABLED                       0x20000000  /**< Flag to enable IBSS mode.                   */
+#define FBT_ENABLED                        0x40000000  /**< Flag to enable FBT.                         */
 
 /** WPS password length for PIN mode. */
 #define CY_WCM_WPS_PIN_LENGTH              (9)
@@ -179,7 +185,11 @@ typedef enum
     CY_WCM_SECURITY_WPA_AES_PSK         = ( WPA_SECURITY  | AES_ENABLED ),                                     /**< WPA PSK security with AES.                             */
     CY_WCM_SECURITY_WPA_MIXED_PSK       = ( WPA_SECURITY  | AES_ENABLED | TKIP_ENABLED ),                      /**< WPA PSK security with AES and TKIP.                    */
     CY_WCM_SECURITY_WPA2_AES_PSK        = ( WPA2_SECURITY | AES_ENABLED ),                                     /**< WPA2 PSK security with AES.                            */
+#ifndef COMPONENT_CAT5
     CY_WCM_SECURITY_WPA2_AES_PSK_SHA256 = ( WPA2_SECURITY | WPA2_SHA256_SECURITY | AES_ENABLED ),              /**< WPA2 PSK SHA256 Security with AES                      */
+#else
+    CY_WCM_SECURITY_WPA2_AES_PSK_SHA256 = ( WPA2_SECURITY | SHA256_1X | AES_ENABLED ),                         /**< WPA2 PSK SHA256 Security with AES                      */
+#endif
     CY_WCM_SECURITY_WPA2_TKIP_PSK       = ( WPA2_SECURITY | TKIP_ENABLED ),                                    /**< WPA2 PSK security with TKIP.                           */
     CY_WCM_SECURITY_WPA2_MIXED_PSK      = ( WPA2_SECURITY | AES_ENABLED | TKIP_ENABLED ),                      /**< WPA2 PSK security with AES and TKIP.                   */
     CY_WCM_SECURITY_WPA2_FBT_PSK        = ( WPA2_SECURITY | AES_ENABLED | FBT_ENABLED),                        /**< WPA2 FBT PSK security with AES and TKIP.               */
@@ -194,7 +204,11 @@ typedef enum
     CY_WCM_SECURITY_WPA2_AES_ENT        = (ENTERPRISE_ENABLED | WPA2_SECURITY | AES_ENABLED),                  /**< WPA2 Enterprise Security with AES.                     */
     CY_WCM_SECURITY_WPA2_MIXED_ENT      = (ENTERPRISE_ENABLED | WPA2_SECURITY | AES_ENABLED | TKIP_ENABLED),   /**< WPA2 Enterprise Security with AES and TKIP.            */
     CY_WCM_SECURITY_WPA2_FBT_ENT        = (ENTERPRISE_ENABLED | WPA2_SECURITY | AES_ENABLED | FBT_ENABLED),    /**< WPA2 Enterprise Security with AES and FBT.             */
-
+#ifdef COMPONENT_CAT5
+    CY_WCM_SECURITY_WPA3_192BIT_ENT     = (ENTERPRISE_ENABLED | WPA3_SECURITY | SUITE_B_SHA384 | AES_ENABLED), /**< WPA3 192-BIT Enterprise Security with AES              */
+    CY_WCM_SECURITY_WPA3_ENT            = (ENTERPRISE_ENABLED | WPA3_SECURITY | SHA256_1X | AES_ENABLED),      /**< WPA3 Enterprise Security with AES GCM-256              */
+    CY_WCM_SECURITY_WPA3_ENT_AES_CCMP   = (ENTERPRISE_ENABLED | WPA3_SECURITY | WPA2_SECURITY | SHA256_1X | AES_ENABLED), /**< WPA3 Enterprise Security with AES CCM-128   */
+#endif
     CY_WCM_SECURITY_IBSS_OPEN           = ( IBSS_ENABLED ),                                                    /**< Open security on IBSS ad hoc network.                  */
     CY_WCM_SECURITY_WPS_SECURE          = ( WPS_ENABLED | AES_ENABLED),                                        /**< WPS with AES security.                                 */
 

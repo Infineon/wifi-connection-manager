@@ -1,5 +1,5 @@
 /*
- * Copyright 2023, Cypress Semiconductor Corporation (an Infineon company) or
+ * Copyright 2024, Cypress Semiconductor Corporation (an Infineon company) or
  * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
  *
  * This software, including source code, documentation and related
@@ -52,6 +52,9 @@
 #include "whd_buffer_api.h"
 #include "whd_types.h"
 #include "cyhal.h"
+#ifdef COMPONENT_MBEDTLS
+#include "entropy_poll.h"
+#endif
 
 /******************************************************
  *                      Macros
@@ -340,59 +343,22 @@ uint32_t cy_host_get_timer( void* workspace )
     return host->timer_timeout;
 }
 
-#ifndef COMPONENT_4390X
-static int trng_get_bytes(cyhal_trng_t *obj, uint8_t *output, size_t length, size_t *output_length)
-{
-    uint32_t offset = 0;
-    /* If output is not word-aligned, write partial word */
-    uint32_t prealign = (uint32_t)((uintptr_t)output % sizeof(uint32_t));
-    if (prealign != 0) {
-        uint32_t value = cyhal_trng_generate(obj);
-        uint32_t count = sizeof(uint32_t) - prealign;
-        memmove(&output[0], &value, count);
-        offset += count;
-    }
-    /* Write aligned full words */
-    for (; offset < length - (sizeof(uint32_t) - 1u); offset += sizeof(uint32_t)) {
-        *(uint32_t *)(&output[offset]) = cyhal_trng_generate(obj);
-    }
-    /* Write partial trailing word if requested */
-    if (offset < length) {
-        uint32_t value = cyhal_trng_generate(obj);
-        uint32_t count = length - offset;
-        memmove(&output[offset], &value, count);
-        offset += count;
-    }
-    *output_length = offset;
-    return 0;
-}
-#endif
 cy_rslt_t cy_host_random_bytes( void* buffer, size_t buffer_length, size_t* output_length )
 {
 #ifndef COMPONENT_4390X
-    uint8_t* p = buffer;
-    size_t length = 0;
+#ifdef COMPONENT_MBEDTLS
+    int result = 0;
+    size_t length;
 
-    cyhal_trng_t obj;
-    int ret;
-    cy_rslt_t result;
-
-    result = cyhal_trng_init(&obj);
-    if( result != CY_RSLT_SUCCESS)
+    result = mbedtls_hardware_poll(NULL, (unsigned char*)buffer, buffer_length, &length);
+    if(result != 0)
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Failed to initialize hal TRNG \r\n");
-        return result;
-    }
-
-    ret = trng_get_bytes(&obj, p, buffer_length, (size_t*) &length);
-    if( ret != CY_RSLT_SUCCESS)
-    {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Failed to initialize random bytes \r\n");
-        return result;
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "mbedtls_hardware_poll failed \r\n");
+        return CY_RSLT_WPS_ERROR;
     }
 
     *output_length = length;
-    cyhal_trng_free(&obj);
+#endif
 #else
     /* 43907 kits does not have TRNG module. Get the random
      * number from wifi-mw-core internal PRNG API. */

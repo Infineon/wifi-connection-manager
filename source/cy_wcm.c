@@ -1,5 +1,5 @@
 /*
- * Copyright 2023, Cypress Semiconductor Corporation (an Infineon company) or
+ * Copyright 2024, Cypress Semiconductor Corporation (an Infineon company) or
  * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
  *
  * This software, including source code, documentation and related
@@ -1507,13 +1507,6 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
             goto exit;
         }
 
-        /* Call Offload init after connect to AP */
-        if ((is_olm_initialized == false) && ( olm_instance != NULL))
-        {
-            cy_olm_init_ols(olm_instance, whd_ifs[CY_WCM_INTERFACE_TYPE_STA], NULL);
-            is_olm_initialized = true;
-        }
-
         if (!is_sta_network_up)
         {
             if(connect_params->static_ip_settings != NULL)
@@ -1624,6 +1617,13 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
                 cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "L%d : %s() : Failed to notify IP change. Err = [%lu]\r\n", __LINE__, __FUNCTION__, res);
                 goto exit;
             }
+        }
+
+        /* Call Offload init after connect to AP */
+        if ((is_olm_initialized == false) && ( olm_instance != NULL))
+        {
+            cy_olm_init_ols(olm_instance, whd_ifs[CY_WCM_INTERFACE_TYPE_STA], NULL);
+            is_olm_initialized = true;
         }
     }
     else
@@ -2869,7 +2869,7 @@ exit:
 }
 
 static uint16_t channel_to_bandwidth(wl_chanspec_t chanspec)
- {
+{
     uint16_t band_width;
     switch(chanspec & WL_CHANSPEC_BW_MASK)
     {
@@ -3026,6 +3026,11 @@ static bool check_wcm_security(cy_wcm_security_t sec)
         case CY_WCM_SECURITY_WPA2_FBT_ENT:
         case CY_WCM_SECURITY_IBSS_OPEN:
         case CY_WCM_SECURITY_WPS_SECURE:
+#ifdef COMPONENT_CAT5
+        case CY_WCM_SECURITY_WPA3_192BIT_ENT:
+        case CY_WCM_SECURITY_WPA3_ENT:
+        case CY_WCM_SECURITY_WPA3_ENT_AES_CCMP:
+#endif
             return true;
         default:
             return false;
@@ -3357,6 +3362,11 @@ static void* link_events_handler(whd_interface_t ifp, const whd_event_header_t *
                     case WHD_SECURITY_WPA2_FBT_ENT:
                     case WHD_SECURITY_WPA3_SAE:
                     case WHD_SECURITY_WPA3_WPA2_PSK:
+#ifdef COMPONENT_CAT5
+                    case WHD_SECURITY_WPA3_192BIT_ENT:
+                    case WHD_SECURITY_WPA3_ENT_AES_CCMP:
+                    case WHD_SECURITY_WPA3_ENT:
+#endif
                     {
                         link_up_event_received = WHD_TRUE;
                         /* Start a timer and wait for WLC_E_PSK_SUP event */
@@ -3693,7 +3703,16 @@ static void sta_link_down_handler(void* arg)
 static void hanshake_retry_timer(cy_timer_callback_arg_t arg)
 {
     UNUSED_PARAMETER(arg);
+#ifdef COMPONENT_CAT5
+    cy_rslt_t result;
+    result = cy_worker_thread_enqueue(&cy_wcm_worker_thread, handshake_error_callback, NULL);
+    if (result != CY_RSLT_SUCCESS)
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "L%d : %s() : Failed to send async event to n/w worker thread. Err = [%lu]\r\n", __LINE__, __FUNCTION__, result);
+    }
+#else
     handshake_error_callback(0);
+#endif
 }
 
 static void handshake_timeout_handler(cy_timer_callback_arg_t arg)
@@ -3950,7 +3969,7 @@ static bool check_if_platform_supports_band(whd_interface_t interface, cy_wcm_wi
 
      /*
       * All CY chips which supports 5Ghz will also support 2.4Ghz and
-      * for such platforms number of bands will be 2
+      * for such platforms number of bands will be 2 or higher
       */
     if(band_list.number_of_bands == 1)
     {
@@ -3963,7 +3982,7 @@ static bool check_if_platform_supports_band(whd_interface_t interface, cy_wcm_wi
             return false;
         }
     }
-    else if(band_list.number_of_bands == 2)
+    else if(band_list.number_of_bands == 2 || band_list.number_of_bands == 3)
     {
 //        FW still have some issue for band_list so skip check first
 //        if((requested_band == band_list.other_band[0]) || (requested_band == band_list.other_band[1]))
@@ -4108,6 +4127,17 @@ static whd_security_t wcm_to_whd_security(cy_wcm_security_t sec)
         case CY_WCM_SECURITY_WPA2_AES_ENT:
             return WHD_SECURITY_WPA2_AES_ENT;
 
+#ifdef COMPONENT_CAT5
+        case CY_WCM_SECURITY_WPA3_ENT:
+            return WHD_SECURITY_WPA3_ENT;
+
+        case CY_WCM_SECURITY_WPA3_ENT_AES_CCMP:
+            return WHD_SECURITY_WPA3_ENT_AES_CCMP;
+
+        case CY_WCM_SECURITY_WPA3_192BIT_ENT:
+            return WHD_SECURITY_WPA3_192BIT_ENT;
+#endif
+
         case CY_WCM_SECURITY_WPA2_MIXED_ENT:
             return WHD_SECURITY_WPA2_MIXED_ENT;
 
@@ -4188,6 +4218,17 @@ static cy_wcm_security_t whd_to_wcm_security(whd_security_t sec)
 
         case WHD_SECURITY_WPA2_AES_ENT:
             return CY_WCM_SECURITY_WPA2_AES_ENT;
+
+#ifdef COMPONENT_CAT5
+        case WHD_SECURITY_WPA3_192BIT_ENT:
+            return CY_WCM_SECURITY_WPA3_192BIT_ENT;
+
+        case WHD_SECURITY_WPA3_ENT_AES_CCMP:
+            return CY_WCM_SECURITY_WPA3_ENT_AES_CCMP;
+
+        case WHD_SECURITY_WPA3_ENT:
+            return CY_WCM_SECURITY_WPA3_ENT;
+#endif
 
         case WHD_SECURITY_WPA2_MIXED_ENT:
             return CY_WCM_SECURITY_WPA2_MIXED_ENT;
@@ -4356,7 +4397,8 @@ static cy_rslt_t check_soft_ap_config(const cy_wcm_ap_config_t *ap_config_params
             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "whd_wifi_get_channels failed \n");
             return CY_RSLT_WCM_BAD_ARG;
         }
-        for(index=0 ; index<whd_channel_list->count ; index++)
+
+        for(index = 0; index < whd_channel_list->count; index++)
         {
             if(ap_config_params->channel == *(whd_channel_list->element+index))
             {
@@ -4434,7 +4476,13 @@ static bool check_if_ent_auth_types(cy_wcm_security_t auth_type)
     if((auth_type == CY_WCM_SECURITY_WPA_TKIP_ENT) || (auth_type == CY_WCM_SECURITY_WPA_AES_ENT) ||
        (auth_type == CY_WCM_SECURITY_WPA_MIXED_ENT) || (auth_type == CY_WCM_SECURITY_WPA2_TKIP_ENT) ||
        (auth_type == CY_WCM_SECURITY_WPA2_AES_ENT) || (auth_type == CY_WCM_SECURITY_WPA2_MIXED_ENT) ||
-       (auth_type == CY_WCM_SECURITY_WPA2_FBT_ENT))
+       (auth_type == CY_WCM_SECURITY_WPA2_FBT_ENT) 
+#ifdef COMPONENT_CAT5
+       || (auth_type == CY_WCM_SECURITY_WPA3_ENT) 
+       || (auth_type == CY_WCM_SECURITY_WPA3_192BIT_ENT) 
+       || (auth_type == CY_WCM_SECURITY_WPA3_ENT_AES_CCMP)
+#endif
+       )
     {
         return true;
     }
@@ -4533,7 +4581,7 @@ cy_rslt_t cy_wcm_allow_low_power_mode(cy_wcm_powersave_mode_t mode)
 
         if (rslt != WHD_SUCCESS)
         {
-            WPRINT_WHD_ERROR( ("Failed to change powersave mode.\n") );
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Failed to change powersave mode.\n");
         }
     }
     else
