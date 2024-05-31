@@ -14,6 +14,10 @@ See the [README.md](./README.md) for a complete description of the Wi-Fi Connect
 
 ## Changelog
 
+### v3.4.0
+
+- Added support for CYW955913EVK-01 kit
+
 ### v3.3.1
 
 - Minor bug fixes

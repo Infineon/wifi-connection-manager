@@ -99,8 +99,8 @@ Features and functionality</h1>
 <li>Support for Wi-Fi Protected Setup (WPS) - Enrollee role</li>
 <li>Exposes Wi-Fi APIs to scan, join, and leave the Wi-Fi network</li>
 <li>Connection monitoring: Monitors active connections and link events. Automatically reconnects to the AP if the connection with the AP is lost intermittently. Notifies the connection state change through event the notification registration mechanism.</li>
-<li>Part of the ModusToolbox&trade; environment that supports connectivity applications based on FreeRTOS, lwIP, and mbed TLS</li>
-<li>The library is built on top of the abstraction-rtos library that provides RTOS abstraction API for FreeRTOS</li>
+<li>Supports connectivity applications based on either FreeRTOS, lwIP, mbed TLS combination or ThreadX, NetX Duo, NetX Secure combination(Currently only supported on CYW955913EVK-01)</li>
+<li>The library is built on top of the abstraction-rtos library that provides RTOS abstraction API for FreeRTOS and ThreadX</li>
 <li>Supports multi-core architecture by providing the following APIs as virtual APIs which can be invoked from another core:<ul>
 <li>cy_wcm_is_connected_to_ap</li>
 <li>cy_wcm_register_event_callback</li>
@@ -119,24 +119,36 @@ Supported platforms</h1>
 <li><a href="https://www.infineon.com/cms/en/product/evaluation-boards/cyw943907aeval1f/">CYW943907AEVAL1F Evaluation Kit(CYW943907AEVAL1F)</a></li>
 <li><a href="https://www.infineon.com/cms/en/product/evaluation-boards/cy8ceval-062s2/">PSoC&trade; 62S2 evaluation kit (CY8CEVAL-062S2-MUR-43439M2)</a></li>
 <li><a href="https://www.infineon.com/cms/en/product/evaluation-boards/kit_xmc72_evk/">XMC7200D-E272K8384 kit (KIT_XMC72_EVK_MUR_43439M2)</a></li>
-<li><a href="https://www.infineon.com/cms/en/product/evaluation-boards/cy8ceval-062s2/">PSoC&trade; 62S2 evaluation kit (CY8CEVAL-062S2-CYW43022CUB)</a> <dl class="section note"><dt>Note</dt><dd>Virtual APIs are supported on all PSoC 62 devices, but they have only been tested on the CY8CEVAL-062S2-MUR-43439M2 kit.</dd></dl>
+<li><a href="https://www.infineon.com/cms/en/product/evaluation-boards/cy8ceval-062s2/">PSoC&trade; 62S2 evaluation kit (CY8CEVAL-062S2-CYW43022CUB)</a></li>
+<li><a href="https://www.infineon.com/CYW955913EVK-01">CYW955913EVK-01 Wi-Fi Bluetooth&reg; Prototyping Kit (CYW955913EVK-01)</a> <dl class="section note"><dt>Note</dt><dd>Virtual APIs are supported on all PSoC 62 devices, but they have only been tested on the CY8CEVAL-062S2-MUR-43439M2 kit.</dd></dl>
 </li>
 </ul>
 <h1><a class="anchor" id="section_dependencies"></a>
 Dependent libraries</h1>
-<p >This library is bundled in <a href="https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls">wifi-core-freertos-lwip-mbedtls</a> by default. The wifi-core-freertos-lwip-mbedtls library helps code examples to fetch all the components needed to enable Wi-Fi connectivity.</p>
+<p >This library is bundled in <a href="https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls">wifi-core-freertos-lwip-mbedtls</a> by default. The wifi-core-freertos-lwip-mbedtls library helps code examples to fetch all the components needed to enable Wi-Fi connectivity.</p><ul>
+<li>For CYW955913EVK-01 this library will be bundled in <a href="https://github.com/Infineon/wifi-core-threadx-cat5">wifi-core-threadx-cat5</a>.</li>
+</ul>
 <p >If virtual APIs are to be used, it additionally depends on <a href="https://github.com/Infineon/virtual-connectivity-manager">Virtual Connectivity Manager</a> library.</p>
 <h1><a class="anchor" id="section_integration"></a>
 Quick start</h1>
 <ul>
-<li>To use wifi-connection-manager library for FreeRTOS, lwIP, and mbed TLS, the application should pull <a href="https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls">wifi-core-freertos-lwip-mbedtls</a> library which will internally pull wifi-connection-manager, FreeRTOS, lwIP, mbed TLS and other dependent modules.</li>
+<li>To use wifi-connection-manager library for FreeRTOS, lwIP, mbed TLS combination, the application should pull the <a href="https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls">wifi-core-freertos-lwip-mbedtls</a> library which will internally pull wifi-connection-manager, FreeRTOS, lwIP, mbed TLS, and other dependent modules.</li>
 <li>To pull wifi-core-freertos-lwip-mbedtls create the following .mtb file in deps folder.<ul>
 <li>wifi-core-freertos-lwip-mbedtls.mtb: <a href="https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls#latest-v1.X#$$ASSET_REPO$$/wifi-core-freertos-lwip-mbedtls/latest-v1.X">https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls#latest-v1.X#$$ASSET_REPO$$/wifi-core-freertos-lwip-mbedtls/latest-v1.X</a></li>
 </ul>
 </li>
+<li>To use wifi-connection-manager library for ThreadX, NetX Duo, NetX Secure combination, the application should pull the <a href="https://github.com/Infineon/wifi-core-threadx-cat5">wifi-core-threadx-cat5</a> library which will internally pull wifi-connection-manager and other dependent modules.</li>
+<li>To pull wifi-core-threadx-cat5 create the following .mtb file in deps folder.<ul>
+<li>wifi-core-threadx-cat5.mtb: <a href="https://github.com/Infineon/wifi-core-threadx-cat5#latest-v1.X#$$ASSET_REPO$$/wifi-core-threadx-cat5/latest-v1.X">https://github.com/Infineon/wifi-core-threadx-cat5#latest-v1.X#$$ASSET_REPO$$/wifi-core-threadx-cat5/latest-v1.X</a></li>
+</ul>
+</li>
 <li>For existing Wi-Fi Connection Manager version 2.x users, a <a href="https://github.com/Infineon/wifi-connection-manager/blob/master/porting_guide.md">porting guide</a> is available to migrate to Wi-Fi Connection Manager version 3.0.</li>
 <li>Review the pre-defined configuration files bundled with the wifi-core-freertos-lwip-mbedtls library for FreeRTOS, lwIP, and mbed TLS, and make adjustments. See the quick start section in <a href="https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls/blob/master/README.md">README.md</a>.</li>
-<li>Define a set of COMPONENTS in the code example project's Makefile for this library. See the quick start section in <a href="https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls/blob/master/README.md">README.md</a>.</li>
+<li>Define a set of COMPONENTS in the code example project's Makefile for this library.<ul>
+<li>For FreeRTOS, lwIP, Mbed TLS combination see the quick start section in <a href="https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls/blob/master/README.md">README.md</a>.</li>
+<li>For ThreadX, NetX Duo, NetX Secure combination see the quick start section in <a href="https://github.com/Infineon/wifi-core-threadx-cat5/blob/master/README.md">README.md</a>.</li>
+</ul>
+</li>
 <li>WPS is disabled by default. WPS uses Mbed TLS security stack. Enable the following components for WPS: <div class="fragment"><div class="line">COMPONENTS+=WPS MBEDTLS</div>
 </div><!-- fragment --></li>
 <li>The WCM library disables all the debug log messages by default. To enable log messages, the application must perform the following:<ol type="1">

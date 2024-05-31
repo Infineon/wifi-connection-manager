@@ -1579,6 +1579,13 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
                 }
             }
 
+            /* Call Offload init after connect to AP */
+            if ((is_olm_initialized == false) && ( olm_instance != NULL))
+            {
+                cy_olm_init_ols(olm_instance, whd_ifs[CY_WCM_INTERFACE_TYPE_STA], NULL);
+                is_olm_initialized = true;
+            }
+
             /* Register for Link events*/
             res = whd_management_set_event_handler(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], sta_link_events, link_events_handler, NULL, &sta_event_handler_index);
             if(res != CY_RSLT_SUCCESS)
@@ -1617,13 +1624,6 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
                 cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "L%d : %s() : Failed to notify IP change. Err = [%lu]\r\n", __LINE__, __FUNCTION__, res);
                 goto exit;
             }
-        }
-
-        /* Call Offload init after connect to AP */
-        if ((is_olm_initialized == false) && ( olm_instance != NULL))
-        {
-            cy_olm_init_ols(olm_instance, whd_ifs[CY_WCM_INTERFACE_TYPE_STA], NULL);
-            is_olm_initialized = true;
         }
     }
     else
@@ -2550,9 +2550,9 @@ cy_rslt_t cy_wcm_get_gateway_mac_address(cy_wcm_mac_t *mac_addr)
         return CY_RSLT_WCM_INTERFACE_NOT_SUPPORTED;
     }
 
-    if(!nw_sta_if_ctx->is_initialized)
+    if(!is_sta_network_up)
     {
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "network interface is NULL \r\n");
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Network is not up, call cy_wcm_connect_ap API to bring network up \r\n");
         return CY_RSLT_WCM_NETIF_DOES_NOT_EXIST;
     }
 
@@ -3647,10 +3647,23 @@ static void sta_link_up_handler(void* arg)
 {
     UNUSED_PARAMETER(arg);
     cy_rslt_t res = CY_RSLT_SUCCESS;
+
+    if(cy_rtos_get_mutex(&wcm_mutex, CY_WCM_MAX_MUTEX_WAIT_TIME_MS) != CY_RSLT_SUCCESS)
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Link UP: Unable to acquire WCM mutex \n");
+        return;
+    }
     res = cy_network_ip_up(nw_sta_if_ctx);
     if(res == CY_RSLT_SUCCESS)
     {
         is_sta_network_up = true;
+    }
+    if(cy_rtos_set_mutex(&wcm_mutex) != CY_RSLT_SUCCESS)
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Link UP: Unable to Release WCM mutex \n");
+    }
+    if(res == CY_RSLT_SUCCESS)
+    {
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Notify application that network is connected again!\n");
         invoke_app_callbacks(CY_WCM_EVENT_RECONNECTED, NULL);
     }
@@ -3690,7 +3703,20 @@ static void sta_link_down_handler(void* arg)
     cy_rslt_t res = CY_RSLT_SUCCESS;
     cy_wcm_event_data_t event_data;
 
+    if(cy_rtos_get_mutex(&wcm_mutex, CY_WCM_MAX_MUTEX_WAIT_TIME_MS) != CY_RSLT_SUCCESS)
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Link Down: Unable to acquire WCM mutex \n");
+        return;
+    }
     res = cy_network_ip_down(nw_sta_if_ctx);
+    if(res == CY_RSLT_SUCCESS)
+    {
+        is_sta_network_up = false;
+    }
+    if(cy_rtos_set_mutex(&wcm_mutex) != CY_RSLT_SUCCESS)
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Link Down: Unable to Release WCM mutex \n");
+    }
     if(res == CY_RSLT_SUCCESS)
     {
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Notify application that network is down!\n");
@@ -3698,7 +3724,6 @@ static void sta_link_down_handler(void* arg)
         event_data.reason = (cy_wcm_reason_code)arg;
         invoke_app_callbacks(CY_WCM_EVENT_DISCONNECTED, &event_data);
     }
-    is_sta_network_up = false;
 }
 static void hanshake_retry_timer(cy_timer_callback_arg_t arg)
 {
@@ -3950,7 +3975,7 @@ void notify_ip_change(void *arg)
           }
        }
     }
-} 
+}
 
 
 static bool check_if_platform_supports_band(whd_interface_t interface, cy_wcm_wifi_band_t requested_band)
