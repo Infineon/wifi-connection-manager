@@ -630,7 +630,7 @@ static cy_rslt_t network_up(whd_interface_t interface, cy_network_hw_interface_t
 static void network_down(whd_interface_t interface, cy_network_hw_interface_type_t iface_type);
 static void hanshake_retry_timer(cy_timer_callback_arg_t arg);
 static void invoke_app_callbacks(cy_wcm_event_t event_type, cy_wcm_event_data_t* arg);
-static cy_wcm_security_t whd_to_wcm_security(whd_security_t sec);
+cy_wcm_security_t whd_to_wcm_security(whd_security_t sec);
 static cy_wcm_bss_type_t  whd_to_wcm_bss_type(whd_bss_type_t bss_type);
 static cy_wcm_wifi_band_t whd_to_wcm_band(whd_802_11_band_t band);
 static whd_security_t wcm_to_whd_security(cy_wcm_security_t sec);
@@ -4180,7 +4180,7 @@ static whd_security_t wcm_to_whd_security(cy_wcm_security_t sec)
     }
 }
 
-static cy_wcm_security_t whd_to_wcm_security(whd_security_t sec)
+cy_wcm_security_t whd_to_wcm_security(whd_security_t sec)
 {
     switch(sec)
     {
