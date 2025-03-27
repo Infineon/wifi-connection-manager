@@ -157,9 +157,9 @@ Enumerations</h2></td></tr>
 , <br />
 &#160;&#160;<a class="el" href="group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a66814cdf2e650a7ac52e2173926a531d">CY_WCM_SECURITY_WPS_SECURE</a> = ( WPS_ENABLED | AES_ENABLED)
 , <br />
-&#160;&#160;<a class="el" href="group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a397fce386b66d0cef2c2be39611278fd">CY_WCM_SECURITY_UNKNOWN</a> = -1
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a397fce386b66d0cef2c2be39611278fd">CY_WCM_SECURITY_UNKNOWN</a> = 0xffffffff
 , <br />
-&#160;&#160;<a class="el" href="group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a9f076fd0959cc261e2a6c9d1858df50e">CY_WCM_SECURITY_FORCE_32_BIT</a> = 0x7fffffff
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#gga8b22f5a47073d5219440566d0e53e521a9f076fd0959cc261e2a6c9d1858df50e">CY_WCM_SECURITY_FORCE_32_BIT</a> = 0xfffffffe
 <br />
  }</td></tr>
 <tr class="memdesc:ga8b22f5a47073d5219440566d0e53e521"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enumeration of Wi-Fi Security Modes.  <a href="group__group__wcm__enums.html#ga8b22f5a47073d5219440566d0e53e521">More...</a><br /></td></tr>
@@ -548,8 +548,7 @@ Enumerations</h2></td></tr>
 <tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521a397fce386b66d0cef2c2be39611278fd" name="gga8b22f5a47073d5219440566d0e53e521a397fce386b66d0cef2c2be39611278fd"></a>CY_WCM_SECURITY_UNKNOWN&#160;</td><td class="fielddoc"><p >Returned by <a class="el" href="group__group__wcm__typedefs.html#ga58bd6c567dc6b0b111fb5852227c0c88">cy_wcm_scan_result_callback_t</a> if security is unknown. </p>
 <p >Do not pass this to the join function! </p>
 </td></tr>
-<tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521a9f076fd0959cc261e2a6c9d1858df50e" name="gga8b22f5a47073d5219440566d0e53e521a9f076fd0959cc261e2a6c9d1858df50e"></a>CY_WCM_SECURITY_FORCE_32_BIT&#160;</td><td class="fielddoc"><p >Exists only to force whd_security_t type to 32 bits. </p>
-<p ><br  />
+<tr><td class="fieldname"><a id="gga8b22f5a47073d5219440566d0e53e521a9f076fd0959cc261e2a6c9d1858df50e" name="gga8b22f5a47073d5219440566d0e53e521a9f076fd0959cc261e2a6c9d1858df50e"></a>CY_WCM_SECURITY_FORCE_32_BIT&#160;</td><td class="fielddoc"><p >Adding the enum for backward compatibility <br  />
  </p>
 </td></tr>
 </table>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, Cypress Semiconductor Corporation (an Infineon company) or
+ * Copyright 2025, Cypress Semiconductor Corporation (an Infineon company) or
  * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
  *
  * This software, including source code, documentation and related
@@ -216,9 +216,9 @@ typedef enum
     CY_WCM_SECURITY_OWE                 = ( WPA3_OWE | AES_ENABLED ),                                          /**< Enhanced open with AES security                        */
 #endif
 
-    CY_WCM_SECURITY_UNKNOWN             = -1,                                                                  /**< Returned by \ref cy_wcm_scan_result_callback_t if security is unknown. Do not pass this to the join function! */
+    CY_WCM_SECURITY_UNKNOWN             = 0xffffffff,                                                          /**< Returned by \ref cy_wcm_scan_result_callback_t if security is unknown. Do not pass this to the join function! */
+    CY_WCM_SECURITY_FORCE_32_BIT        = 0xfffffffe                                                           /**< Adding the enum for backward compatibility             */
 
-    CY_WCM_SECURITY_FORCE_32_BIT        = 0x7fffffff                                                           /**< Exists only to force whd_security_t type to 32 bits.   */
 } cy_wcm_security_t;
 
 /**

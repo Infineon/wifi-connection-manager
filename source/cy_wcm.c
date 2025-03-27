@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, Cypress Semiconductor Corporation (an Infineon company) or
+ * Copyright 2025, Cypress Semiconductor Corporation (an Infineon company) or
  * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
  *
  * This software, including source code, documentation and related
@@ -4041,11 +4041,24 @@ void notify_ip_change(void *arg)
 
 	if (offld_cfg_support & (1 << WHD_FWCAP_OFFLOADS) )
 	{
-	   res = whd_wifi_offload_ipv4_update(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], OFFLOAD_FEATURE, ipv4_addr.ip.v4, WHD_TRUE);
-	   if (res != CY_RSLT_SUCCESS )
-	   {
-	      cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Unable to update ipv4 address\n");
-	   }
+          if(!ipv4_addr.ip.v4)
+          {
+              res = whd_wifi_offload_ipv4_update(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], OFFLOAD_FEATURE, ipv4_addr.ip.v4, WHD_FALSE);
+          }
+          else
+          {
+              res = whd_wifi_set_iovar_void(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], IOVAR_STR_ARP_HOSTIP_CLEAR);
+              if(res != CY_RSLT_SUCCESS)
+              {
+                  cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Unable to clear host ipv4 address\n");
+              }
+              res = whd_wifi_offload_ipv4_update(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], OFFLOAD_FEATURE, ipv4_addr.ip.v4, WHD_TRUE);
+          }
+
+          if (res != CY_RSLT_SUCCESS )
+          {
+              cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Unable to update ipv4 address\n");
+          }
 	}
     }
 

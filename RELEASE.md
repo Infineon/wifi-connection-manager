@@ -12,8 +12,13 @@ See the [README.md](./README.md) for a complete description of the Wi-Fi Connect
 | The `cy_wcm_connect_ap` API does not connect to AP if the MAC address is specified as a connection parameter.| No workaround. This issue will be fixed in future release. |
 | IAR 9.40.2 toolchain throws build errors on Debug mode if the application explicitly includes the *iar_dlmalloc.h* file | Add `'--advanced_heap'` to `LDFLAGS` in the application Makefile. |
 | SoftAP with 6G is currently not supported on [PSoC&trade; 62S2 evaluation kit (CY8CEVAL-062S2-CYW955513SDM2WLIPA)]( https://www.infineon.com/cms/en/product/evaluation-boards/cy8ceval-062s2/ )| No workaround. This will be fixed in a future release. |
+| WPS Enrollee does not work in the PIN Mode on [XMC7200D-E272K8384 kit (KIT_XMC72_EVK_MUR_43439M2)](https://www.infineon.com/cms/en/product/evaluation-boards/kit_xmc72_evk/) | Do one of the following as a workaround: <br> - Disable mbedTLS acceleration by adding `DISABLE_MBEDTLS_ACCELERATION` to Makefile define. <br> - Disable D-Cache by adding `CY_DISABLE_XMC7000_DATA_CACHE` to Makefile define |
 
 ## Changelog
+
+### v3.7.0
+
+- Minor bug fix
 
 ### v3.6.1
 
@@ -146,8 +151,8 @@ This version of the library was validated for compatibility with the following s
 
 | Software and tools                                              | Version |
 | :---                                                            | :----:  |
-| ModusToolbox&trade; software environment                        | 3.3     |
-| ModusToolbox&trade; Device Configurator                         | 5.10    |
+| ModusToolbox&trade; software environment                        | 3.4     |
+| ModusToolbox&trade; Device Configurator                         | 5.20    |
 | GCC Compiler                                                    | 11.3.1  |
 | IAR Compiler                                                    | 9.50.2  |
 | Arm&reg; Compiler 6                                             | 6.22    |
