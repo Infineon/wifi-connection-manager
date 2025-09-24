@@ -48,12 +48,16 @@
 #include "cyabs_rtos.h"
 #include "whd_chip_constants.h"
 #include "whd_wlioctl.h"
+#include "cybsp_wifi.h"
+
+/*****************************************************************************
+ * Macros
+ *****************************************************************************/
 
 /* Chip identifiers for WLAN CPUs */
 #define CY_WCM_WLAN_CHIP_ID_43907        (43907u)    /**< Chip Identifier for 43907 */
 #define CY_WCM_WLAN_CHIP_ID_43909        (43909u)    /**< Chip Identifier for 43909 */
 #define CY_WCM_WLAN_CHIP_ID_54907        (54907u)    /**< Chip Identifier for 54907 */
-
 
 /* Deepsleep time for WLAN CPU */
 #ifndef DEFAULT_PM2_SLEEP_RET_TIME
@@ -436,6 +440,7 @@ cy_rslt_t cy_wcm_get_whd_interface(cy_wcm_interface_t interface_type, whd_interf
 #include "cy_nw_helper.h"
 
 extern cy_rslt_t wpa3_supplicant_sae_start (uint8_t *ssid, uint8_t ssid_len, uint8_t *passphrase, uint8_t passphrase_len);
+extern void wpa3_supplicant_sae_cleanup(void);
 /**
  *  Macro for comparing MAC addresses
  */
@@ -582,6 +587,7 @@ whd_interface_t whd_ifs[MAX_WHD_INTERFACE];
 
 bool is_wcm_initalized                 = false;
 bool is_tcp_initialized                = false;
+bool is_itwt_enabled                   = false;
 static cy_mutex_t wcm_mutex;
 static cy_wcm_interface_t                current_interface;
 static bool wcm_sta_link_up            = false;
@@ -652,7 +658,7 @@ static void notify_connection_status(void* arg);
 static cy_rslt_t check_soft_ap_config(const cy_wcm_ap_config_t *ap_config_params);
 static void read_ap_config(const cy_wcm_ap_config_t *ap_config, whd_ssid_t *ssid, uint8_t **key, uint8_t *keylen, whd_security_t *security, cy_network_static_ip_addr_t *static_ip_addr);
 static void* ap_link_events_handler(whd_interface_t ifp, const whd_event_header_t *event_header, const uint8_t *event_data, void *handler_user_data);
-static cy_rslt_t init_whd_wifi_interface(cy_wcm_interface_t iface_type);
+static cy_rslt_t init_whd_wifi_interface(cy_wcm_config_t *config);
 static bool check_if_ent_auth_types(cy_wcm_security_t auth_type);
 
 static void unpack_xtlv_buf(const uint8_t *tlv_buf, uint16_t buflen,cy_wcm_wlan_statistics_t *stat);
@@ -735,6 +741,11 @@ CYPRESS_WEAK cy_rslt_t wpa3_supplicant_sae_start (uint8_t *ssid, uint8_t ssid_le
     return CY_RSLT_SUCCESS;
 }
 
+CYPRESS_WEAK void wpa3_supplicant_sae_cleanup (void)
+{
+    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "%s \n", __func__);
+}
+
 cy_rslt_t cy_wcm_init(cy_wcm_config_t *config)
 {
     cy_worker_thread_params_t params;
@@ -783,7 +794,7 @@ cy_rslt_t cy_wcm_init(cy_wcm_config_t *config)
         return CY_RSLT_WCM_SEMAPHORE_ERROR;
     }
 
-    if((res = init_whd_wifi_interface(config->interface)) != CY_RSLT_SUCCESS)
+    if((res = init_whd_wifi_interface(config)) != CY_RSLT_SUCCESS)
     {
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Error : Initializing Wi-Fi interface \n");
         cy_rtos_deinit_semaphore(&security_type_start_scan_semaphore);
@@ -1137,7 +1148,7 @@ cy_rslt_t cy_wcm_register_event_callback(cy_wcm_event_callback_t event_callback)
         return CY_RSLT_WCM_BAD_ARG;
     }
 
-    cy_wcm_log_msg( CYLF_MIDDLEWARE, CY_LOG_DEBUG, "\n wcm_mutex - Acquiring Mutex %p ", wcm_mutex );
+    cy_wcm_log_msg( CYLF_MIDDLEWARE, CY_LOG_DEBUG, "\n wcm_mutex - Acquiring Mutex %p \n", wcm_mutex );
     result = cy_rtos_get_mutex( &wcm_mutex, CY_RTOS_NEVER_TIMEOUT );
     if( result != CY_RSLT_SUCCESS )
     {
@@ -1188,7 +1199,7 @@ cy_rslt_t cy_wcm_deregister_event_callback(cy_wcm_event_callback_t event_callbac
         return CY_RSLT_WCM_BAD_ARG;
     }
 
-    cy_wcm_log_msg( CYLF_MIDDLEWARE, CY_LOG_DEBUG, "\n wcm_mutex - Acquiring Mutex %p ", wcm_mutex );
+    cy_wcm_log_msg( CYLF_MIDDLEWARE, CY_LOG_DEBUG, "\n wcm_mutex - Acquiring Mutex %p \n", wcm_mutex );
     result = cy_rtos_get_mutex( &wcm_mutex, CY_RTOS_NEVER_TIMEOUT );
     if( result != CY_RSLT_SUCCESS )
     {
@@ -1353,6 +1364,7 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
     char ip_str[15];
 #endif
     uint32_t ext_sae_support = 0;
+    bool ext_sae_started = false;
 
     if(!is_wcm_initalized)
     {
@@ -1397,7 +1409,6 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
         }
     }
 
-    memset(&connected_ap_details, 0, sizeof(connected_ap_details));
     if((res = check_ap_credentials(connect_params)) != CY_RSLT_SUCCESS)
     {
         return res;
@@ -1407,9 +1418,24 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
     if (cy_rtos_get_mutex(&wcm_mutex, CY_WCM_MAX_MUTEX_WAIT_TIME_MS) == CY_RSLT_SUCCESS)
     {
         whd_scan_result_t ap;
+#ifdef COMPONENT_WIFI6
+        whd_mac_t whd_bssid;
+#endif
         is_disconnect_triggered = false;
         is_connect_triggered = true;
+        convert_connect_params(connect_params, &ssid, &bssid, &key, &keylen, &security, &static_ip);
+
+        memset(&connected_ap_details, 0, sizeof(connected_ap_details));
+#ifdef COMPONENT_WIFI6
+        if (wcm_sta_link_up && !NULL_MAC(bssid.octet))
+        {
+             res = whd_wifi_get_bssid(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], &whd_bssid);
+        }
+        if (is_connected_to_same_ap(connect_params) &&
+            memcmp(connect_params->BSSID, whd_bssid.octet, ETHER_ADDR_LEN) == 0)
+#else
         if (is_connected_to_same_ap(connect_params))
+#endif
         {
             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "already connected to same AP \n");
             /* Store the IP address before returning */
@@ -1428,7 +1454,12 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
 
             goto exit;
         }
+#ifdef COMPONENT_WIFI6
+        if (wcm_sta_link_up && (!is_connected_to_same_ap(connect_params)) &&
+                        (cy_wcm_disconnect_ap() != CY_RSLT_SUCCESS))
+#else
         if (wcm_sta_link_up  && (cy_wcm_disconnect_ap() != CY_RSLT_SUCCESS))
+#endif
         {
             /**
              *  Notify user disconnection error occurred and
@@ -1439,7 +1470,6 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
             goto exit;
         }
 
-        convert_connect_params(connect_params, &ssid, &bssid, &key, &keylen, &security, &static_ip);
         sta_security_type = security;
 
         connection_status = CY_WCM_EVENT_CONNECTING;
@@ -1462,6 +1492,7 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
                 res = CY_RSLT_WCM_WPA3_SUPPLICANT_ERROR;
                 goto exit;
             }
+            ext_sae_started = true;
             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "wpa3_supplicant_sae_start returned res=%d\n", res);
         }
 
@@ -1624,6 +1655,14 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
                 goto exit;
             }
 
+#ifdef COMPONENT_55900
+            /* TWT init */
+            if((res = whd_wifi_itwt_init(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], NULL, NULL)) != CY_RSLT_SUCCESS)
+            {
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "L%d : %s() : ERROR : iTWT initialization failed. Err = [%lu]\r\n", __LINE__, __FUNCTION__, res);
+            }
+#endif
+
             if(connect_params->itwt_profile != CY_WCM_ITWT_PROFILE_NONE)
             {
                 wl_bss_info_t  bss_info;
@@ -1662,7 +1701,11 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
                         twt_params.mantissa      = CY_WCM_TWT_MANTISSA_ACTIVE_PROF;
                     }
                     res = whd_wifi_itwt_setup(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], &twt_params);
-                    if( res != CY_RSLT_SUCCESS)
+                    if( res == CY_RSLT_SUCCESS )
+                    {
+                        is_itwt_enabled = true;
+                    }
+                    else
                     {
                         if( res == WHD_WLAN_UNSUPPORTED )
                         {
@@ -1715,6 +1758,10 @@ exit:
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Mutex release error \n");
         res = ((res != CY_RSLT_SUCCESS) ? res : CY_RSLT_WCM_MUTEX_ERROR);
     }
+    if(ext_sae_started)
+    {
+        wpa3_supplicant_sae_cleanup();
+    }
     cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "wcm mutex unlocked %s %d\r\n", __FILE__, __LINE__);
 
     return res;
@@ -1728,6 +1775,12 @@ cy_rslt_t cy_wcm_disconnect_ap()
     {
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init(). \n");
         return CY_RSLT_WCM_NOT_INITIALIZED;
+    }
+
+    if(!cy_wcm_is_connected_to_ap())
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not connected to an AP \n");
+        return CY_RSLT_WCM_NOT_CONNECTED_TO_AP;
     }
 
     cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "wcm mutex locked %s %d\r\n", __FILE__, __LINE__);
@@ -1746,6 +1799,14 @@ cy_rslt_t cy_wcm_disconnect_ap()
         goto exit;
     }
     wcm_sta_link_up = false;
+
+#ifdef COMPONENT_55900
+    /* TWT deinit */
+    if(CY_RSLT_SUCCESS != whd_wifi_deinit_twt(whd_ifs[CY_WCM_INTERFACE_TYPE_STA]))
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Unable de-initialize iTWT \n");
+    }
+#endif
 
     /* Call Offload deinit after disconnect to AP */
     if ( (is_olm_initialized == true) && (olm_instance != NULL) )
@@ -2563,6 +2624,13 @@ cy_rslt_t cy_wcm_get_wlan_statistics(cy_wcm_interface_t interface, cy_wcm_wlan_s
         return CY_RSLT_WCM_BAD_ARG;
     }
 
+    if(!cy_wcm_is_connected_to_ap())
+    {
+        memset(stat, 0, sizeof(cy_wcm_wlan_statistics_t));
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not connected. \n");
+        return CY_RSLT_WCM_NOT_CONNECTED_TO_AP;
+    }
+
     CHECK_RETURN(whd_wifi_get_iovar_buffer(whd_ifs[ CY_WCM_INTERFACE_TYPE_STA], IOVAR_STR_COUNTERS, buffer, WLC_IOCTL_MEDLEN));
     wl_cnt_info = (wl_cnt_info_t * )buffer;
 
@@ -2714,6 +2782,7 @@ cy_rslt_t cy_wcm_start_ap(const cy_wcm_ap_config_t *ap_config)
     uint16_t chanspec = 0;
     whd_security_t security;
     cy_network_static_ip_addr_t static_ip;
+    uint32_t ext_sae_support = 0;
 
     if(!is_wcm_initalized)
     {
@@ -2739,6 +2808,21 @@ cy_rslt_t cy_wcm_start_ap(const cy_wcm_ap_config_t *ap_config)
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "AP is already Up !!\n");
         res = CY_RSLT_WCM_AP_ALREADY_UP;
         goto exit;
+    }
+
+    if((ap_config->ap_credentials.security == CY_WCM_SECURITY_WPA3_SAE)
+        || (ap_config->ap_credentials.security == CY_WCM_SECURITY_WPA3_WPA2_PSK))
+    {
+        /* SoftAP with external SAE is not supported. */
+        whd_wifi_get_fwcap(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], &ext_sae_support);
+        if(ext_sae_support & (1 << WHD_FWCAP_SAE_EXT))
+        {
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR,
+                    "AP mode is not supported with security type %d\n",
+                    ap_config->ap_credentials.security);
+            res = CY_RSLT_WCM_SECURITY_NOT_SUPPORTED;
+            goto exit;
+        }
     }
 
     read_ap_config(ap_config, &ssid, &key, &keylen, &security, &static_ip);
@@ -3087,6 +3171,10 @@ static bool check_wcm_security(cy_wcm_security_t sec)
         case CY_WCM_SECURITY_WPA2_MIXED_PSK:
         case CY_WCM_SECURITY_WPA2_FBT_PSK:
         case CY_WCM_SECURITY_WPA3_SAE:
+#ifdef COMPONENT_WIFI6
+        case CY_WCM_SECURITY_WPA3_FBT:
+        case CY_WCM_SECURITY_WPA3_WPA2_PSK_FBT:
+#endif
         case CY_WCM_SECURITY_WPA2_WPA_AES_PSK:
         case CY_WCM_SECURITY_WPA2_WPA_MIXED_PSK:
         case CY_WCM_SECURITY_WPA3_WPA2_PSK:
@@ -3102,7 +3190,7 @@ static bool check_wcm_security(cy_wcm_security_t sec)
 #ifdef COMPONENT_WIFI6
         case CY_WCM_SECURITY_OWE:
 #endif
-#ifdef COMPONENT_CAT5
+#ifdef COMPONENT_55900
         case CY_WCM_SECURITY_WPA3_192BIT_ENT:
         case CY_WCM_SECURITY_WPA3_ENT:
         case CY_WCM_SECURITY_WPA3_ENT_AES_CCMP:
@@ -3268,6 +3356,9 @@ static void process_scan_data(void *arg)
     memcpy(wcm_scan_res.SSID, whd_scan_res->SSID.value, whd_scan_res->SSID.length);
     memcpy(wcm_scan_res.BSSID, whd_scan_res->BSSID.octet, sizeof(wcm_scan_res.BSSID));
     wcm_scan_res.security = whd_to_wcm_security(whd_scan_res->security);
+#ifdef CERT_MULTI_AKM
+    memcpy(&wcm_scan_res.fbtbitmap, &whd_scan_res->fbtbitmap, sizeof(whd_scan_res->fbtbitmap));
+#endif
     wcm_scan_res.band = whd_to_wcm_band(whd_scan_res->band);
     wcm_scan_res.bss_type = whd_to_wcm_bss_type(whd_scan_res->bss_type);
     memcpy(wcm_scan_res.ccode, whd_scan_res->ccode, sizeof(wcm_scan_res.ccode));
@@ -3400,7 +3491,6 @@ static void* ap_link_events_handler(whd_interface_t ifp, const whd_event_header_
 
 static void* link_events_handler(whd_interface_t ifp, const whd_event_header_t *event_header, const uint8_t *event_data, void *handler_user_data)
 {
-    uint32_t connection_status;
     cy_rslt_t res = CY_RSLT_SUCCESS;
     UNUSED_PARAMETER(res);
     cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "Link event (type, status, reason, flags) %u %u %u %u\n", (unsigned int)event_header->event_type, (unsigned int)event_header->status,
@@ -3444,7 +3534,7 @@ static void* link_events_handler(whd_interface_t ifp, const whd_event_header_t *
 #ifdef COMPONENT_WIFI6
                     case WHD_SECURITY_WPA3_OWE:
 #endif
-#ifdef COMPONENT_CAT5
+#ifdef COMPONENT_55900
                     case WHD_SECURITY_WPA3_192BIT_ENT:
                     case WHD_SECURITY_WPA3_ENT_AES_CCMP:
                     case WHD_SECURITY_WPA3_ENT:
@@ -3462,12 +3552,6 @@ static void* link_events_handler(whd_interface_t ifp, const whd_event_header_t *
                         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Bad Security type\r\n");
                         break;
                     }
-                }
-                /* Notify application connecting */
-                connection_status = CY_WCM_EVENT_CONNECTING;
-                if((res = cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, (void *)connection_status)) != CY_RSLT_SUCCESS)
-                {
-                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "L%d : %s() : ERROR : Failed to send connection status. Err = [%lu]\r\n", __LINE__, __FUNCTION__, res);
                 }
             }
             else
@@ -3749,6 +3833,11 @@ static void sta_link_up_handler(void* arg)
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Notify application that network is connected again!\n");
         invoke_app_callbacks(CY_WCM_EVENT_RECONNECTED, NULL);
     }
+    else
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "Notify application that reconnection failed!\n");
+        invoke_app_callbacks(CY_WCM_EVENT_CONNECT_FAILED, NULL);
+    }
 }
 
 static void notify_connection_status(void* arg)
@@ -3810,7 +3899,7 @@ static void sta_link_down_handler(void* arg)
 static void hanshake_retry_timer(cy_timer_callback_arg_t arg)
 {
     UNUSED_PARAMETER(arg);
-#ifdef COMPONENT_CAT5
+#ifdef COMPONENT_55900
     cy_rslt_t result;
     result = cy_worker_thread_enqueue(&cy_wcm_worker_thread, handshake_error_callback, NULL);
     if (result != CY_RSLT_SUCCESS)
@@ -3839,6 +3928,18 @@ static void handshake_timeout_handler(cy_timer_callback_arg_t arg)
     }
 }
 
+/* WCM internal retry shall be stopped in one of the following conditions
+ * 1. If disconnect is triggered by application
+ * 2. If connect is in progress from the application
+ * 3. If already connected to an AP.
+ * 4. If the connected AP details are not available. This can happen if the application
+ *    triggers connection, but the connection is unsuccessful and the previously stored
+ *    connected AP details are cleared.
+ */
+#define CY_WCM_SHOULD_STOP_CONNECT_RETRY() \
+    (is_disconnect_triggered == true || is_connect_triggered == true || \
+        cy_wcm_is_connected_to_ap() || connected_ap_details.SSID.length == 0)
+
 
 static void handshake_error_callback(void *arg)
 {
@@ -3846,6 +3947,7 @@ static void handshake_error_callback(void *arg)
     uint8_t    retries;
     uint32_t   ext_sae_support = 0;
     uint32_t   connection_status;
+    bool       ext_sae_started = false;
 
     UNUSED_PARAMETER(arg);
 
@@ -3858,7 +3960,8 @@ static void handshake_error_callback(void *arg)
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Unable to acquire WCM mutex \n");
         return;
     }
-    if (is_disconnect_triggered == true || is_connect_triggered == true || cy_wcm_is_connected_to_ap())
+
+    if (CY_WCM_SHOULD_STOP_CONNECT_RETRY())
     {
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO,
         "is_disconnect_triggered(%d),cy_wcm_is_connected_to_ap()(%d) exit handshake_error_callback\n",
@@ -3889,6 +3992,14 @@ static void handshake_error_callback(void *arg)
             return;
         }
 
+        if (CY_WCM_SHOULD_STOP_CONNECT_RETRY())
+        {
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO,
+            "is_disconnect_triggered(%d),cy_wcm_is_connected_to_ap()(%d) exit handshake_error_callback\n",
+            is_disconnect_triggered, cy_wcm_is_connected_to_ap());
+            goto exit;
+        }
+
         whd_wifi_get_fwcap(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], &ext_sae_support);
         if (( ext_sae_support & (1 << WHD_FWCAP_SAE_EXT)) &&
            ((connected_ap_details.security == WHD_SECURITY_WPA3_SAE) || (connected_ap_details.security == WHD_SECURITY_WPA3_WPA2_PSK)))
@@ -3901,17 +4012,18 @@ static void handshake_error_callback(void *arg)
                  res = CY_RSLT_WCM_WPA3_SUPPLICANT_ERROR;
                  goto exit;
              }
+             ext_sae_started =  true;
              cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "wpa3_supplicant_sae_start returned res=%d\n", res);
         }
 
-        if (is_disconnect_triggered == true || is_connect_triggered == true || cy_wcm_is_connected_to_ap())
+        /* Notify the application that WCM is trying to reconnect to AP. */
+        connection_status = CY_WCM_EVENT_CONNECTING;
+        res = cy_worker_thread_enqueue(&cy_wcm_worker_thread, notify_connection_status, (void *)connection_status);
+        if(res != CY_RSLT_SUCCESS)
         {
-            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO,
-            "is_disconnect_triggered(%d),cy_wcm_is_connected_to_ap()(%d) exit handshake_error_callback\n",
-            is_disconnect_triggered, cy_wcm_is_connected_to_ap());
-            goto exit;
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Failed to send connection status. Err = [%lu]\r\n", res);
         }
-
+            
         if(!NULL_MAC(connected_ap_details.sta_mac.octet))
         {
             whd_scan_result_t ap;
@@ -3982,6 +4094,12 @@ static void handshake_error_callback(void *arg)
             return;
         }
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "wcm mutex unlocked %s %d\r\n", __FILE__, __LINE__);
+
+        if(ext_sae_started)
+        {
+            ext_sae_started = false;
+            wpa3_supplicant_sae_cleanup();
+        }
     }
 
     /* Register retry with network worker thread */
@@ -4000,6 +4118,10 @@ exit:
     {
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Mutex release error \n");
         return;
+    }
+    if(ext_sae_started)
+    {
+        wpa3_supplicant_sae_cleanup();
     }
     cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "wcm mutex unlocked %s %d\r\n", __FILE__, __LINE__);
 }
@@ -4039,27 +4161,27 @@ void notify_ip_change(void *arg)
         link_event_data.ip_addr.ip.v4   = ipv4_addr.ip.v4;
         invoke_app_callbacks(CY_WCM_EVENT_IP_CHANGED, &link_event_data);
 
-	if (offld_cfg_support & (1 << WHD_FWCAP_OFFLOADS) )
-	{
-          if(!ipv4_addr.ip.v4)
-          {
-              res = whd_wifi_offload_ipv4_update(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], OFFLOAD_FEATURE, ipv4_addr.ip.v4, WHD_FALSE);
-          }
-          else
-          {
-              res = whd_wifi_set_iovar_void(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], IOVAR_STR_ARP_HOSTIP_CLEAR);
-              if(res != CY_RSLT_SUCCESS)
-              {
-                  cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Unable to clear host ipv4 address\n");
-              }
-              res = whd_wifi_offload_ipv4_update(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], OFFLOAD_FEATURE, ipv4_addr.ip.v4, WHD_TRUE);
-          }
+        if (offld_cfg_support & (1 << WHD_FWCAP_OFFLOADS) )
+        {
+            if(!ipv4_addr.ip.v4)
+            {
+                res = whd_wifi_offload_ipv4_update(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], OFFLOAD_FEATURE, ipv4_addr.ip.v4, WHD_FALSE);
+            }
+            else
+            {
+                res = whd_wifi_set_iovar_void(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], IOVAR_STR_ARP_HOSTIP_CLEAR);
+                if(res != CY_RSLT_SUCCESS)
+                {
+                    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Unable to clear host ipv4 address\n");
+                }
+                res = whd_wifi_offload_ipv4_update(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], OFFLOAD_FEATURE, ipv4_addr.ip.v4, WHD_TRUE);
+            }
 
-          if (res != CY_RSLT_SUCCESS )
-          {
-              cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Unable to update ipv4 address\n");
-          }
-	}
+            if (res != CY_RSLT_SUCCESS )
+            {
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Unable to update ipv4 address\n");
+            }
+        }
     }
 
     res = cy_network_get_ipv6_address(nw_sta_if_ctx, CY_NETWORK_IPV6_LINK_LOCAL, &ipv6_addr);
@@ -4067,11 +4189,11 @@ void notify_ip_change(void *arg)
     {
        if (offld_cfg_support & (1 << WHD_FWCAP_OFFLOADS) )
        {
-          res = whd_wifi_offload_ipv6_update(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], OFFLOAD_FEATURE, ipv6_addr.ip.v6, 0, WHD_TRUE);
-          if (res != CY_RSLT_SUCCESS )
-          {
-	     cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Unable to update ipv6 address\n");
-          }
+            res = whd_wifi_offload_ipv6_update(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], OFFLOAD_FEATURE, ipv6_addr.ip.v6, 0, WHD_TRUE);
+            if (res != CY_RSLT_SUCCESS )
+            {
+                cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Unable to update ipv6 address\n");
+            }
        }
     }
 }
@@ -4208,7 +4330,13 @@ static whd_security_t wcm_to_whd_security(cy_wcm_security_t sec)
 
         case CY_WCM_SECURITY_WPA_MIXED_PSK:
             return WHD_SECURITY_WPA_MIXED_PSK;
+#ifdef COMPONENT_WIFI6
+         case CY_WCM_SECURITY_WPA3_WPA2_PSK_FBT:
+            return WHD_SECURITY_WPA3_WPA2_PSK_FBT;
 
+         case CY_WCM_SECURITY_WPA3_FBT:
+            return WHD_SECURITY_WPA3_FBT;
+#endif
         case CY_WCM_SECURITY_WPA2_AES_PSK:
             return WHD_SECURITY_WPA2_AES_PSK;
 
@@ -4251,7 +4379,7 @@ static whd_security_t wcm_to_whd_security(cy_wcm_security_t sec)
         case CY_WCM_SECURITY_WPA2_AES_ENT:
             return WHD_SECURITY_WPA2_AES_ENT;
 
-#ifdef COMPONENT_CAT5
+#ifdef COMPONENT_55900
         case CY_WCM_SECURITY_WPA3_ENT:
             return WHD_SECURITY_WPA3_ENT;
 
@@ -4348,7 +4476,7 @@ cy_wcm_security_t whd_to_wcm_security(whd_security_t sec)
         case WHD_SECURITY_WPA2_AES_ENT:
             return CY_WCM_SECURITY_WPA2_AES_ENT;
 
-#ifdef COMPONENT_CAT5
+#ifdef COMPONENT_55900
         case WHD_SECURITY_WPA3_192BIT_ENT:
             return CY_WCM_SECURITY_WPA3_192BIT_ENT;
 
@@ -4374,6 +4502,12 @@ cy_wcm_security_t whd_to_wcm_security(whd_security_t sec)
 #ifdef COMPONENT_WIFI6
         case WHD_SECURITY_WPA3_OWE:
             return CY_WCM_SECURITY_OWE;
+
+        case WHD_SECURITY_WPA3_FBT:
+            return CY_WCM_SECURITY_WPA3_FBT;
+
+        case WHD_SECURITY_WPA3_WPA2_PSK_FBT:
+            return CY_WCM_SECURITY_WPA3_WPA2_PSK_FBT;
 #endif
 
         default:
@@ -4587,12 +4721,25 @@ static cy_rslt_t check_soft_ap_config(const cy_wcm_ap_config_t *ap_config_params
     return result;
 }
 
-static cy_rslt_t init_whd_wifi_interface(cy_wcm_interface_t iface_type)
+static cy_rslt_t init_whd_wifi_interface(cy_wcm_config_t *config)
 {
-
-    if(iface_type != CY_WCM_INTERFACE_TYPE_AP_STA)
+    cy_rslt_t result = CY_RSLT_SUCCESS;
+    if(config->interface != CY_WCM_INTERFACE_TYPE_AP_STA)
     {
-        if (cybsp_wifi_init_primary(&whd_ifs[iface_type]) != CY_RSLT_SUCCESS)
+#ifndef COMPONENT_MTB_HAL
+        result = cybsp_wifi_init_primary(&whd_ifs[config->interface]);
+
+#else
+#if MTB_HAL_DRIVER_AVAILABLE_SDIO
+        result = cybsp_wifi_init_primary_sdio(&whd_ifs[config->interface],NULL,NULL,NULL,NULL,
+                                              config->wifi_interface_instance,
+                                              &config->wifi_host_wake_pin,
+                                              &config->wifi_wl_pin);
+#else
+#error "This interface is not supported"
+#endif
+#endif
+        if (result != CY_RSLT_SUCCESS)
         {
             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Error in initializing primary interface !!\n");
             return CY_RSLT_WCM_BSP_INIT_ERROR;
@@ -4602,7 +4749,20 @@ static cy_rslt_t init_whd_wifi_interface(cy_wcm_interface_t iface_type)
     else
     {
         /* In concurrent mode primary interface would be STA and secondary AP*/
-        if (cybsp_wifi_init_primary(&whd_ifs[CY_WCM_INTERFACE_TYPE_STA]) != CY_RSLT_SUCCESS)
+#ifndef COMPONENT_MTB_HAL
+        result = cybsp_wifi_init_primary(&whd_ifs[CY_WCM_INTERFACE_TYPE_STA]);
+#else
+#if MTB_HAL_DRIVER_AVAILABLE_SDIO
+        result = cybsp_wifi_init_primary_sdio(&whd_ifs[CY_WCM_INTERFACE_TYPE_STA],NULL,NULL,NULL,NULL,
+                                              config->wifi_interface_instance,
+                                              &config->wifi_host_wake_pin,
+                                              &config->wifi_wl_pin);
+#else
+#error "This interface is not supported"
+#endif
+#endif
+
+        if (result != CY_RSLT_SUCCESS)
         {
             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Error in getting primary interface mac address !!\n");
             return CY_RSLT_WCM_BSP_INIT_ERROR;
@@ -4648,7 +4808,7 @@ static bool check_if_ent_auth_types(cy_wcm_security_t auth_type)
        (auth_type == CY_WCM_SECURITY_WPA_MIXED_ENT) || (auth_type == CY_WCM_SECURITY_WPA2_TKIP_ENT) ||
        (auth_type == CY_WCM_SECURITY_WPA2_AES_ENT) || (auth_type == CY_WCM_SECURITY_WPA2_MIXED_ENT) ||
        (auth_type == CY_WCM_SECURITY_WPA2_FBT_ENT)
-#ifdef COMPONENT_CAT5
+#ifdef COMPONENT_55900
        || (auth_type == CY_WCM_SECURITY_WPA3_ENT)
        || (auth_type == CY_WCM_SECURITY_WPA3_192BIT_ENT)
        || (auth_type == CY_WCM_SECURITY_WPA3_ENT_AES_CCMP)
@@ -4761,5 +4921,183 @@ cy_rslt_t cy_wcm_allow_low_power_mode(cy_wcm_powersave_mode_t mode)
     }
     return rslt;
 }
+
+#ifdef COMPONENT_55900
+cy_rslt_t cy_wcm_sta_itwt_setup(cy_wcm_itwt_setup_params_t *itwt_params)
+{
+    whd_itwt_setup_params_t twt_params;
+    cy_rslt_t       result = CY_RSLT_SUCCESS;
+    whd_interface_t ifp    = NULL;
+
+    if( itwt_params == NULL )
+    {
+        return CY_RSLT_WCM_BAD_ARG;
+    }
+
+    if(is_itwt_enabled == true)
+    {
+        return CY_RSLT_WCM_ITWT_ENABLED;
+    }
+    if(!is_wcm_initalized)
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init(). \n");
+        return CY_RSLT_WCM_NOT_INITIALIZED;
+    }
+
+    if( !cy_wcm_is_connected_to_ap() )
+    {
+        return CY_RSLT_WCM_NOT_CONNECTED_TO_AP;
+    }
+
+    if( cy_wcm_get_whd_interface(CY_WCM_INTERFACE_TYPE_STA, &ifp) != CY_RSLT_SUCCESS )
+    {
+        return CY_RSLT_WCM_INTERFACE_NOT_UP;
+    }
+
+    if((itwt_params->setup_cmd >= CY_WCM_TWT_SETUP_CMD_REQUEST_TWT) && (itwt_params->setup_cmd <= CY_WCM_TWT_SETUP_CMD_REJECT_TWT))
+    {
+        twt_params.setup_cmd     = itwt_params->setup_cmd;
+    }
+    else
+    {
+        goto exit;
+    }
+
+    if(((itwt_params->flow_id>=0) && (itwt_params->flow_id <= 7)) || (itwt_params->flow_id == 0xFF))
+    {
+        twt_params.flow_id       = itwt_params->flow_id;
+    }
+    else
+    {
+        goto exit;
+    }
+
+    twt_params.trigger       = (uint8_t)itwt_params->trigger;
+    twt_params.flow_type     = (uint8_t)itwt_params->flow_type;
+    twt_params.wake_duration = itwt_params->wake_duration; /* Can be any uint8_t value. Internally will be multiplied with 256usec */
+    twt_params.exponent      = itwt_params->exponent;      /* Can be any uint8_t value. Used to compute interval */
+    twt_params.mantissa      = itwt_params->mantissa;      /* Can be any uint16_t value. Used to compute interval */
+    twt_params.wake_time_h   = itwt_params->wake_time_h;   /* Can be any uint32_t value. */
+    twt_params.wake_time_l   = itwt_params->wake_time_l;   /* Can be any uint32_t value. */
+
+    result = whd_wifi_itwt_setup(ifp, &twt_params);
+    if( result != CY_RSLT_SUCCESS)
+    {
+        if( result == WHD_WLAN_UNSUPPORTED )
+        {
+            cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "iTWT Not supported for this capabilities\n");
+        }
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "whd_wifi_itwt_setup failed %ld\r\n", res);
+    }
+
+    is_itwt_enabled = true;
+    return result;
+
+exit:
+    result = ~CY_RSLT_SUCCESS;
+    return result;
+}
+
+cy_rslt_t cy_wcm_sta_itwt_teardown(uint8_t flow_id, bool all_twt)
+{
+    whd_twt_teardown_params_t twt_params;
+    whd_interface_t ifp = NULL;
+    cy_rslt_t result = CY_RSLT_SUCCESS;
+
+    if(is_itwt_enabled == false)
+    {
+        return CY_RSLT_WCM_ITWT_NOT_ENABLED;
+    }
+    if(!is_wcm_initalized)
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init(). \n");
+        return CY_RSLT_WCM_NOT_INITIALIZED;
+    }
+
+    if( !cy_wcm_is_connected_to_ap() )
+    {
+        return CY_RSLT_WCM_INTERFACE_NOT_UP;
+    }
+
+    if( cy_wcm_get_whd_interface(CY_WCM_INTERFACE_TYPE_STA, &ifp) != CY_RSLT_SUCCESS )
+    {
+        return CY_RSLT_WCM_NOT_INITIALIZED;
+    }
+
+    twt_params.negotiation_type = TWT_CTRL_NEGO_TYPE_0;
+    twt_params.flow_id = (all_twt == true) ? CY_WCM_TWT_FLOW_ID_ALL : flow_id;
+    twt_params.bcast_twt_id = 0;
+    twt_params.teardown_all_twt = all_twt;
+
+    result = whd_wifi_twt_teardown(ifp, &twt_params);
+    if( result != CY_RSLT_SUCCESS )
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR,
+                "iTWT session tear-down failed! Error code: %ld\n", res);
+    }
+
+    is_itwt_enabled = false;
+    return result;
+}
+
+cy_rslt_t cy_wcm_sta_itwt_get_session_info(cy_wcm_itwt_negotiated_params_t *negotiated_params)
+{
+    whd_interface_t ifp = NULL;
+    whd_itwt_negotiated_params_t whd_itwt_negotiated_params;
+    cy_rslt_t result;
+
+    if( negotiated_params == NULL )
+    {
+        return CY_RSLT_WCM_BAD_ARG;
+    }
+
+    if(is_itwt_enabled == false)
+    {
+        memset(negotiated_params, 0, sizeof(cy_wcm_itwt_negotiated_params_t));
+        return CY_RSLT_WCM_ITWT_NOT_ENABLED;
+    }
+
+    if(!is_wcm_initalized)
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "WCM is not initialized. To initialize call cy_wcm_init(). \n");
+        return CY_RSLT_WCM_NOT_INITIALIZED;
+    }
+
+    if( !cy_wcm_is_connected_to_ap() )
+    {
+        return CY_RSLT_WCM_INTERFACE_NOT_UP;
+    }
+
+    if( cy_wcm_get_whd_interface(CY_WCM_INTERFACE_TYPE_STA, &ifp) != CY_RSLT_SUCCESS )
+    {
+        return CY_RSLT_WCM_NOT_INITIALIZED;
+    }
+
+    result = whd_wifi_itwt_get_negotiated_info(ifp, &whd_itwt_negotiated_params);
+    if(result == CY_RSLT_SUCCESS)
+    {
+        memset(negotiated_params, 0, sizeof(cy_wcm_itwt_negotiated_params_t));
+        /* Copy the data from whd_itwt_negotiated_params(whd struct) to negotiated_params(wcm struct) */
+        negotiated_params->session_state = (cy_wcm_twt_session_state_t)whd_itwt_negotiated_params.session_state;
+        negotiated_params->flow_id = whd_itwt_negotiated_params.flow_id;
+        negotiated_params->dialog_token = whd_itwt_negotiated_params.dialog_token;
+
+        negotiated_params->peer_mac[0] = whd_itwt_negotiated_params.peer_mac.octet[0];
+        negotiated_params->peer_mac[1] = whd_itwt_negotiated_params.peer_mac.octet[1];
+        negotiated_params->peer_mac[2] = whd_itwt_negotiated_params.peer_mac.octet[2];
+        negotiated_params->peer_mac[3] = whd_itwt_negotiated_params.peer_mac.octet[3];
+        negotiated_params->peer_mac[4] = whd_itwt_negotiated_params.peer_mac.octet[4];
+        negotiated_params->peer_mac[5] = whd_itwt_negotiated_params.peer_mac.octet[5];
+
+        negotiated_params->target_wake_time = whd_itwt_negotiated_params.target_wake_time;
+        negotiated_params->wake_duration = whd_itwt_negotiated_params.wake_duration;
+        negotiated_params->wake_interval = whd_itwt_negotiated_params.wake_interval;
+        negotiated_params->is_implicit = whd_itwt_negotiated_params.is_implicit;
+        negotiated_params->is_triggered = whd_itwt_negotiated_params.is_triggered;
+        negotiated_params->is_announced = whd_itwt_negotiated_params.is_announced;
+    }
+    return result;
+}
+#endif /* COMPONENT_55900 */
 
 #endif

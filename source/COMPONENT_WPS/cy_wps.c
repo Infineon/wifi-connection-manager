@@ -59,7 +59,7 @@
 #include "whd_int.h"
 #include "whd_debug.h"
 #include "cy_wifimwcore_eapol.h"
-
+#include "whd_proto.h"
 /******************************************************
  *             Constants
  ******************************************************/
@@ -1070,9 +1070,8 @@ void cy_wps_host_scan( cy_wps_agent_t* workspace, cy_wps_scan_handler_t result_h
      * all the channels then the WPS enrollee will go into a scan request/abort loop which causes various problems including lockup for SPI builds. */
     memset( &workspace->band_list, 0, sizeof( whd_band_list_t ) );
 
-    whd_cdc_get_ioctl_buffer(host->host_workspace.interface->whd_driver, &buffer, sizeof(whd_band_list_t) );
-
-    whd_cdc_send_ioctl(host->host_workspace.interface,  CDC_GET, WLC_GET_BANDLIST, buffer, &response);
+    whd_proto_get_ioctl_buffer(host->host_workspace.interface->whd_driver, &buffer, sizeof(whd_band_list_t) );
+    whd_proto_set_ioctl(host->host_workspace.interface, WLC_GET_BANDLIST, buffer, &response);
 
     memcpy(&workspace->band_list, (uint32_t*) whd_buffer_get_current_piece_data_pointer(host->host_workspace.interface->whd_driver, response), sizeof(whd_band_list_t));
     whd_buffer_release(host->host_workspace.interface->whd_driver, response, WHD_NETWORK_RX);

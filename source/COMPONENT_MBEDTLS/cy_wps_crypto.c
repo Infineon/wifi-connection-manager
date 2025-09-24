@@ -40,7 +40,11 @@
 
 #include "cy_wps_crypto.h"
 #include "cyabs_rtos_impl.h"
+#ifdef COMPONENT_MTB_HAL
+#include "mtb_hal.h"
+#else
 #include "cyhal.h"
+#endif
 #include "cy_wps_mbedtls_version.h"
 /******************************************************
  *                      Macros
@@ -75,7 +79,7 @@
  ******************************************************/
 extern int aes_cbc_crypt_pad_length_padding( mbedtls_aes_context *ctx, int mode, uint32_t length, const unsigned char iv[16], const unsigned char *input, unsigned char *output );
 
-cy_rslt_t cy_sha256( const unsigned char *input, size_t ilen, unsigned char output[32], int is224 )
+cy_rslt_t cy_sha256( const unsigned char *input, size_t ilen, unsigned char output[32], uint32_t is224 )
 {
 
 #if MBEDTLS_VERSION_MAJOR == MBEDTLS_MAJOR_VERSION_3

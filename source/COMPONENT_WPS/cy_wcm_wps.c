@@ -200,8 +200,8 @@ cy_rslt_t cy_wcm_wps_enrollee(cy_wcm_wps_config_t* wps_config, const cy_wcm_wps_
     wps_credentials = (cy_wps_credential_t*)cy_wps_calloc("wps_creds", (*credential_count), sizeof(cy_wps_credential_t));
     if(wps_credentials == NULL)
     {
-    	free(workspace);
-    	return CY_RSLT_WCM_OUT_OF_MEMORY;
+        free(workspace);
+        return CY_RSLT_WCM_OUT_OF_MEMORY;
     }
 
     if( cy_wcm_is_connected_to_ap() )

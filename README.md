@@ -56,6 +56,8 @@ This library and its features are supported on the following Infineon platforms:
 
 - [PSoC&trade; 62S2 evaluation kit (CY8CEVAL-062S2-CYW955513SDM2WLIPA)]( https://www.infineon.com/cms/en/product/evaluation-boards/cy8ceval-062s2/ )
 
+- PSOC&trade; Edge E84 Evaluation Kit
+
 **Note**: Virtual APIs are supported on all PSoC 62 devices, but they have only been tested on the CY8CEVAL-062S2-MUR-43439M2 kit.
 
 ## Dependent libraries
@@ -74,7 +76,7 @@ If virtual APIs are to be used, it additionally depends on the [Virtual Connecti
 
 1. To use wifi-connection-manager library for FreeRTOS, lwIP, mbed TLS combination, the application should pull the [wifi-core-freertos-lwip-mbedtls]( https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls ) library which will internally pull wifi-connection-manager, FreeRTOS, lwIP, mbed TLS, and other dependent modules.
    
-   To pull [wifi-core-freertos-lwip-mbedtls]( https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls#latest-v1.X#$$ASSET_REPO$$/wifi-core-freertos-lwip-mbedtls/latest-v1.X ), create the *wifi-core-freertos-lwip-mbedtls.mtb* file.
+   To pull [wifi-core-freertos-lwip-mbedtls]( https://github.com/Infineon/wifi-core-freertos-lwip-mbedtls#latest-v3.X#$$ASSET_REPO$$/wifi-core-freertos-lwip-mbedtls/latest-v3.X ), create the *wifi-core-freertos-lwip-mbedtls.mtb* file.
 
 2. To use wifi-connection-manager library for ThreadX, NetX Duo, NetX Secure combination, the application should pull the [wifi-core-threadx-cat5]( https://github.com/Infineon/wifi-core-threadx-cat5 ) library which will internally pull wifi-connection-manager and other dependent modules.
 

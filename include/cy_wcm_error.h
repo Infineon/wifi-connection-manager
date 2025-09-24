@@ -124,26 +124,29 @@ extern "C" {
 #define CY_RSLT_WCM_IP_ADDR_ERROR                          (CY_RSLT_WCM_ERR_BASE + 42) /**< Failed to get the IP address.                 */
 #define CY_RSLT_WCM_GATEWAY_MAC_ADDR_ERROR                 (CY_RSLT_WCM_ERR_BASE + 43) /**< Failed to get the Gateway MAC address.        */
 #define CY_RSLT_WCM_NW_INIT_ERROR                          (CY_RSLT_WCM_ERR_BASE + 44) /**< Failed to initialize the network stack.       */
+#define CY_RSLT_WCM_NOT_CONNECTED_TO_AP                    (CY_RSLT_WCM_ERR_BASE + 45) /**< Not connected to the AP.                      */
+#define CY_RSLT_WCM_ITWT_NOT_ENABLED                       (CY_RSLT_WCM_ERR_BASE + 46) /**< iTWT session not enabled.                     */
+#define CY_RSLT_WCM_ITWT_ENABLED                           (CY_RSLT_WCM_ERR_BASE + 47) /**< iTWT session enabled.                         */
 
 /** WPS error codes */
-#define CY_RSLT_WCM_WPS_PBC_OVERLAP                        (CY_RSLT_WCM_ERR_BASE + 45) /**< WPS PBC overlap.                              */
-#define CY_RSLT_WCM_WPS_ERROR_RECEIVED_WEP_CREDENTIALS     (CY_RSLT_WCM_ERR_BASE + 46) /**< WPS received incorrect credentials.           */
-#define CY_RSLT_WCM_WPS_FAILED                             (CY_RSLT_WCM_ERR_BASE + 47) /**< WPS PBC/PIN mode failed.                      */
+#define CY_RSLT_WCM_WPS_PBC_OVERLAP                        (CY_RSLT_WCM_ERR_BASE + 48) /**< WPS PBC overlap.                              */
+#define CY_RSLT_WCM_WPS_ERROR_RECEIVED_WEP_CREDENTIALS     (CY_RSLT_WCM_ERR_BASE + 49) /**< WPS received incorrect credentials.           */
+#define CY_RSLT_WCM_WPS_FAILED                             (CY_RSLT_WCM_ERR_BASE + 50) /**< WPS PBC/PIN mode failed.                      */
 
 /** DHCP error code */
-#define CY_RSLT_WCM_DHCP_TIMEOUT                           (CY_RSLT_WCM_ERR_BASE + 48)  /**< DHCP timeout.                                */
+#define CY_RSLT_WCM_DHCP_TIMEOUT                           (CY_RSLT_WCM_ERR_BASE + 51)  /**< DHCP timeout.                                */
 
 /** WPA3 supplicant error code */
-#define CY_RSLT_WCM_WPA3_SUPPLICANT_ERROR                  (CY_RSLT_WCM_ERR_BASE + 49) /**< WPA3 supplicant error.                        */
+#define CY_RSLT_WCM_WPA3_SUPPLICANT_ERROR                  (CY_RSLT_WCM_ERR_BASE + 52) /**< WPA3 supplicant error.                        */
 
 /** Unsupported WCM API error code */
-#define CY_RSLT_WCM_UNSUPPORTED_API                        (CY_RSLT_WCM_ERR_BASE + 50) /**< Unsupported WCM API.                          */
+#define CY_RSLT_WCM_UNSUPPORTED_API                        (CY_RSLT_WCM_ERR_BASE + 53) /**< Unsupported WCM API.                          */
 
 /** VCM error code */
-#define CY_RSLT_WCM_VCM_ERROR                              (CY_RSLT_WCM_ERR_BASE + 51) /**< Failed to execute virtual API using VCM.      */
+#define CY_RSLT_WCM_VCM_ERROR                              (CY_RSLT_WCM_ERR_BASE + 54) /**< Failed to execute virtual API using VCM.      */
 
 /** Powersave Mode error code **/
-#define CY_RSLT_WCM_POWERSAVE_MODE_NOT_SUPPORTED           (CY_RSLT_WCM_ERR_BASE + 52) /**< Powersave mode not supported on this device.  */
+#define CY_RSLT_WCM_POWERSAVE_MODE_NOT_SUPPORTED           (CY_RSLT_WCM_ERR_BASE + 55) /**< Powersave mode not supported on this device.  */
 
 /** Reason codes for disconnection based on WHD enums */
 typedef enum

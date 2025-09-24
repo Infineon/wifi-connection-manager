@@ -51,9 +51,16 @@
 #include "whd_int.h"
 #include "whd_buffer_api.h"
 #include "whd_types.h"
+#ifdef COMPONENT_MTB_HAL
+#include "mtb_hal.h"
+#else
 #include "cyhal.h"
+#endif
 #ifdef COMPONENT_MBEDTLS
 #include "entropy_poll.h"
+#endif
+#ifdef COMPONENT_NETXSECURE
+#include "nx_user.h"
 #endif
 
 /******************************************************
@@ -90,6 +97,19 @@
 #ifndef FALSE
 #define FALSE  (0)
 #endif /* ifndef FALSE */
+
+#if COMPONENT_MBEDTLS
+/* MBEDTLS uses 256 bit values for encryption/decryption.
+ * 0 - mbedtls uses 256 bit values
+ * 1 - mbedtls uses 224 bit values
+ */
+#define WPS_HASH_ALGO               (0)
+#elif COMPONENT_NETXSECURE
+/* NETXSECURE uses 256 bit values for encryption/decryption.
+ * Hence it is set to NX_CRYPTO_HASH_SHA256
+ */
+#define WPS_HASH_ALGO               (NX_CRYPTO_HASH_SHA256)
+#endif
 
 #ifdef ENABLE_WCM_LOGS
 #define cy_wcm_log_msg cy_log_msg
@@ -358,6 +378,36 @@ cy_rslt_t cy_host_random_bytes( void* buffer, size_t buffer_length, size_t* outp
     }
 
     *output_length = length;
+#endif
+#ifdef COMPONENT_NETXSECURE
+    uint32_t random_value;
+    uint16_t i;
+    uint16_t loop_len;
+    uint8_t  *pBuf = (uint8_t*)buffer;
+    if( buffer == NULL || buffer_length == 0 )
+    {
+        return CY_RSLT_WPS_ERROR;
+    }
+    loop_len = buffer_length;
+    if( buffer_length % 4 )
+    {
+        loop_len--;
+    }
+
+    for( i=0; i < loop_len; i += 4)
+    {
+        random_value = (uint32_t)NX_RAND();
+
+        pBuf[i]   = (uint8_t)(random_value);
+        pBuf[i+1] = (uint8_t)(random_value >> 8);
+        pBuf[i+2] = (uint8_t)(random_value >> 16);
+        pBuf[i+3] = (uint8_t)(random_value >> 24);
+    }
+    /* Fill for the remaining bytes */
+    for( ; i < buffer_length; i++ )
+    {
+        pBuf[i] = (uint8_t)NX_RAND();
+    }
 #endif
 #else
     /* 43907 kits does not have TRNG module. Get the random
@@ -668,7 +718,7 @@ static void cy_wps_send_protocol_message(cy_wps_agent_t* workspace, cy_packet_t*
         iter = tlv_write_value( iter, WPS_ID_AUTHENTICATOR, SIZE_64_BITS, &hmac_output, TLV_UINT8_PTR );
 
         /* Start calculating the authenticator for the next message */
-        cy_sha2_hmac_starts( &workspace->hmac, (unsigned char*) &workspace->auth_key, SIZE_256_BITS, 0 );
+        cy_sha2_hmac_starts( &workspace->hmac, (unsigned char*) &workspace->auth_key, SIZE_256_BITS, WPS_HASH_ALGO );
         cy_sha2_hmac_update( &workspace->hmac, start_of_packet, (uint32_t)( iter - start_of_packet ) );
     }
     else
@@ -736,15 +786,14 @@ static cy_rslt_t cy_wps_calculate_kdk(cy_wps_agent_t* workspace)
 
     /* Compute the Diffie-Hellman key based on the shared secret */
     wps_NN_get( &shared_secret, (uint8_t*) nn_workspace.num );
-    cy_sha256( (uint8_t*) nn_workspace.num, 192, (unsigned char*) diffie_hellman_key, 0 );
-
+    cy_sha256( (uint8_t*) nn_workspace.num, 192, (unsigned char*) diffie_hellman_key, WPS_HASH_ALGO );
 
     /* Generate the KDK */
     memcpy( &kdk_input.enrollee_nonce,  &workspace->enrollee_data->nonce,       sizeof(cy_wps_nonce_t) );
     memcpy( &kdk_input.enrollee_mac,    &workspace->enrollee_data->mac_address, sizeof(whd_mac_t) );
     memcpy( &kdk_input.registrar_nonce, &workspace->registrar_data->nonce,      sizeof(cy_wps_nonce_t) );
 
-    cy_sha2_hmac( diffie_hellman_key, SIZE_256_BITS, (uint8_t*) &kdk_input, sizeof(cy_kdk_input_t), (uint8_t*) &kdk, 0 );
+    cy_sha2_hmac( diffie_hellman_key, SIZE_256_BITS, (uint8_t*) &kdk_input, sizeof(cy_kdk_input_t), (uint8_t*) &kdk, WPS_HASH_ALGO );
 
     /* Generate auth_key, key_wrap_key and emsk */
     cy_wps_calculate_kdf( (uint8_t*) &kdk, sizeof(kdk), KDK_PERSONALIZATION_STRING, (uint8_t*) &kdf_output, sizeof(cy_wps_session_keys_t) );
@@ -854,7 +903,8 @@ static cy_rslt_t cy_wps_calculate_hash(cy_wps_agent_t* workspace, cy_wps_agent_d
     memcpy( &hash_input.psk,                  &workspace->psk[hash],                  sizeof(cy_wps_psk_t) );
     memcpy( &hash_input.enrollee_public_key,  &workspace->enrollee_data->public_key,  sizeof(cy_public_key_t) );
     memcpy( &hash_input.registrar_public_key, &workspace->registrar_data->public_key, sizeof(cy_public_key_t) );
-    cy_sha2_hmac( (unsigned char *)&workspace->auth_key, SIZE_256_BITS, (uint8_t*) &hash_input, sizeof( hash_input ), output->octet, 0 );
+
+    cy_sha2_hmac( (unsigned char *)&workspace->auth_key, SIZE_256_BITS, (uint8_t*) &hash_input, sizeof( hash_input ), output->octet, WPS_HASH_ALGO );
 
     return CY_RSLT_SUCCESS;
 }
@@ -867,11 +917,13 @@ static cy_rslt_t cy_wps_calculate_psk(cy_wps_agent_t* workspace)
     cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "WPS password %s\r\n", workspace->password);
 
     /* Hash 1st half of password and copy first 128 bits into psk1. If it is an odd length, the extra byte goes along with the first half */
-    cy_sha2_hmac( (unsigned char *)&workspace->auth_key, SIZE_256_BITS, (uint8_t*) workspace->password, (uint32_t) ( ( password_length / 2 ) + ( password_length % 2 ) ), (uint8_t*) &hmac_output, 0 );
+    cy_sha2_hmac( (unsigned char *)&workspace->auth_key, SIZE_256_BITS, (uint8_t*) workspace->password, (uint32_t) ( ( password_length / 2 ) + ( password_length % 2 ) ), (uint8_t*) &hmac_output, WPS_HASH_ALGO );
+
     memcpy( &workspace->psk[0], &hmac_output, SIZE_128_BITS );
 
     /* Hash 2nd half of password and copy fist 128 bits into psk2 */
-    cy_sha2_hmac( (unsigned char *)&workspace->auth_key, SIZE_256_BITS, (uint8_t*) ( workspace->password + ( password_length / 2 ) + ( password_length % 2 ) ), password_length / 2, (uint8_t*) &hmac_output, 0 );
+    cy_sha2_hmac( (unsigned char *)&workspace->auth_key, SIZE_256_BITS, (uint8_t*) ( workspace->password + ( password_length / 2 ) + ( password_length % 2 ) ), password_length / 2, (uint8_t*) &hmac_output, WPS_HASH_ALGO );
+
     memcpy( &workspace->psk[1], &hmac_output, SIZE_128_BITS );
 
     return CY_RSLT_SUCCESS;
@@ -1097,7 +1149,8 @@ static cy_rslt_t cy_wps_process_message_content( cy_wps_agent_t* workspace, uint
                                                 CY_WPS_CRYPTO_MATERIAL_ENROLLEE_HASH1 | CY_WPS_CRYPTO_MATERIAL_ENROLLEE_HASH2 :
                                                 CY_WPS_CRYPTO_MATERIAL_REGISTRAR_HASH1 | CY_WPS_CRYPTO_MATERIAL_REGISTRAR_HASH2;
         /* Prepare the hmac for use */
-        cy_sha2_hmac_starts( &workspace->hmac, (unsigned char*) &workspace->auth_key, SIZE_256_BITS, 0 );
+    cy_sha2_hmac_starts( &workspace->hmac, (unsigned char*) &workspace->auth_key, SIZE_256_BITS, WPS_HASH_ALGO );
+
     }
 
     /* Check if we didn't receive an authenticator. Only valid when processing M1 (Registrar only) */
@@ -1129,7 +1182,7 @@ static cy_rslt_t cy_wps_process_message_content( cy_wps_agent_t* workspace, uint
         }
 
         /* Start the HMAC calculation for next message */
-        cy_sha2_hmac_starts  ( &workspace->hmac, (unsigned char*) &workspace->auth_key, SIZE_256_BITS, 0 );
+        cy_sha2_hmac_starts  ( &workspace->hmac, (unsigned char*) &workspace->auth_key, SIZE_256_BITS, WPS_HASH_ALGO );
         cy_sha2_hmac_update( &workspace->hmac, content, content_length );
     }
 
@@ -1171,7 +1224,8 @@ static cy_rslt_t cy_wps_process_encrypted_tlvs( cy_wps_agent_t* workspace, cy_wp
     }
 
     /* Calculate the HMAC of the data (data only, not the last auth TLV) and compare it against the received HMAC */
-    cy_sha2_hmac( (unsigned char *)&workspace->auth_key, SIZE_256_BITS, plain_text, (uint32_t) plain_text_length - sizeof(tlv16_header_t) - SIZE_64_BITS, (uint8_t*) &hmac_output, 0 );
+    cy_sha2_hmac( (unsigned char *)&workspace->auth_key, SIZE_256_BITS, plain_text, (uint32_t) plain_text_length - sizeof(tlv16_header_t) - SIZE_64_BITS, (uint8_t*) &hmac_output, WPS_HASH_ALGO );
+
     if ( memcmp( &hmac_output, key_wrap_auth->data, SIZE_64_BITS ) != 0 )
     {
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_DEBUG, "WPS: HMAC error\r\n");
@@ -1383,7 +1437,7 @@ static cy_rslt_t cy_wps_calculate_kdf(uint8_t* key, uint16_t key_length, char* p
         /* Set the current value of i at the start of the input buffer */
         temp = cy_hton32( i + 1 ); /* i should start at 1 */
         memcpy( &input[0], &temp, 4 );
-        cy_sha2_hmac( key, key_length, input, (uint32_t)( 4 + string_length + 4 ), (uint8_t*) &hmac_output[i], 0 );
+        cy_sha2_hmac( key, key_length, input, (uint32_t)( 4 + string_length + 4 ), (uint8_t*) &hmac_output[i], WPS_HASH_ALGO );
     }
 
     return CY_RSLT_SUCCESS;
@@ -1638,7 +1692,7 @@ static uint8_t* cy_wps_end_encrypted_tlv( cy_wps_agent_t* workspace, uint8_t* st
     uint16_t encrypted_size;
 
     /* Hash existing content */
-    cy_sha2_hmac( (unsigned char *)&workspace->auth_key, SIZE_256_BITS, start_of_data, data_length, (uint8_t*) &hmac_output, 0 );
+    cy_sha2_hmac( (unsigned char *)&workspace->auth_key, SIZE_256_BITS, start_of_data, data_length, (uint8_t*) &hmac_output, WPS_HASH_ALGO );
 
     /* Append a key wrap auth TLV */
     end_of_data = tlv_write_value( end_of_data, WPS_ID_KEY_WRAP_AUTH, SIZE_64_BITS, &hmac_output, TLV_UINT8_PTR );

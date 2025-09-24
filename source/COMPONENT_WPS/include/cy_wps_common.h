@@ -337,7 +337,7 @@ extern void         cy_wps_clear_pbc_overlap_array ( void );
 extern void         cy_wps_record_last_pbc_enrollee( const whd_mac_t* mac );
 extern void         cy_wps_update_pbc_overlap_array( cy_wps_agent_t* workspace, const whd_mac_t* mac );
 extern void         cy_wps_pbc_overlap_array_notify( const whd_mac_t* mac );
-extern cy_rslt_t    cy_wps_process_event(cy_wps_agent_t* workspace, cy_event_message_t* event);
+
 extern void         cy_wps_init_workspace(cy_wps_agent_t* workspace);
 extern void         cy_wps_deinit_workspace(cy_wps_agent_t* workspace);
 

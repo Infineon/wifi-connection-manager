@@ -74,7 +74,7 @@ extern "C" {
 #if defined(__ICCARM__)
 #define CYPRESS_WEAK            __WEAK
 #define CYPRESS_PACKED(struct)  __packed struct
-#elif defined(__GNUC__) || defined(__clang__) || defined(__CC_ARM)
+#elif defined(__GNUC__) || defined(__clang__) || defined(__CC_ARM) || defined(__llvm__)
 #define CYPRESS_WEAK            __attribute__((weak))
 #define CYPRESS_PACKED(struct)  struct __attribute__((packed))
 #else
@@ -122,16 +122,23 @@ extern "C" {
 #define WEP_ENABLED                        0x0001      /**< Flag to enable WEP security.                */
 #define TKIP_ENABLED                       0x0002      /**< Flag to enable TKIP encryption.             */
 #define AES_ENABLED                        0x0004      /**< Flag to enable AES encryption.              */
+#ifdef CERT_MULTI_AKM
+/** \cond INTERNAL */
+#define PSK_FBT                            0x00000001
+#define SAE_FBT                            0x00000002
+#define ENTERP_FBT                         0x00000004
+/** \endcond */
+#endif 
 #define SHARED_ENABLED                     0x00008000  /**< Flag to enable shared key security.         */
 #define WPA_SECURITY                       0x00200000  /**< Flag to enable WPA security.                */
 #define WPA2_SECURITY                      0x00400000  /**< Flag to enable WPA2 security.               */
-#ifndef COMPONENT_CAT5
+#ifndef COMPONENT_55900
 #define WPA2_SHA256_SECURITY               0x00800000  /**< Flag to enable WPA2 SHA256 Security         */
 #endif
 #define WPA3_SECURITY                      0x01000000  /**< Flag to enable WPA3 PSK security.           */
 #define WPA3_OWE                           0x80000000  /**< Flag to enable WPA3 OWE Security            */
 #define ENTERPRISE_ENABLED                 0x02000000  /**< Flag to enable enterprise security.         */
-#ifdef COMPONENT_CAT5
+#ifdef COMPONENT_55900
 #define SHA256_1X                          0x04000000  /**< Flag 1X with SHA256 key derivation          */
 #define SUITE_B_SHA384                     0x08000000  /**< Flag to enable Suite B-192 SHA384 Security  */
 #endif
@@ -144,6 +151,30 @@ extern "C" {
 
 /** Maximum number of callbacks that can be registered with the WCM library. */
 #define CY_WCM_MAXIMUM_CALLBACKS_COUNT     (5)
+
+#ifdef COMPONENT_55900
+/**
+ * Setup Command field (Table 9-262k)
+ */
+#define CY_WCM_TWT_SETUP_CMD_REQUEST_TWT      (0u)    /**< Request TWT   */
+#define CY_WCM_TWT_SETUP_CMD_SUGGEST_TWT      (1u)    /**< Suggest TWT   */
+#define CY_WCM_TWT_SETUP_CMD_DEMAND_TWT       (2u)    /**< Demand TWT    */
+#define CY_WCM_TWT_SETUP_CMD_GROUPING_TWT     (3u)    /**< Grouping TWT  */
+#define CY_WCM_TWT_SETUP_CMD_ACCEPT_TWT       (4u)    /**< Accept TWT    */
+#define CY_WCM_TWT_SETUP_CMD_ALTERNATE_TWT    (5u)    /**< Alternate TWT */
+#define CY_WCM_TWT_SETUP_CMD_DICTATE_TWT      (6u)    /**< Dictate TWT   */
+#define CY_WCM_TWT_SETUP_CMD_REJECT_TWT       (7u)    /**< Reject TWT    */
+
+/**
+ * Macros for TWT flow type
+ */
+#define CY_WCM_TWT_FLOW_TYPE_ANNOUNCED        (0)
+#define CY_WCM_TWT_FLOW_TYPE_UNANNOUNCED      (1)
+/**
+ * Macros for TWT flow ID
+ */
+#define CY_WCM_TWT_FLOW_ID_ALL                (0xff)
+#endif
 
 /** \} group_wcm_macros */
 
@@ -186,7 +217,7 @@ typedef enum
     CY_WCM_SECURITY_WPA_AES_PSK         = ( WPA_SECURITY  | AES_ENABLED ),                                     /**< WPA PSK security with AES.                             */
     CY_WCM_SECURITY_WPA_MIXED_PSK       = ( WPA_SECURITY  | AES_ENABLED | TKIP_ENABLED ),                      /**< WPA PSK security with AES and TKIP.                    */
     CY_WCM_SECURITY_WPA2_AES_PSK        = ( WPA2_SECURITY | AES_ENABLED ),                                     /**< WPA2 PSK security with AES.                            */
-#ifndef COMPONENT_CAT5
+#ifndef COMPONENT_55900
     CY_WCM_SECURITY_WPA2_AES_PSK_SHA256 = ( WPA2_SECURITY | WPA2_SHA256_SECURITY | AES_ENABLED ),              /**< WPA2 PSK SHA256 Security with AES                      */
 #else
     CY_WCM_SECURITY_WPA2_AES_PSK_SHA256 = ( WPA2_SECURITY | SHA256_1X | AES_ENABLED ),                         /**< WPA2 PSK SHA256 Security with AES                      */
@@ -205,7 +236,7 @@ typedef enum
     CY_WCM_SECURITY_WPA2_AES_ENT        = (ENTERPRISE_ENABLED | WPA2_SECURITY | AES_ENABLED),                  /**< WPA2 Enterprise Security with AES.                     */
     CY_WCM_SECURITY_WPA2_MIXED_ENT      = (ENTERPRISE_ENABLED | WPA2_SECURITY | AES_ENABLED | TKIP_ENABLED),   /**< WPA2 Enterprise Security with AES and TKIP.            */
     CY_WCM_SECURITY_WPA2_FBT_ENT        = (ENTERPRISE_ENABLED | WPA2_SECURITY | AES_ENABLED | FBT_ENABLED),    /**< WPA2 Enterprise Security with AES and FBT.             */
-#ifdef COMPONENT_CAT5
+#if defined(COMPONENT_55900) || defined(COMPONENT_PSE84)
     CY_WCM_SECURITY_WPA3_192BIT_ENT     = (ENTERPRISE_ENABLED | WPA3_SECURITY | SUITE_B_SHA384 | AES_ENABLED), /**< WPA3 192-BIT Enterprise Security with AES              */
     CY_WCM_SECURITY_WPA3_ENT            = (ENTERPRISE_ENABLED | WPA3_SECURITY | SHA256_1X | AES_ENABLED),      /**< WPA3 Enterprise only with AES GCM-256                  */
     CY_WCM_SECURITY_WPA3_ENT_AES_CCMP   = (ENTERPRISE_ENABLED | WPA3_SECURITY | WPA2_SECURITY | SHA256_1X | AES_ENABLED), /**< WPA3 Enterprise Transition with AES CCM-128 */
@@ -214,6 +245,8 @@ typedef enum
     CY_WCM_SECURITY_WPS_SECURE          = ( WPS_ENABLED | AES_ENABLED),                                        /**< WPS with AES security.                                 */
 #ifdef COMPONENT_WIFI6
     CY_WCM_SECURITY_OWE                 = ( WPA3_OWE | AES_ENABLED ),                                          /**< Enhanced open with AES security                        */
+    CY_WCM_SECURITY_WPA3_FBT            = (WPA3_SECURITY | AES_ENABLED | FBT_ENABLED),                         /**< WPA3 Security with FBT                                 */
+    CY_WCM_SECURITY_WPA3_WPA2_PSK_FBT   = (WPA3_SECURITY | WPA2_SECURITY | AES_ENABLED | FBT_ENABLED),         /**< WPA3 WPA2 PSK security with AES FT enabled.            */
 #endif
 
     CY_WCM_SECURITY_UNKNOWN             = 0xffffffff,                                                          /**< Returned by \ref cy_wcm_scan_result_callback_t if security is unknown. Do not pass this to the join function! */
@@ -412,6 +445,18 @@ typedef enum
     CY_WCM_IE_MASK_CUSTOM         = 0x100 /**< Denotes mask for custom IE identifier.           */
 } cy_wcm_ie_mask_t;
 
+#ifdef COMPONENT_55900
+/**
+ * Enumeration for TWT session state.
+ */
+typedef enum {
+    CY_WCM_TWT_SESSION_STATE_INACTIVE,
+    CY_WCM_TWT_SESSION_STATE_SETUP_IN_PROGRESS,
+    CY_WCM_TWT_SESSION_STATE_SETUP_COMPLETE,
+    CY_WCM_TWT_SESSION_STATE_TEARDOWN_IN_PROGRESS,
+} cy_wcm_twt_session_state_t;
+#endif
+
 /** \} group_wcm_enums */
 
 /**
@@ -455,6 +500,11 @@ typedef struct
 typedef struct
 {
     cy_wcm_interface_t interface;  /**< Interface type. */
+#ifdef COMPONENT_MTB_HAL
+    mtb_hal_gpio_t wifi_wl_pin; /** The GPIO MTB HAL pointer for the reset pin on the device */
+    mtb_hal_gpio_t wifi_host_wake_pin; /** The GPIO MTB HAL pointer for the host wake pin on the device */
+    void* wifi_interface_instance; /** Pointer to the MTB HAL SDIO object. This must be setup and initialized by the user before using */
+#endif
 } cy_wcm_config_t;
 
 
@@ -543,6 +593,11 @@ typedef struct
     uint32_t                     max_data_rate;    /**< Maximum data rate in kbps.         */
     cy_wcm_bss_type_t            bss_type;         /**< Network type.  */
     cy_wcm_security_t            security;         /**< Security type.                                 */
+#ifdef CERT_MULTI_AKM
+/** \cond INTERNAL */
+    uint32_t                     fbtbitmap;       /**< fbt bitmap.                                    */
+/** \endcond */
+#endif
     uint8_t                      channel;          /**< Radio channel that the AP beacon was received on.  */
     cy_wcm_wifi_band_t           band;             /**< Radio band.                                                            */
     uint8_t                      ccode[2];         /**< Two-letter ISO country code in network byte order.  */
@@ -631,6 +686,40 @@ typedef struct
     cy_wcm_ip_setting_t      ip_settings;         /**< IP settings of the AP interface. */
     cy_wcm_custom_ie_info_t  *ie_info;            /**< Optional custom IE information to be added to the SoftAP. */
 } cy_wcm_ap_config_t;
+
+#ifdef COMPONENT_55900
+/**
+ * Structure used to setup iTWT session.
+ */
+typedef struct
+{
+    uint8_t  setup_cmd;          /**< Setup command for TWT : CY_WCM_TWT_SETUP_CMD_XXX */
+    bool     trigger;            /**< 1-trigger-enabled, 0-non-trigger-enabled */
+    bool     flow_type;          /**< Un-Announced(1) or Announced(0): CY_WCM_TWT_FLOW_TYPE_XXX */
+    uint8_t  flow_id;            /**< must be between 0 and 7. Set 0xFF for auto assignment */
+    uint8_t  wake_duration;      /**< TWT wake duration (in multiple units of 256 usec). Eg: 1 for 256 usec, 2 for 512 usec, etc */
+    uint8_t  exponent;           /**< Used to compute TWT wake interval */
+    uint16_t mantissa;          /**< Used to compute TWT wake interval */
+    uint32_t wake_time_h;       /**< target wake time - BSS TSF (us) */
+    uint32_t wake_time_l;
+} cy_wcm_itwt_setup_params_t;
+
+/**
+ * Structure used to get ongoing iTWT session parameters from WHD.
+ */
+typedef struct {
+    cy_wcm_twt_session_state_t  session_state;      /* Current state of the TWT session. */
+    uint8_t                     flow_id;            /* The identifier for the established TWT flow (0-7). */
+    uint8_t                     dialog_token;       /* The dialog token used for the setup request. */
+    cy_wcm_mac_t                peer_mac;           /* MAC address of the TWT peer (the AP). */
+    uint64_t                    target_wake_time;   /* The target wake time in microseconds (from TSF). */
+    uint32_t                    wake_duration;      /* The negotiated wake duration in microseconds. */
+    uint32_t                    wake_interval;      /* The negotiated wake interval in microseconds. */
+    bool                        is_implicit;        /* True for an Implicit TWT agreement. */
+    bool                        is_triggered;       /* True for a Trigger-based TWT session. */
+    bool                        is_announced;       /* True for an Announced (protected) TWT session. */
+} cy_wcm_itwt_negotiated_params_t;
+#endif
 
 /** \} group_wcm_structures */
 
@@ -998,6 +1087,26 @@ cy_rslt_t cy_wcm_set_ap_ip_setting(cy_wcm_ip_setting_t *ap_ip, const char *ip_ad
  * @return CY_RSLT_SUCCESS if the Wi-Fi module mode was successfully changed; returns \ref cy_wcm_error otherwise.
  */
 cy_rslt_t cy_wcm_allow_low_power_mode(cy_wcm_powersave_mode_t mode);
+
+#ifdef COMPONENT_55900
+/**
+ * Enable the iTWT session
+ * Note: iTWT feature is supported only on CYW955913EVK-01
+ */
+cy_rslt_t cy_wcm_sta_itwt_setup(cy_wcm_itwt_setup_params_t *itwt_params);
+
+/**
+ * Teardown/Disable the iTWT session
+ * Note: iTWT feature is supported only on CYW955913EVK-01
+ */
+cy_rslt_t cy_wcm_sta_itwt_teardown(uint8_t flow_id, bool all_twt);
+
+/**
+ * Get the session parameters for already established iTWT session.
+ * Note: iTWT feature is supported only on CYW955913EVK-01
+ */
+cy_rslt_t cy_wcm_sta_itwt_get_session_info(cy_wcm_itwt_negotiated_params_t *negotiated_params);
+#endif
 
 /** \} group_wcm_functions */
 
