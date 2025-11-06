@@ -107,6 +107,29 @@ var group__group__wcm__structures =
       [ "ip_settings", "structcy__wcm__ap__config__t.html#a4d26be457ca32e36d8162c3eb347491b", null ],
       [ "ie_info", "structcy__wcm__ap__config__t.html#a882c472c4e6c64d0b55fe61350d8043a", null ]
     ] ],
+    [ "cy_wcm_itwt_setup_params_t", "structcy__wcm__itwt__setup__params__t.html", [
+      [ "setup_cmd", "structcy__wcm__itwt__setup__params__t.html#a36d4225c29e68207b1f2b672af20c0f0", null ],
+      [ "trigger", "structcy__wcm__itwt__setup__params__t.html#aab4315a22272aa400eeff19ee1923d49", null ],
+      [ "flow_type", "structcy__wcm__itwt__setup__params__t.html#af371346f8dac0475ff88a7c3e2ab06f1", null ],
+      [ "flow_id", "structcy__wcm__itwt__setup__params__t.html#aa1822758ace68b25002d3c705cdaa3c6", null ],
+      [ "wake_duration", "structcy__wcm__itwt__setup__params__t.html#a0996be24e68dc7aaa32674101f6f7388", null ],
+      [ "exponent", "structcy__wcm__itwt__setup__params__t.html#a9f3136fecc2dc7bcfb57b29132961895", null ],
+      [ "mantissa", "structcy__wcm__itwt__setup__params__t.html#ab1cf612ad1cccb3a84ef0fd535597d4a", null ],
+      [ "wake_time_h", "structcy__wcm__itwt__setup__params__t.html#a8cf8c5b3473939998ec26a445f166951", null ],
+      [ "wake_time_l", "structcy__wcm__itwt__setup__params__t.html#a9b0d92ef411f1fbc277b283013016927", null ]
+    ] ],
+    [ "cy_wcm_itwt_negotiated_params_t", "structcy__wcm__itwt__negotiated__params__t.html", [
+      [ "session_state", "structcy__wcm__itwt__negotiated__params__t.html#a4fc2d5ddd1994912e92056cc6a6818cb", null ],
+      [ "flow_id", "structcy__wcm__itwt__negotiated__params__t.html#a73aba1816c3463eedfc9433be82d29f6", null ],
+      [ "dialog_token", "structcy__wcm__itwt__negotiated__params__t.html#a3966fdc7fb3e9a27eefa4fe1eeab8bac", null ],
+      [ "peer_mac", "structcy__wcm__itwt__negotiated__params__t.html#aae4cd3c2390eb8bb259f31b35b701a38", null ],
+      [ "target_wake_time", "structcy__wcm__itwt__negotiated__params__t.html#a2eea49d5815eb7c2d977e24129aab457", null ],
+      [ "wake_duration", "structcy__wcm__itwt__negotiated__params__t.html#ab637c9e686a7cbfc4bb0fd17e51b6048", null ],
+      [ "wake_interval", "structcy__wcm__itwt__negotiated__params__t.html#a8e77ea9d647dda7438262ec362f1d727", null ],
+      [ "is_implicit", "structcy__wcm__itwt__negotiated__params__t.html#a95c96125e8b6214a4eff3e0737b153f1", null ],
+      [ "is_triggered", "structcy__wcm__itwt__negotiated__params__t.html#abd4ecfa618b89850b5415749bfb7c8f7", null ],
+      [ "is_announced", "structcy__wcm__itwt__negotiated__params__t.html#a0ce91752543a17fba5787dffdc7455a1", null ]
+    ] ],
     [ "cy_wcm_register_event_callback_params_t", "structcy__wcm__register__event__callback__params__t.html", [
       [ "event_callback", "structcy__wcm__register__event__callback__params__t.html#a34b4f810b391fdfa80ff5181b175e221", null ]
     ] ],

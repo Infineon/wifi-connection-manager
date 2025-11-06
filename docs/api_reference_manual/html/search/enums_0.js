@@ -13,10 +13,11 @@ var searchData=
   ['cy_5fwcm_5fscan_5frssi_5frange_5ft_10',['cy_wcm_scan_rssi_range_t',['../group__group__wcm__enums.html#gab7d89e9afaed2e4e8064cf9ac4e86148',1,'cy_wcm.h']]],
   ['cy_5fwcm_5fscan_5fstatus_5ft_11',['cy_wcm_scan_status_t',['../group__group__wcm__enums.html#ga24a4ed65a9261c45abc8aa697eb2b8a2',1,'cy_wcm.h']]],
   ['cy_5fwcm_5fsecurity_5ft_12',['cy_wcm_security_t',['../group__group__wcm__enums.html#ga8b22f5a47073d5219440566d0e53e521',1,'cy_wcm.h']]],
-  ['cy_5fwcm_5fwifi_5fband_5ft_13',['cy_wcm_wifi_band_t',['../group__group__wcm__enums.html#ga31f9cb5bc75abf02e5eb2623a64b3b7b',1,'cy_wcm.h']]],
-  ['cy_5fwcm_5fwps_5fauthentication_5ftype_5ft_14',['cy_wcm_wps_authentication_type_t',['../group__group__wcm__enums.html#gab50f2a67cec69a058057fc5fc6c5cea1',1,'cy_wcm.h']]],
-  ['cy_5fwcm_5fwps_5fconfiguration_5fmethod_5ft_15',['cy_wcm_wps_configuration_method_t',['../group__group__wcm__enums.html#gafef6a7e734e688418bfa6c601edf2cf1',1,'cy_wcm.h']]],
-  ['cy_5fwcm_5fwps_5fdevice_5fcategory_5ft_16',['cy_wcm_wps_device_category_t',['../group__group__wcm__enums.html#ga2109f4415e7d9d586336f8c4415a270e',1,'cy_wcm.h']]],
-  ['cy_5fwcm_5fwps_5fencryption_5ftype_5ft_17',['cy_wcm_wps_encryption_type_t',['../group__group__wcm__enums.html#ga7ef358e8ada90c5a7d7a170d9c87f06f',1,'cy_wcm.h']]],
-  ['cy_5fwcm_5fwps_5fmode_5ft_18',['cy_wcm_wps_mode_t',['../group__group__wcm__enums.html#ga522893594393679bacaaaa77d81b26f8',1,'cy_wcm.h']]]
+  ['cy_5fwcm_5ftwt_5fsession_5fstate_5ft_13',['cy_wcm_twt_session_state_t',['../group__group__wcm__enums.html#gaf84d04e8843b742a26de07e4a3a2f4fa',1,'cy_wcm.h']]],
+  ['cy_5fwcm_5fwifi_5fband_5ft_14',['cy_wcm_wifi_band_t',['../group__group__wcm__enums.html#ga31f9cb5bc75abf02e5eb2623a64b3b7b',1,'cy_wcm.h']]],
+  ['cy_5fwcm_5fwps_5fauthentication_5ftype_5ft_15',['cy_wcm_wps_authentication_type_t',['../group__group__wcm__enums.html#gab50f2a67cec69a058057fc5fc6c5cea1',1,'cy_wcm.h']]],
+  ['cy_5fwcm_5fwps_5fconfiguration_5fmethod_5ft_16',['cy_wcm_wps_configuration_method_t',['../group__group__wcm__enums.html#gafef6a7e734e688418bfa6c601edf2cf1',1,'cy_wcm.h']]],
+  ['cy_5fwcm_5fwps_5fdevice_5fcategory_5ft_17',['cy_wcm_wps_device_category_t',['../group__group__wcm__enums.html#ga2109f4415e7d9d586336f8c4415a270e',1,'cy_wcm.h']]],
+  ['cy_5fwcm_5fwps_5fencryption_5ftype_5ft_18',['cy_wcm_wps_encryption_type_t',['../group__group__wcm__enums.html#ga7ef358e8ada90c5a7d7a170d9c87f06f',1,'cy_wcm.h']]],
+  ['cy_5fwcm_5fwps_5fmode_5ft_19',['cy_wcm_wps_mode_t',['../group__group__wcm__enums.html#ga522893594393679bacaaaa77d81b26f8',1,'cy_wcm.h']]]
 ];

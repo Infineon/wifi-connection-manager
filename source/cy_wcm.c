@@ -1,35 +1,32 @@
 /*
- * Copyright 2025, Cypress Semiconductor Corporation (an Infineon company) or
- * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
+ * (c) 2025, Infineon Technologies AG, or an affiliate of Infineon
+ * Technologies AG. All rights reserved.
+ * This software, associated documentation and materials ("Software") is
+ * owned by Infineon Technologies AG or one of its affiliates ("Infineon")
+ * and is protected by and subject to worldwide patent protection, worldwide
+ * copyright laws, and international treaty provisions. Therefore, you may use
+ * this Software only as provided in the license agreement accompanying the
+ * software package from which you obtained this Software. If no license
+ * agreement applies, then any use, reproduction, modification, translation, or
+ * compilation of this Software is prohibited without the express written
+ * permission of Infineon.
  *
- * This software, including source code, documentation and related
- * materials ("Software") is owned by Cypress Semiconductor Corporation
- * or one of its affiliates ("Cypress") and is protected by and subject to
- * worldwide patent protection (United States and foreign),
- * United States copyright laws and international treaty provisions.
- * Therefore, you may use this Software only as provided in the license
- * agreement accompanying the software package from which you
- * obtained this Software ("EULA").
- * If no EULA applies, Cypress hereby grants you a personal, non-exclusive,
- * non-transferable license to copy, modify, and compile the Software
- * source code solely for use in connection with Cypress's
- * integrated circuit products.  Any reproduction, modification, translation,
- * compilation, or representation of this Software except as specified
- * above is prohibited without the express written permission of Cypress.
- *
- * Disclaimer: THIS SOFTWARE IS PROVIDED AS-IS, WITH NO WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, NONINFRINGEMENT, IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. Cypress
- * reserves the right to make changes to the Software without notice. Cypress
- * does not assume any liability arising out of the application or use of the
- * Software or any product or circuit described in the Software. Cypress does
- * not authorize its products for use in any products where a malfunction or
- * failure of the Cypress product may reasonably be expected to result in
- * significant property damage, injury or death ("High Risk Product"). By
- * including Cypress's product in a High Risk Product, the manufacturer
- * of such system or application assumes all risk of such use and in doing
- * so agrees to indemnify Cypress against all liability.
-*/
+ * Disclaimer: UNLESS OTHERWISE EXPRESSLY AGREED WITH INFINEON, THIS SOFTWARE
+ * IS PROVIDED AS-IS, WITH NO WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING, BUT NOT LIMITED TO, ALL WARRANTIES OF NON-INFRINGEMENT OF
+ * THIRD-PARTY RIGHTS AND IMPLIED WARRANTIES SUCH AS WARRANTIES OF FITNESS FOR A
+ * SPECIFIC USE/PURPOSE OR MERCHANTABILITY.
+ * Infineon reserves the right to make changes to the Software without notice.
+ * You are responsible for properly designing, programming, and testing the
+ * functionality and safety of your intended application of the Software, as
+ * well as complying with any legal requirements related to its use. Infineon
+ * does not guarantee that the Software will be free from intrusion, data theft
+ * or loss, or other breaches ("Security Breaches"), and Infineon shall have
+ * no liability arising out of any Security Breaches. Unless otherwise
+ * explicitly approved by Infineon, the Software may not be used in any
+ * application where a failure of the Product or any consequences of the use
+ * thereof can reasonably be expected to result in personal injury.
+ */
 
 /**
 * @file cy_wcm.c
@@ -1431,6 +1428,10 @@ cy_rslt_t cy_wcm_connect_ap(cy_wcm_connect_params_t *connect_params, cy_wcm_ip_a
         {
              res = whd_wifi_get_bssid(whd_ifs[CY_WCM_INTERFACE_TYPE_STA], &whd_bssid);
         }
+        else
+        {
+            memset(&whd_bssid, 0, sizeof(whd_mac_t));
+        }
         if (is_connected_to_same_ap(connect_params) &&
             memcmp(connect_params->BSSID, whd_bssid.octet, ETHER_ADDR_LEN) == 0)
 #else
@@ -1805,6 +1806,11 @@ cy_rslt_t cy_wcm_disconnect_ap()
     if(CY_RSLT_SUCCESS != whd_wifi_deinit_twt(whd_ifs[CY_WCM_INTERFACE_TYPE_STA]))
     {
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Unable de-initialize iTWT \n");
+    }
+    else
+    {
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "iTWT De-initialized \n");
+        is_itwt_enabled = false;
     }
 #endif
 
@@ -4922,9 +4928,9 @@ cy_rslt_t cy_wcm_allow_low_power_mode(cy_wcm_powersave_mode_t mode)
     return rslt;
 }
 
-#ifdef COMPONENT_55900
 cy_rslt_t cy_wcm_sta_itwt_setup(cy_wcm_itwt_setup_params_t *itwt_params)
 {
+#ifdef COMPONENT_55900
     whd_itwt_setup_params_t twt_params;
     cy_rslt_t       result = CY_RSLT_SUCCESS;
     whd_interface_t ifp    = NULL;
@@ -4987,7 +4993,7 @@ cy_rslt_t cy_wcm_sta_itwt_setup(cy_wcm_itwt_setup_params_t *itwt_params)
         {
             cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "iTWT Not supported for this capabilities\n");
         }
-        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "whd_wifi_itwt_setup failed %ld\r\n", res);
+        cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "whd_wifi_itwt_setup failed %ld\r\n", result);
     }
 
     is_itwt_enabled = true;
@@ -4996,10 +5002,16 @@ cy_rslt_t cy_wcm_sta_itwt_setup(cy_wcm_itwt_setup_params_t *itwt_params)
 exit:
     result = ~CY_RSLT_SUCCESS;
     return result;
+
+#else
+    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "This API is supported only on CYW955913EVK-01 Wi-Fi Bluetooth Prototyping Kit (CYW955913EVK-01) \n");
+    return CY_RSLT_WCM_UNSUPPORTED_API;
+#endif /* COMPONENT_55900 */
 }
 
 cy_rslt_t cy_wcm_sta_itwt_teardown(uint8_t flow_id, bool all_twt)
 {
+#ifdef COMPONENT_55900
     whd_twt_teardown_params_t twt_params;
     whd_interface_t ifp = NULL;
     cy_rslt_t result = CY_RSLT_SUCCESS;
@@ -5033,15 +5045,20 @@ cy_rslt_t cy_wcm_sta_itwt_teardown(uint8_t flow_id, bool all_twt)
     if( result != CY_RSLT_SUCCESS )
     {
         cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR,
-                "iTWT session tear-down failed! Error code: %ld\n", res);
+                "iTWT session tear-down failed! Error code: %ld\n", result);
     }
 
     is_itwt_enabled = false;
     return result;
+#else
+    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "This API is supported only on CYW955913EVK-01 Wi-Fi Bluetooth Prototyping Kit (CYW955913EVK-01) \n");
+    return CY_RSLT_WCM_UNSUPPORTED_API;
+#endif /* COMPONENT_55900 */
 }
 
 cy_rslt_t cy_wcm_sta_itwt_get_session_info(cy_wcm_itwt_negotiated_params_t *negotiated_params)
 {
+#ifdef COMPONENT_55900
     whd_interface_t ifp = NULL;
     whd_itwt_negotiated_params_t whd_itwt_negotiated_params;
     cy_rslt_t result;
@@ -5097,7 +5114,10 @@ cy_rslt_t cy_wcm_sta_itwt_get_session_info(cy_wcm_itwt_negotiated_params_t *nego
         negotiated_params->is_announced = whd_itwt_negotiated_params.is_announced;
     }
     return result;
-}
+#else
+    cy_wcm_log_msg(CYLF_MIDDLEWARE, CY_LOG_INFO, "This API is supported only on CYW955913EVK-01 Wi-Fi Bluetooth Prototyping Kit (CYW955913EVK-01) \n");
+    return CY_RSLT_WCM_UNSUPPORTED_API;
 #endif /* COMPONENT_55900 */
+}
 
 #endif

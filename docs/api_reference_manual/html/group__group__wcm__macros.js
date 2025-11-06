@@ -20,5 +20,16 @@ var group__group__wcm__macros =
     [ "IBSS_ENABLED", "group__group__wcm__macros.html#ga9640c064932a3a633a3312b737658f83", null ],
     [ "FBT_ENABLED", "group__group__wcm__macros.html#gaafdddf85f4d0df08ee3aead815ad7c76", null ],
     [ "CY_WCM_WPS_PIN_LENGTH", "group__group__wcm__macros.html#ga2fd33d6cf6472c7452a22e5988e69516", null ],
-    [ "CY_WCM_MAXIMUM_CALLBACKS_COUNT", "group__group__wcm__macros.html#gac7494a533045203834447aab9e85b4da", null ]
+    [ "CY_WCM_MAXIMUM_CALLBACKS_COUNT", "group__group__wcm__macros.html#gac7494a533045203834447aab9e85b4da", null ],
+    [ "CY_WCM_TWT_SETUP_CMD_REQUEST_TWT", "group__group__wcm__macros.html#ga70afa7b9394054f538935cff5fc872e4", null ],
+    [ "CY_WCM_TWT_SETUP_CMD_SUGGEST_TWT", "group__group__wcm__macros.html#gab00c2e6e94f79494bac321df11de2a23", null ],
+    [ "CY_WCM_TWT_SETUP_CMD_DEMAND_TWT", "group__group__wcm__macros.html#ga418958f1a816e4515773f3521f3fd647", null ],
+    [ "CY_WCM_TWT_SETUP_CMD_GROUPING_TWT", "group__group__wcm__macros.html#ga7cace63e1aba1e3f0f82386fae022955", null ],
+    [ "CY_WCM_TWT_SETUP_CMD_ACCEPT_TWT", "group__group__wcm__macros.html#ga84314308367f7ca30ded233bf5348d81", null ],
+    [ "CY_WCM_TWT_SETUP_CMD_ALTERNATE_TWT", "group__group__wcm__macros.html#gaafb3118aa7fae1b5441e00042238eb86", null ],
+    [ "CY_WCM_TWT_SETUP_CMD_DICTATE_TWT", "group__group__wcm__macros.html#ga580d6bb4874b11e4b0fb36b668ae87bb", null ],
+    [ "CY_WCM_TWT_SETUP_CMD_REJECT_TWT", "group__group__wcm__macros.html#ga7c7aa0a28a02c2d5a10d948722ba9385", null ],
+    [ "CY_WCM_TWT_FLOW_TYPE_ANNOUNCED", "group__group__wcm__macros.html#gadb37566e02960cc888125cd823489f50", null ],
+    [ "CY_WCM_TWT_FLOW_TYPE_UNANNOUNCED", "group__group__wcm__macros.html#gae9cc049a83381a34eeada3b955411570", null ],
+    [ "CY_WCM_TWT_FLOW_ID_ALL", "group__group__wcm__macros.html#gabf2bae1a13e1243cc958faeef4bdf100", null ]
 ];

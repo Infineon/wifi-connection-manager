@@ -175,6 +175,15 @@ Functions</h2></td></tr>
 <tr class="memitem:ga1d1d49639c74d84d8a609ee437a3c1c7"><td class="memItemLeft" align="right" valign="top">cy_rslt_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__wcm__functions.html#ga1d1d49639c74d84d8a609ee437a3c1c7">cy_wcm_allow_low_power_mode</a> (<a class="el" href="group__group__wcm__enums.html#ga1040bc30ffebcafe61bcb5ea677cd418">cy_wcm_powersave_mode_t</a> mode)</td></tr>
 <tr class="memdesc:ga1d1d49639c74d84d8a609ee437a3c1c7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets low power mode capability for WLAN CPU.  <a href="group__group__wcm__functions.html#ga1d1d49639c74d84d8a609ee437a3c1c7">More...</a><br /></td></tr>
 <tr class="separator:ga1d1d49639c74d84d8a609ee437a3c1c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4876cd396cec9c7c9f86fbbe97318e72"><td class="memItemLeft" align="right" valign="top">cy_rslt_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__wcm__functions.html#ga4876cd396cec9c7c9f86fbbe97318e72">cy_wcm_sta_itwt_setup</a> (<a class="el" href="structcy__wcm__itwt__setup__params__t.html">cy_wcm_itwt_setup_params_t</a> *itwt_params)</td></tr>
+<tr class="memdesc:ga4876cd396cec9c7c9f86fbbe97318e72"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enable the iTWT session.  <a href="group__group__wcm__functions.html#ga4876cd396cec9c7c9f86fbbe97318e72">More...</a><br /></td></tr>
+<tr class="separator:ga4876cd396cec9c7c9f86fbbe97318e72"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gabdbe048c111dc8d05e85c2a53bd70686"><td class="memItemLeft" align="right" valign="top">cy_rslt_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__wcm__functions.html#gabdbe048c111dc8d05e85c2a53bd70686">cy_wcm_sta_itwt_teardown</a> (uint8_t flow_id, bool all_twt)</td></tr>
+<tr class="memdesc:gabdbe048c111dc8d05e85c2a53bd70686"><td class="mdescLeft">&#160;</td><td class="mdescRight">Teardown/Disable the iTWT session.  <a href="group__group__wcm__functions.html#gabdbe048c111dc8d05e85c2a53bd70686">More...</a><br /></td></tr>
+<tr class="separator:gabdbe048c111dc8d05e85c2a53bd70686"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaff4557b74b4cf02e79137a0029f17ba9"><td class="memItemLeft" align="right" valign="top">cy_rslt_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__wcm__functions.html#gaff4557b74b4cf02e79137a0029f17ba9">cy_wcm_sta_itwt_get_session_info</a> (<a class="el" href="structcy__wcm__itwt__negotiated__params__t.html">cy_wcm_itwt_negotiated_params_t</a> *negotiated_params)</td></tr>
+<tr class="memdesc:gaff4557b74b4cf02e79137a0029f17ba9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the session parameters for already established iTWT session.  <a href="group__group__wcm__functions.html#gaff4557b74b4cf02e79137a0029f17ba9">More...</a><br /></td></tr>
+<tr class="separator:gaff4557b74b4cf02e79137a0029f17ba9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="ga888428a2325f131528f7447e894002eb" name="ga888428a2325f131528f7447e894002eb"></a>
@@ -1037,6 +1046,101 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if the Wi-Fi module mode was successfully changed; returns <a class="el" href="group__cy__wcm__error.html">WCM-specific error codes</a> otherwise. </dd></dl>
+
+</div>
+</div>
+<a id="ga4876cd396cec9c7c9f86fbbe97318e72" name="ga4876cd396cec9c7c9f86fbbe97318e72"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga4876cd396cec9c7c9f86fbbe97318e72">&#9670;&nbsp;</a></span>cy_wcm_sta_itwt_setup()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">cy_rslt_t cy_wcm_sta_itwt_setup </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structcy__wcm__itwt__setup__params__t.html">cy_wcm_itwt_setup_params_t</a> *&#160;</td>
+          <td class="paramname"><em>itwt_params</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Enable the iTWT session. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">itwt_params</td><td>: Pointer to the iTWT setup parameters. Refer to <a class="el" href="structcy__wcm__itwt__setup__params__t.html">cy_wcm_itwt_setup_params_t</a> for details.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if the iTWT session is successfully setup; returns <a class="el" href="group__cy__wcm__error.html">WCM-specific error codes</a> otherwise.</dd></dl>
+<p>Note: iTWT feature is supported only on CYW955913EVK-01 Wi-Fi Bluetooth&reg; Prototyping Kit (CYW955913EVK-01). </p>
+
+</div>
+</div>
+<a id="gabdbe048c111dc8d05e85c2a53bd70686" name="gabdbe048c111dc8d05e85c2a53bd70686"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gabdbe048c111dc8d05e85c2a53bd70686">&#9670;&nbsp;</a></span>cy_wcm_sta_itwt_teardown()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">cy_rslt_t cy_wcm_sta_itwt_teardown </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>flow_id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>all_twt</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Teardown/Disable the iTWT session. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">flow_id</td><td>: Flow ID of the iTWT session to be torn down. Valid values are between 0 and 7. To teardown all sessions, 0xFF can be passed. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">all_twt</td><td>: If true, all the iTWT sessions will be torn down. If false, only the session with the given flow_id will be torn down.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if the iTWT session is successfully torn down; returns <a class="el" href="group__cy__wcm__error.html">WCM-specific error codes</a> otherwise.</dd></dl>
+<p>Note: iTWT feature is supported only on CYW955913EVK-01 Wi-Fi Bluetooth&reg; Prototyping Kit (CYW955913EVK-01). </p>
+
+</div>
+</div>
+<a id="gaff4557b74b4cf02e79137a0029f17ba9" name="gaff4557b74b4cf02e79137a0029f17ba9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaff4557b74b4cf02e79137a0029f17ba9">&#9670;&nbsp;</a></span>cy_wcm_sta_itwt_get_session_info()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">cy_rslt_t cy_wcm_sta_itwt_get_session_info </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structcy__wcm__itwt__negotiated__params__t.html">cy_wcm_itwt_negotiated_params_t</a> *&#160;</td>
+          <td class="paramname"><em>negotiated_params</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the session parameters for already established iTWT session. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">negotiated_params</td><td>: Pointer to the structure which will be filled with the negotiated iTWT session parameters. Refer to <a class="el" href="structcy__wcm__itwt__negotiated__params__t.html">cy_wcm_itwt_negotiated_params_t</a> for details.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>CY_RSLT_SUCCESS if the iTWT session parameters are successfully retrieved; returns <a class="el" href="group__cy__wcm__error.html">WCM-specific error codes</a> otherwise.</dd></dl>
+<p>Note: iTWT feature is supported only on CYW955913EVK-01 Wi-Fi Bluetooth&reg; Prototyping Kit (CYW955913EVK-01). </p>
 
 </div>
 </div>

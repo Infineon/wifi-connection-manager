@@ -16,6 +16,11 @@ See the [README.md](./README.md) for a complete description of the Wi-Fi Connect
 
 ## Changelog
 
+### v4.0.1
+
+- Minor bug fix
+- Documentation updates
+
 ### v4.0.0
 
 - Added support for PSOC&trade; Edge E84 (PSE84) platform

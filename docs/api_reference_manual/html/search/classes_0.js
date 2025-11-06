@@ -11,11 +11,13 @@ var searchData=
   ['cy_5fwcm_5fevent_5fdata_5ft_8',['cy_wcm_event_data_t',['../unioncy__wcm__event__data__t.html',1,'']]],
   ['cy_5fwcm_5fip_5faddress_5ft_9',['cy_wcm_ip_address_t',['../structcy__wcm__ip__address__t.html',1,'']]],
   ['cy_5fwcm_5fip_5fsetting_5ft_10',['cy_wcm_ip_setting_t',['../structcy__wcm__ip__setting__t.html',1,'']]],
-  ['cy_5fwcm_5fregister_5fevent_5fcallback_5fparams_5ft_11',['cy_wcm_register_event_callback_params_t',['../structcy__wcm__register__event__callback__params__t.html',1,'']]],
-  ['cy_5fwcm_5fscan_5ffilter_5ft_12',['cy_wcm_scan_filter_t',['../structcy__wcm__scan__filter__t.html',1,'']]],
-  ['cy_5fwcm_5fscan_5fresult_5ft_13',['cy_wcm_scan_result_t',['../structcy__wcm__scan__result__t.html',1,'']]],
-  ['cy_5fwcm_5fwlan_5fstatistics_5ft_14',['cy_wcm_wlan_statistics_t',['../structcy__wcm__wlan__statistics__t.html',1,'']]],
-  ['cy_5fwcm_5fwps_5fconfig_5ft_15',['cy_wcm_wps_config_t',['../structcy__wcm__wps__config__t.html',1,'']]],
-  ['cy_5fwcm_5fwps_5fcredential_5ft_16',['cy_wcm_wps_credential_t',['../structcy__wcm__wps__credential__t.html',1,'']]],
-  ['cy_5fwcm_5fwps_5fdevice_5fdetail_5ft_17',['cy_wcm_wps_device_detail_t',['../structcy__wcm__wps__device__detail__t.html',1,'']]]
+  ['cy_5fwcm_5fitwt_5fnegotiated_5fparams_5ft_11',['cy_wcm_itwt_negotiated_params_t',['../structcy__wcm__itwt__negotiated__params__t.html',1,'']]],
+  ['cy_5fwcm_5fitwt_5fsetup_5fparams_5ft_12',['cy_wcm_itwt_setup_params_t',['../structcy__wcm__itwt__setup__params__t.html',1,'']]],
+  ['cy_5fwcm_5fregister_5fevent_5fcallback_5fparams_5ft_13',['cy_wcm_register_event_callback_params_t',['../structcy__wcm__register__event__callback__params__t.html',1,'']]],
+  ['cy_5fwcm_5fscan_5ffilter_5ft_14',['cy_wcm_scan_filter_t',['../structcy__wcm__scan__filter__t.html',1,'']]],
+  ['cy_5fwcm_5fscan_5fresult_5ft_15',['cy_wcm_scan_result_t',['../structcy__wcm__scan__result__t.html',1,'']]],
+  ['cy_5fwcm_5fwlan_5fstatistics_5ft_16',['cy_wcm_wlan_statistics_t',['../structcy__wcm__wlan__statistics__t.html',1,'']]],
+  ['cy_5fwcm_5fwps_5fconfig_5ft_17',['cy_wcm_wps_config_t',['../structcy__wcm__wps__config__t.html',1,'']]],
+  ['cy_5fwcm_5fwps_5fcredential_5ft_18',['cy_wcm_wps_credential_t',['../structcy__wcm__wps__credential__t.html',1,'']]],
+  ['cy_5fwcm_5fwps_5fdevice_5fdetail_5ft_19',['cy_wcm_wps_device_detail_t',['../structcy__wcm__wps__device__detail__t.html',1,'']]]
 ];

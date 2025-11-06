@@ -9,5 +9,8 @@ var searchData=
   ['ip_5faddr_6',['ip_addr',['../unioncy__wcm__event__data__t.html#a9c8f9a98e351394d704d1796328ae466',1,'cy_wcm_event_data_t']]],
   ['ip_5faddress_7',['ip_address',['../structcy__wcm__ip__setting__t.html#aab6aea9cfd72daa55d92f86046e594dd',1,'cy_wcm_ip_setting_t']]],
   ['ip_5fsettings_8',['ip_settings',['../structcy__wcm__ap__config__t.html#a4d26be457ca32e36d8162c3eb347491b',1,'cy_wcm_ap_config_t']]],
-  ['itwt_5fprofile_9',['itwt_profile',['../structcy__wcm__connect__params__t.html#a4d1af16569a118b72286105234b63246',1,'cy_wcm_connect_params_t']]]
+  ['is_5fannounced_9',['is_announced',['../structcy__wcm__itwt__negotiated__params__t.html#a0ce91752543a17fba5787dffdc7455a1',1,'cy_wcm_itwt_negotiated_params_t']]],
+  ['is_5fimplicit_10',['is_implicit',['../structcy__wcm__itwt__negotiated__params__t.html#a95c96125e8b6214a4eff3e0737b153f1',1,'cy_wcm_itwt_negotiated_params_t']]],
+  ['is_5ftriggered_11',['is_triggered',['../structcy__wcm__itwt__negotiated__params__t.html#abd4ecfa618b89850b5415749bfb7c8f7',1,'cy_wcm_itwt_negotiated_params_t']]],
+  ['itwt_5fprofile_12',['itwt_profile',['../structcy__wcm__connect__params__t.html#a4d1af16569a118b72286105234b63246',1,'cy_wcm_connect_params_t']]]
 ];

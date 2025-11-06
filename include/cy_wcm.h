@@ -1,35 +1,32 @@
 /*
- * Copyright 2025, Cypress Semiconductor Corporation (an Infineon company) or
- * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
+ * (c) 2025, Infineon Technologies AG, or an affiliate of Infineon
+ * Technologies AG. All rights reserved.
+ * This software, associated documentation and materials ("Software") is
+ * owned by Infineon Technologies AG or one of its affiliates ("Infineon")
+ * and is protected by and subject to worldwide patent protection, worldwide
+ * copyright laws, and international treaty provisions. Therefore, you may use
+ * this Software only as provided in the license agreement accompanying the
+ * software package from which you obtained this Software. If no license
+ * agreement applies, then any use, reproduction, modification, translation, or
+ * compilation of this Software is prohibited without the express written
+ * permission of Infineon.
  *
- * This software, including source code, documentation and related
- * materials ("Software") is owned by Cypress Semiconductor Corporation
- * or one of its affiliates ("Cypress") and is protected by and subject to
- * worldwide patent protection (United States and foreign),
- * United States copyright laws and international treaty provisions.
- * Therefore, you may use this Software only as provided in the license
- * agreement accompanying the software package from which you
- * obtained this Software ("EULA").
- * If no EULA applies, Cypress hereby grants you a personal, non-exclusive,
- * non-transferable license to copy, modify, and compile the Software
- * source code solely for use in connection with Cypress's
- * integrated circuit products.  Any reproduction, modification, translation,
- * compilation, or representation of this Software except as specified
- * above is prohibited without the express written permission of Cypress.
- *
- * Disclaimer: THIS SOFTWARE IS PROVIDED AS-IS, WITH NO WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, NONINFRINGEMENT, IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. Cypress
- * reserves the right to make changes to the Software without notice. Cypress
- * does not assume any liability arising out of the application or use of the
- * Software or any product or circuit described in the Software. Cypress does
- * not authorize its products for use in any products where a malfunction or
- * failure of the Cypress product may reasonably be expected to result in
- * significant property damage, injury or death ("High Risk Product"). By
- * including Cypress's product in a High Risk Product, the manufacturer
- * of such system or application assumes all risk of such use and in doing
- * so agrees to indemnify Cypress against all liability.
-*/
+ * Disclaimer: UNLESS OTHERWISE EXPRESSLY AGREED WITH INFINEON, THIS SOFTWARE
+ * IS PROVIDED AS-IS, WITH NO WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING, BUT NOT LIMITED TO, ALL WARRANTIES OF NON-INFRINGEMENT OF
+ * THIRD-PARTY RIGHTS AND IMPLIED WARRANTIES SUCH AS WARRANTIES OF FITNESS FOR A
+ * SPECIFIC USE/PURPOSE OR MERCHANTABILITY.
+ * Infineon reserves the right to make changes to the Software without notice.
+ * You are responsible for properly designing, programming, and testing the
+ * functionality and safety of your intended application of the Software, as
+ * well as complying with any legal requirements related to its use. Infineon
+ * does not guarantee that the Software will be free from intrusion, data theft
+ * or loss, or other breaches ("Security Breaches"), and Infineon shall have
+ * no liability arising out of any Security Breaches. Unless otherwise
+ * explicitly approved by Infineon, the Software may not be used in any
+ * application where a failure of the Product or any consequences of the use
+ * thereof can reasonably be expected to result in personal injury.
+ */
 
 /**
 * @file cy_wcm.h
@@ -152,7 +149,6 @@ extern "C" {
 /** Maximum number of callbacks that can be registered with the WCM library. */
 #define CY_WCM_MAXIMUM_CALLBACKS_COUNT     (5)
 
-#ifdef COMPONENT_55900
 /**
  * Setup Command field (Table 9-262k)
  */
@@ -168,13 +164,12 @@ extern "C" {
 /**
  * Macros for TWT flow type
  */
-#define CY_WCM_TWT_FLOW_TYPE_ANNOUNCED        (0)
-#define CY_WCM_TWT_FLOW_TYPE_UNANNOUNCED      (1)
+#define CY_WCM_TWT_FLOW_TYPE_ANNOUNCED        (0)     /**< Announced TWT: Device sends a PS-Poll (Power Save-Poll) or trigger at the beginning of the TWT service period to inform the AP that it is ready to receive data. */
+#define CY_WCM_TWT_FLOW_TYPE_UNANNOUNCED      (1)     /**< Un-announced TWT: The AP can start transmitting data to the device within the TWT service period without first receiving a frame/trigger from the device. */
 /**
  * Macros for TWT flow ID
  */
-#define CY_WCM_TWT_FLOW_ID_ALL                (0xff)
-#endif
+#define CY_WCM_TWT_FLOW_ID_ALL                (0xff)  /**< Special flow ID to target all TWT sessions. */
 
 /** \} group_wcm_macros */
 
@@ -445,17 +440,15 @@ typedef enum
     CY_WCM_IE_MASK_CUSTOM         = 0x100 /**< Denotes mask for custom IE identifier.           */
 } cy_wcm_ie_mask_t;
 
-#ifdef COMPONENT_55900
 /**
  * Enumeration for TWT session state.
  */
 typedef enum {
-    CY_WCM_TWT_SESSION_STATE_INACTIVE,
-    CY_WCM_TWT_SESSION_STATE_SETUP_IN_PROGRESS,
-    CY_WCM_TWT_SESSION_STATE_SETUP_COMPLETE,
-    CY_WCM_TWT_SESSION_STATE_TEARDOWN_IN_PROGRESS,
+    CY_WCM_TWT_SESSION_STATE_INACTIVE,              /**< TWT session is not active or has been terminated. */
+    CY_WCM_TWT_SESSION_STATE_SETUP_IN_PROGRESS,     /**< TWT session setup is currently in progress. */
+    CY_WCM_TWT_SESSION_STATE_SETUP_COMPLETE,        /**< TWT session has been successfully established and is active. */
+    CY_WCM_TWT_SESSION_STATE_TEARDOWN_IN_PROGRESS,  /**< TWT session teardown is currently in progress. */
 } cy_wcm_twt_session_state_t;
-#endif
 
 /** \} group_wcm_enums */
 
@@ -687,7 +680,6 @@ typedef struct
     cy_wcm_custom_ie_info_t  *ie_info;            /**< Optional custom IE information to be added to the SoftAP. */
 } cy_wcm_ap_config_t;
 
-#ifdef COMPONENT_55900
 /**
  * Structure used to setup iTWT session.
  */
@@ -699,27 +691,26 @@ typedef struct
     uint8_t  flow_id;            /**< must be between 0 and 7. Set 0xFF for auto assignment */
     uint8_t  wake_duration;      /**< TWT wake duration (in multiple units of 256 usec). Eg: 1 for 256 usec, 2 for 512 usec, etc */
     uint8_t  exponent;           /**< Used to compute TWT wake interval */
-    uint16_t mantissa;          /**< Used to compute TWT wake interval */
-    uint32_t wake_time_h;       /**< target wake time - BSS TSF (us) */
-    uint32_t wake_time_l;
+    uint16_t mantissa;           /**< Used to compute TWT wake interval */
+    uint32_t wake_time_h;        /**< target wake time - BSS TSF (us) */
+    uint32_t wake_time_l;        /**< target wake time - BSS TSF (us) lower 32 bits */
 } cy_wcm_itwt_setup_params_t;
 
 /**
  * Structure used to get ongoing iTWT session parameters from WHD.
  */
 typedef struct {
-    cy_wcm_twt_session_state_t  session_state;      /* Current state of the TWT session. */
-    uint8_t                     flow_id;            /* The identifier for the established TWT flow (0-7). */
-    uint8_t                     dialog_token;       /* The dialog token used for the setup request. */
-    cy_wcm_mac_t                peer_mac;           /* MAC address of the TWT peer (the AP). */
-    uint64_t                    target_wake_time;   /* The target wake time in microseconds (from TSF). */
-    uint32_t                    wake_duration;      /* The negotiated wake duration in microseconds. */
-    uint32_t                    wake_interval;      /* The negotiated wake interval in microseconds. */
-    bool                        is_implicit;        /* True for an Implicit TWT agreement. */
-    bool                        is_triggered;       /* True for a Trigger-based TWT session. */
-    bool                        is_announced;       /* True for an Announced (protected) TWT session. */
+    cy_wcm_twt_session_state_t  session_state;      /**< Current state of the TWT session. */
+    uint8_t                     flow_id;            /**< The identifier for the established TWT flow (0-7). */
+    uint8_t                     dialog_token;       /**< The dialog token used for the setup request. */
+    cy_wcm_mac_t                peer_mac;           /**< MAC address of the TWT peer (the AP). */
+    uint64_t                    target_wake_time;   /**< The target wake time in microseconds (from TSF). */
+    uint32_t                    wake_duration;      /**< The negotiated wake duration in microseconds. */
+    uint32_t                    wake_interval;      /**< The negotiated wake interval in microseconds. */
+    bool                        is_implicit;        /**< True for an Implicit TWT agreement. */
+    bool                        is_triggered;       /**< True for a Trigger-based TWT session. */
+    bool                        is_announced;       /**< True for an Announced (protected) TWT session. */
 } cy_wcm_itwt_negotiated_params_t;
-#endif
 
 /** \} group_wcm_structures */
 
@@ -1088,25 +1079,36 @@ cy_rslt_t cy_wcm_set_ap_ip_setting(cy_wcm_ip_setting_t *ap_ip, const char *ip_ad
  */
 cy_rslt_t cy_wcm_allow_low_power_mode(cy_wcm_powersave_mode_t mode);
 
-#ifdef COMPONENT_55900
 /**
- * Enable the iTWT session
- * Note: iTWT feature is supported only on CYW955913EVK-01
+ * Enable the iTWT session.
+ * @param[in] itwt_params : Pointer to the iTWT setup parameters. Refer to \ref cy_wcm_itwt_setup_params_t for details.
+ * 
+ * @return CY_RSLT_SUCCESS if the iTWT session is successfully setup; returns \ref cy_wcm_error otherwise.
+ * 
+ * Note: iTWT feature is supported only on CYW955913EVK-01 Wi-Fi Bluetooth&reg; Prototyping Kit (CYW955913EVK-01).
  */
 cy_rslt_t cy_wcm_sta_itwt_setup(cy_wcm_itwt_setup_params_t *itwt_params);
 
 /**
- * Teardown/Disable the iTWT session
- * Note: iTWT feature is supported only on CYW955913EVK-01
+ * Teardown/Disable the iTWT session.
+ * @param[in] flow_id : Flow ID of the iTWT session to be torn down. Valid values are between 0 and 7. To teardown all sessions, 0xFF can be passed.
+ * @param[in] all_twt : If true, all the iTWT sessions will be torn down. If false, only the session with the given flow_id will be torn down.
+ * 
+ * @return CY_RSLT_SUCCESS if the iTWT session is successfully torn down; returns \ref cy_wcm_error otherwise.
+ * 
+ * Note: iTWT feature is supported only on CYW955913EVK-01 Wi-Fi Bluetooth&reg; Prototyping Kit (CYW955913EVK-01).
  */
 cy_rslt_t cy_wcm_sta_itwt_teardown(uint8_t flow_id, bool all_twt);
 
 /**
  * Get the session parameters for already established iTWT session.
- * Note: iTWT feature is supported only on CYW955913EVK-01
+ * @param[out] negotiated_params : Pointer to the structure which will be filled with the negotiated iTWT session parameters. Refer to \ref cy_wcm_itwt_negotiated_params_t for details.
+ * 
+ * @return CY_RSLT_SUCCESS if the iTWT session parameters are successfully retrieved; returns \ref cy_wcm_error otherwise.
+ * 
+ * Note: iTWT feature is supported only on CYW955913EVK-01 Wi-Fi Bluetooth&reg; Prototyping Kit (CYW955913EVK-01).
  */
 cy_rslt_t cy_wcm_sta_itwt_get_session_info(cy_wcm_itwt_negotiated_params_t *negotiated_params);
-#endif
 
 /** \} group_wcm_functions */
 

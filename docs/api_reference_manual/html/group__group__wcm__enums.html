@@ -392,6 +392,18 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:gac880508299364d38baeb869c761bc695"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enumeration of applicable packet mask bits for custom information elements (IEs)  <a href="group__group__wcm__enums.html#gac880508299364d38baeb869c761bc695">More...</a><br /></td></tr>
 <tr class="separator:gac880508299364d38baeb869c761bc695"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf84d04e8843b742a26de07e4a3a2f4fa"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__group__wcm__enums.html#gaf84d04e8843b742a26de07e4a3a2f4fa">cy_wcm_twt_session_state_t</a> { <br />
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#ggaf84d04e8843b742a26de07e4a3a2f4faa3200c8028070b9e99b3a7618977a46aa">CY_WCM_TWT_SESSION_STATE_INACTIVE</a>
+, <br />
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#ggaf84d04e8843b742a26de07e4a3a2f4faa9838e98e61b08ba114a026b65ce76782">CY_WCM_TWT_SESSION_STATE_SETUP_IN_PROGRESS</a>
+, <br />
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#ggaf84d04e8843b742a26de07e4a3a2f4faae605d1bd261c5fe4ccce13191cbd4ba4">CY_WCM_TWT_SESSION_STATE_SETUP_COMPLETE</a>
+, <br />
+&#160;&#160;<a class="el" href="group__group__wcm__enums.html#ggaf84d04e8843b742a26de07e4a3a2f4faa33a04ede825019747bd9f4f41d24d2df">CY_WCM_TWT_SESSION_STATE_TEARDOWN_IN_PROGRESS</a>
+<br />
+ }</td></tr>
+<tr class="memdesc:gaf84d04e8843b742a26de07e4a3a2f4fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enumeration for TWT session state.  <a href="group__group__wcm__enums.html#gaf84d04e8843b742a26de07e4a3a2f4fa">More...</a><br /></td></tr>
+<tr class="separator:gaf84d04e8843b742a26de07e4a3a2f4fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
 <a id="ga24d3def17207a3c64b62fb4b8a44a7fc" name="ga24d3def17207a3c64b62fb4b8a44a7fc"></a>
@@ -1058,6 +1070,32 @@ Enumerations</h2></td></tr>
 <tr><td class="fieldname"><a id="ggac880508299364d38baeb869c761bc695a5a9943659b2c2a8c85a609e767af7f86" name="ggac880508299364d38baeb869c761bc695a5a9943659b2c2a8c85a609e767af7f86"></a>CY_WCM_IE_MASK_CUSTOM&#160;</td><td class="fielddoc"><p >Denotes mask for custom IE identifier. </p>
 <p ><br  />
  </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="gaf84d04e8843b742a26de07e4a3a2f4fa" name="gaf84d04e8843b742a26de07e4a3a2f4fa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaf84d04e8843b742a26de07e4a3a2f4fa">&#9670;&nbsp;</a></span>cy_wcm_twt_session_state_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__group__wcm__enums.html#gaf84d04e8843b742a26de07e4a3a2f4fa">cy_wcm_twt_session_state_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Enumeration for TWT session state. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggaf84d04e8843b742a26de07e4a3a2f4faa3200c8028070b9e99b3a7618977a46aa" name="ggaf84d04e8843b742a26de07e4a3a2f4faa3200c8028070b9e99b3a7618977a46aa"></a>CY_WCM_TWT_SESSION_STATE_INACTIVE&#160;</td><td class="fielddoc"><p >TWT session is not active or has been terminated. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggaf84d04e8843b742a26de07e4a3a2f4faa9838e98e61b08ba114a026b65ce76782" name="ggaf84d04e8843b742a26de07e4a3a2f4faa9838e98e61b08ba114a026b65ce76782"></a>CY_WCM_TWT_SESSION_STATE_SETUP_IN_PROGRESS&#160;</td><td class="fielddoc"><p >TWT session setup is currently in progress. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggaf84d04e8843b742a26de07e4a3a2f4faae605d1bd261c5fe4ccce13191cbd4ba4" name="ggaf84d04e8843b742a26de07e4a3a2f4faae605d1bd261c5fe4ccce13191cbd4ba4"></a>CY_WCM_TWT_SESSION_STATE_SETUP_COMPLETE&#160;</td><td class="fielddoc"><p >TWT session has been successfully established and is active. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggaf84d04e8843b742a26de07e4a3a2f4faa33a04ede825019747bd9f4f41d24d2df" name="ggaf84d04e8843b742a26de07e4a3a2f4faa33a04ede825019747bd9f4f41d24d2df"></a>CY_WCM_TWT_SESSION_STATE_TEARDOWN_IN_PROGRESS&#160;</td><td class="fielddoc"><p >TWT session teardown is currently in progress. </p>
 </td></tr>
 </table>
 

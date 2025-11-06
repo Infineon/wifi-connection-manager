@@ -149,5 +149,11 @@ var group__group__wcm__enums =
       [ "CY_WCM_IE_MASK_PROBE_REQUEST", "group__group__wcm__enums.html#ggac880508299364d38baeb869c761bc695a41547feec293e037c4ee8b7caf7c9e45", null ],
       [ "CY_WCM_IE_MASK_ASSOC_REQUEST", "group__group__wcm__enums.html#ggac880508299364d38baeb869c761bc695ab592236c8a899e0c8326e030cda107fa", null ],
       [ "CY_WCM_IE_MASK_CUSTOM", "group__group__wcm__enums.html#ggac880508299364d38baeb869c761bc695a5a9943659b2c2a8c85a609e767af7f86", null ]
+    ] ],
+    [ "cy_wcm_twt_session_state_t", "group__group__wcm__enums.html#gaf84d04e8843b742a26de07e4a3a2f4fa", [
+      [ "CY_WCM_TWT_SESSION_STATE_INACTIVE", "group__group__wcm__enums.html#ggaf84d04e8843b742a26de07e4a3a2f4faa3200c8028070b9e99b3a7618977a46aa", null ],
+      [ "CY_WCM_TWT_SESSION_STATE_SETUP_IN_PROGRESS", "group__group__wcm__enums.html#ggaf84d04e8843b742a26de07e4a3a2f4faa9838e98e61b08ba114a026b65ce76782", null ],
+      [ "CY_WCM_TWT_SESSION_STATE_SETUP_COMPLETE", "group__group__wcm__enums.html#ggaf84d04e8843b742a26de07e4a3a2f4faae605d1bd261c5fe4ccce13191cbd4ba4", null ],
+      [ "CY_WCM_TWT_SESSION_STATE_TEARDOWN_IN_PROGRESS", "group__group__wcm__enums.html#ggaf84d04e8843b742a26de07e4a3a2f4faa33a04ede825019747bd9f4f41d24d2df", null ]
     ] ]
 ];
