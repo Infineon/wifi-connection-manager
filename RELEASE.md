@@ -16,6 +16,10 @@ See the [README.md](./README.md) for a complete description of the Wi-Fi Connect
 
 ## Changelog
 
+### v4.1.0
+
+- Enabled WPA3-192bit enterprise support for PSOC&trade; Edge E84 (PSE84) platform
+
 ### v4.0.1
 
 - Minor bug fix

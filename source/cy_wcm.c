@@ -3196,7 +3196,7 @@ static bool check_wcm_security(cy_wcm_security_t sec)
 #ifdef COMPONENT_WIFI6
         case CY_WCM_SECURITY_OWE:
 #endif
-#ifdef COMPONENT_55900
+#if defined(COMPONENT_55900) || defined(COMPONENT_PSE84)
         case CY_WCM_SECURITY_WPA3_192BIT_ENT:
         case CY_WCM_SECURITY_WPA3_ENT:
         case CY_WCM_SECURITY_WPA3_ENT_AES_CCMP:
@@ -3540,7 +3540,7 @@ static void* link_events_handler(whd_interface_t ifp, const whd_event_header_t *
 #ifdef COMPONENT_WIFI6
                     case WHD_SECURITY_WPA3_OWE:
 #endif
-#ifdef COMPONENT_55900
+#if defined(COMPONENT_55900) || defined(COMPONENT_PSE84)
                     case WHD_SECURITY_WPA3_192BIT_ENT:
                     case WHD_SECURITY_WPA3_ENT_AES_CCMP:
                     case WHD_SECURITY_WPA3_ENT:
@@ -3905,7 +3905,7 @@ static void sta_link_down_handler(void* arg)
 static void hanshake_retry_timer(cy_timer_callback_arg_t arg)
 {
     UNUSED_PARAMETER(arg);
-#ifdef COMPONENT_55900
+#if defined(COMPONENT_55900) || defined(COMPONENT_PSE84)
     cy_rslt_t result;
     result = cy_worker_thread_enqueue(&cy_wcm_worker_thread, handshake_error_callback, NULL);
     if (result != CY_RSLT_SUCCESS)
@@ -4385,7 +4385,7 @@ static whd_security_t wcm_to_whd_security(cy_wcm_security_t sec)
         case CY_WCM_SECURITY_WPA2_AES_ENT:
             return WHD_SECURITY_WPA2_AES_ENT;
 
-#ifdef COMPONENT_55900
+#if defined(COMPONENT_55900) || defined(COMPONENT_PSE84)
         case CY_WCM_SECURITY_WPA3_ENT:
             return WHD_SECURITY_WPA3_ENT;
 
@@ -4482,7 +4482,7 @@ cy_wcm_security_t whd_to_wcm_security(whd_security_t sec)
         case WHD_SECURITY_WPA2_AES_ENT:
             return CY_WCM_SECURITY_WPA2_AES_ENT;
 
-#ifdef COMPONENT_55900
+#if defined(COMPONENT_55900) || defined(COMPONENT_PSE84)
         case WHD_SECURITY_WPA3_192BIT_ENT:
             return CY_WCM_SECURITY_WPA3_192BIT_ENT;
 
@@ -4814,7 +4814,7 @@ static bool check_if_ent_auth_types(cy_wcm_security_t auth_type)
        (auth_type == CY_WCM_SECURITY_WPA_MIXED_ENT) || (auth_type == CY_WCM_SECURITY_WPA2_TKIP_ENT) ||
        (auth_type == CY_WCM_SECURITY_WPA2_AES_ENT) || (auth_type == CY_WCM_SECURITY_WPA2_MIXED_ENT) ||
        (auth_type == CY_WCM_SECURITY_WPA2_FBT_ENT)
-#ifdef COMPONENT_55900
+#if defined(COMPONENT_55900) || defined(COMPONENT_PSE84)
        || (auth_type == CY_WCM_SECURITY_WPA3_ENT)
        || (auth_type == CY_WCM_SECURITY_WPA3_192BIT_ENT)
        || (auth_type == CY_WCM_SECURITY_WPA3_ENT_AES_CCMP)
